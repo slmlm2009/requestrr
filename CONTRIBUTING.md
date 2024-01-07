@@ -24,7 +24,7 @@ All help is welcome and greatly appreciated! If you would like to contribute to 
 2. Add the remote `upstream`:
 
    ```bash
-   git remote add upstream https://github.com/darkalfx/requestrr
+   git remote add upstream https://github.com/thomst08/requestrr
    ```
 
 3. Create a new branch:
@@ -66,7 +66,7 @@ All help is welcome and greatly appreciated! If you would like to contribute to 
 
 ### Contributing Code
 
-- If you are taking on an existing bug or feature ticket, please comment on the [issue](https://github.com/darkalfx/requestrr/issues) to avoid multiple people working on the same thing.
+- If you are taking on an existing bug or feature ticket, please comment on the [issue](https://github.com/thomst08/requestrr/issues) to avoid multiple people working on the same thing.
 - All commits **must** follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
   - It is okay to squash your pull request down into a single commit that fits this standard.
   - Pull requests with commits not following this standard will **not** be merged.

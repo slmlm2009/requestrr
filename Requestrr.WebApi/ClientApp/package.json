@@ -1,6 +1,6 @@
 {
   "name": "requestrr",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Requestrr is a server designed to faciliate the request of media through chat applications.",
   "main": "index.js",
   "author": "Darkalfx",

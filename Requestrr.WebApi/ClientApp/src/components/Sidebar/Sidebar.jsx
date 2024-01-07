@@ -177,16 +177,16 @@ function Sidebar(props) {
           <h6 className="navbar-heading text-muted">Support</h6>
           <ul className="mb-md-3 navbar-nav">
             <li className="nav-item">
-              <a className="nav-link" target="_blank" href="https://github.com/darkalfx/requestrr/wiki"><i className="fas big fa-book" style={{ color: 'darkgreen' }}></i>Wiki</a>
+              <a className="nav-link" target="_blank" href="https://github.com/thomst08/requestrr/wiki"><i className="fas big fa-book" style={{ color: 'darkgreen' }}></i>Wiki</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" target="_blank" href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ELFGQ65FJFPVQ&currency_code=CAD&source=url"><i className="fas big fa-heart text-red"></i>Donate</a>
+              <a className="nav-link" target="_blank" href="https://www.paypal.com/donate/?business=QT2Y72ABMYJNG&no_recurring=0&currency_code=AUD"><i className="fas big fa-heart text-red"></i>Donate</a>
             </li>
             <li className="nav-item">
               <a className="nav-link" target="_blank" href="https://discord.gg/ATCM64M"><i className="fab big fa-discord" style={{ color: '#7289DA' }}></i>Discord</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" target="_blank" href="https://github.com/darkalfx/requestrr/issues"><i className="fab big fa-github" style={{ color: 'black' }} ></i>Github</a>
+              <a className="nav-link" target="_blank" href="https://github.com/thomst08/requestrr/issues"><i className="fab big fa-github" style={{ color: 'black' }} ></i>Github</a>
             </li>
           </ul>
         </Collapse>
