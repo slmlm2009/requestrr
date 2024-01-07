@@ -38,7 +38,7 @@ Open a command prompt/terminal and then use the following command create and sta
       -p 4545:4545 \
       -v path to config:/root/config \
       --restart=unless-stopped \
-      darkalfx/requestrr
+      thomst08/requestrr
 ```
 
 You can also choose to run the container as a different user. See [docker run](https://docs.docker.com/engine/reference/run/#user) reference for how to set the user for your container.
