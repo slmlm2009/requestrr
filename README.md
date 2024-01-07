@@ -1,5 +1,5 @@
 [![Paypal](https://img.shields.io/badge/Paypal-Donate-success?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate/?business=QT2Y72ABMYJNG&no_recurring=0&currency_code=AUD) 
-[![Discord](https://img.shields.io/discord/674782527139086350?color=7289DA&label=Discord&style=for-the-badge&logo=discord)](https://discord.gg/ATCM64M)
+[![Discord](https://img.shields.io/discord/674782527139086350?color=7289DA&label=Discord&style=for-the-badge&logo=discord)](https://discord.gg/atjrUen5fJ)
 [![DockerHub](https://img.shields.io/badge/Docker-Hub-%23099cec?style=for-the-badge&logo=docker)](https://hub.docker.com/r/thomst08/requestrr)
 [![DockerHub](https://img.shields.io/badge/GitHub-Repo-lightgrey?style=for-the-badge&logo=github)](https://github.com/thomst08/requestrr/)
 
@@ -21,12 +21,15 @@ Requestrr is a chatbot used to simplify using services like Sonarr/Radarr/Overse
 - Ombi V3 integration with support for per user roles/quotas
 - Fully configurable via a web portal
 
+<br />
 
 Installation & Configuration
 ==================
 
 Refer to the Wiki for detailed steps:
 https://github.com/thomst08/requestrr/wiki
+
+<br />
 
 Docker Setup & Start
 ==================
@@ -46,6 +49,8 @@ You can also choose to run the container as a different user. See [docker run](h
 Then simply access the web portal at http://youraddress:4545/ to create your admin account, then you can configure everything through the web portal.
 
 Once you have configured the bot and invited it to your Discord server, simply type **/help** to see all available commands.
+
+<br />
 
 Build Instructions
 ==================
@@ -72,3 +77,11 @@ To ignore, add // eslint-disable-next-line to the line before.
 ```
 
 * In directory [Requestrr.WebApi](Requestrr.WebApi) run `dotnet publish -c release -o publish -r linux-x64`.
+
+<br>
+
+Thank you list
+==============
+
+Thank you goes out to the following people:
+- [@darkalfx]( https://github.com/darkalfx ) - Creator of Requestrr, without this person, Requestrr would not exist.
