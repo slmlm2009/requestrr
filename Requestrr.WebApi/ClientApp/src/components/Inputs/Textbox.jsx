@@ -21,6 +21,8 @@ function TextboxTest(props) {
   useEffect(() => {
     if (value !== props.value)
       setValue(props.value);
+
+    setHasValueChanged(false);
   }, [props]);
 
 
