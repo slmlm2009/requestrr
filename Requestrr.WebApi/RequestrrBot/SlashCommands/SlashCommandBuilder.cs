@@ -72,7 +72,7 @@ namespace Requestrr.WebApi.RequestrrBot
                 dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
                 tmpDirectory = dirInfo.EnumerateDirectories().Where(x => x.Name == "tmp").Single().FullName;
             }
-            
+
             string path = Path.Combine(tmpDirectory, fileName);
 
             var compilationResult = compilation.Emit(path);
@@ -239,6 +239,10 @@ namespace Requestrr.WebApi.RequestrrBot
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
                 }
+                else if (overseerrSettings.UseMovieIssue && settings.MovieDownloadClient == DownloadClient.Overseerr && overseerrSettings.Movies.Categories.Any())
+                {
+                    code = GenerateMovieIssueCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code);
+                }
 
                 if(!overseerrSettings.UseTVIssue || settings.TvShowDownloadClient != DownloadClient.Overseerr)
                 {
@@ -248,6 +252,11 @@ namespace Requestrr.WebApi.RequestrrBot
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
                 }
+                else if (overseerrSettings.UseTVIssue && settings.TvShowDownloadClient == DownloadClient.Overseerr && overseerrSettings.TvShows.Categories.Any())
+                {
+                    code = GenerateTvShowIssueCategories(overseerrSettings.TvShows.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code);
+                }
+
 
                 code = code.Replace("[ISSUE_MOVIE_COMMAND_START]", string.Empty);
                 code = code.Replace("[ISSUE_MOVIE_COMMAND_END]", string.Empty);
@@ -290,6 +299,35 @@ namespace Requestrr.WebApi.RequestrrBot
             return code.Replace(code.Substring(beginIndex, endIndex - beginIndex), sb.ToString());
         }
 
+
+        private static string GenerateMovieIssueCategories(Category[] categories, string code)
+        {
+            var beginIndex = code.IndexOf("[ISSUE_MOVIE_COMMAND_START]");
+            var endIndex = code.IndexOf("[ISSUE_MOVIE_COMMAND_END]") + "[ISSUE_MOVIE_COMMAND_END]".Length;
+            var categoryCommandTemplate = code.Substring(beginIndex, endIndex - beginIndex);
+            categoryCommandTemplate = categoryCommandTemplate.Replace("[ISSUE_MOVIE_COMMAND_START]", string.Empty);
+            categoryCommandTemplate = categoryCommandTemplate.Replace("[ISSUE_MOVIE_COMMAND_END]", string.Empty);
+
+            var tmdbStartIndex = categoryCommandTemplate.IndexOf("[ISSUE_TMDB_COMMAND_START]");
+            var tmdbEndIndex = categoryCommandTemplate.IndexOf("[ISSUE_TMDB_COMMAND_END]") + "[ISSUE_TMDB_COMMAND_END]".Length;
+            categoryCommandTemplate = categoryCommandTemplate.Replace(categoryCommandTemplate.Substring(tmdbStartIndex, tmdbEndIndex - tmdbStartIndex), string.Empty);
+
+            var sb = new StringBuilder();
+
+            foreach (var category in categories)
+            {
+                var currentTemplate = categoryCommandTemplate;
+                currentTemplate = currentTemplate.Replace("[MOVIE_CATEGORY_ID]", category.Id.ToString());
+                currentTemplate = currentTemplate.Replace("[ISSUE_MOVIE_TITLE_NAME]", category.Name);
+                currentTemplate = currentTemplate.Replace("[ISSUE_MOVIE_TMDB_NAME]", $"{category.Name}-tmdb");
+
+                sb.Append(currentTemplate);
+            }
+
+            return code.Replace(code.Substring(beginIndex, endIndex - beginIndex), sb.ToString());
+        }
+
+
         private static string GenerateTvShowCategories(Category[] categories, string code)
         {
             var beginIndex = code.IndexOf("[TV_COMMAND_START]");
@@ -316,6 +354,35 @@ namespace Requestrr.WebApi.RequestrrBot
 
             return code.Replace(code.Substring(beginIndex, endIndex - beginIndex), sb.ToString());
         }
+
+
+        private static string GenerateTvShowIssueCategories(Category[] categories, string code)
+        {
+            var beginIndex = code.IndexOf("[ISSUE_TV_COMMAND_START]");
+            var endIndex = code.IndexOf("[ISSUE_TV_COMMAND_END]") + "[ISSUE_TV_COMMAND_END]".Length;
+            var categoryCommandTemplate = code.Substring(beginIndex, endIndex - beginIndex);
+            categoryCommandTemplate = categoryCommandTemplate.Replace("[ISSUE_TV_COMMAND_START]", string.Empty);
+            categoryCommandTemplate = categoryCommandTemplate.Replace("[ISSUE_TV_COMMAND_END]", string.Empty);
+
+            var tvdbStartIndex = categoryCommandTemplate.IndexOf("[ISSUE_TVDB_COMMAND_START]");
+            var tvdbEndIndex = categoryCommandTemplate.IndexOf("[ISSUE_TVDB_COMMAND_END]") + "[ISSUE_TVDB_COMMAND_END]".Length;
+            categoryCommandTemplate = categoryCommandTemplate.Replace(categoryCommandTemplate.Substring(tvdbStartIndex, tvdbEndIndex - tvdbStartIndex), string.Empty);
+
+            var sb = new StringBuilder();
+
+            foreach (var category in categories)
+            {
+                var currentTemplate = categoryCommandTemplate;
+                currentTemplate = currentTemplate.Replace("[TV_CATEGORY_ID]", category.Id.ToString());
+                currentTemplate = currentTemplate.Replace("[ISSUE_TV_TITLE_NAME]", category.Name);
+                currentTemplate = currentTemplate.Replace("[ISSUE_TV_TVDB_NAME]", $"{category.Name}-tvdb");
+
+                sb.Append(currentTemplate);
+            }
+
+            return code.Replace(code.Substring(beginIndex, endIndex - beginIndex), sb.ToString());
+        }
+
 
         public static void CleanUp()
         {

@@ -154,7 +154,7 @@ namespace Requestrr.WebApi.RequestrrBot
             }
         }
 
-        
+
         [ISSUE_COMMAND_START]
         [SlashCommandGroup("[ISSUE_GROUP_NAME]", "[ISSUE_GROUP_DESCRIPTION]")]
         public class ReportGroup : ApplicationCommandModule
@@ -211,8 +211,8 @@ namespace Requestrr.WebApi.RequestrrBot
             }
             [ISSUE_TMDB_COMMAND_END]
             [ISSUE_MOVIE_COMMAND_END]
-            
-            
+
+
             [ISSUE_TV_COMMAND_START]
             [SlashCommand("[ISSUE_TV_TITLE_NAME]", "[ISSUE_TV_TITLE_DESCRIPTION]")]
             [RequireRoles(new ulong[] { [REQUIRED_TV_ROLE_IDS] })]
