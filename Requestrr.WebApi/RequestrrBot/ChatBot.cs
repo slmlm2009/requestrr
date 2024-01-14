@@ -159,7 +159,21 @@ namespace Requestrr.WebApi.RequestrrBot
                     _client.ModalSubmitted += DiscordModalSubmittedHandler;
 
                     _currentGuilds = new HashSet<ulong>();
-                    await _client.ConnectAsync();
+
+                    try
+                    {
+                        await _client.ConnectAsync();
+                    }
+                    catch(Exception ex) when (ex.InnerException is DSharpPlus.Exceptions.UnauthorizedException)
+                    {
+                        _logger.LogError("Discord token is incorrect, please cehck your token settings.");
+                        _client = null;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Error connecting to Discord, error: {ex.Message}");
+                        _client = null;
+                    }
                 }
 
                 if (_client != null)
