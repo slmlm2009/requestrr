@@ -432,11 +432,11 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             {
                 if (!title.Contains(releaseYear, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return $"{title} ({releaseYear})";
+                    return $"{(title.Count() > 93 ? title[..90] + "..." : title)} ({releaseYear})";
                 }
             }
 
-            return title;
+            return title.Count() > 97 ? title[..97] + "..." : title;
         }
 
         private string GetFormattedSeasonName(TvShow tvShow, TvSeason season)

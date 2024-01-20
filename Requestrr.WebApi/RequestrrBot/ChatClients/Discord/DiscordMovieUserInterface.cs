@@ -53,10 +53,10 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
             if (releaseDate != null)
             {
-                return $"{movie.Title} ({releaseDate})";
+                return $"{(movie.Title.Count() > 93 ? movie.Title[..90] + "..." : movie.Title)} ({releaseDate})";
             }
 
-            return movie.Title;
+            return movie.Title.Count() > 100 ? movie.Title[..97] + "..." : movie.Title;
         }
 
         public async Task WarnNoMovieFoundAsync(string movieName)
