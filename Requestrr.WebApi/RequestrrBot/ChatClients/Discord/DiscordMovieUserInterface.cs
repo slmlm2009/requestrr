@@ -41,7 +41,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         private async Task MovieSelection(string customId, MovieRequest request, IReadOnlyList<Movie> movies)
         {
             var options = movies.Take(15).Select(x => new DiscordSelectComponentOption(GetFormatedMovieTitle(x), $"{request.CategoryId}/{x.TheMovieDbId}")).ToList();
-            var select = new DiscordSelectComponent($"{customId}/{_interactionContext.User.Id}/{request.CategoryId}", Language.Current.DiscordCommandMovieRequestHelpDropdown, options);
+            var select = new DiscordSelectComponent($"{customId}/{_interactionContext.User.Id}/{request.CategoryId}", LimitStringSize(Language.Current.DiscordCommandMovieRequestHelpDropdown), options);
 
             await _interactionContext.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddComponents(select).WithContent(Language.Current.DiscordCommandMovieRequestHelp));
         }
@@ -53,10 +53,16 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
             if (releaseDate != null)
             {
-                return $"{(movie.Title.Count() > 93 ? movie.Title[..90] + "..." : movie.Title)} ({releaseDate})";
+                return $"{LimitStringSize(movie.Title, 93)} ({releaseDate})";
             }
 
-            return movie.Title.Count() > 100 ? movie.Title[..97] + "..." : movie.Title;
+            return LimitStringSize(movie.Title);
+        }
+
+
+        private string LimitStringSize(string value, int limit = 100)
+        {
+            return value.Count() > limit ? value[..(limit - 3)] + "..." : value;
         }
 
         public async Task WarnNoMovieFoundAsync(string movieName)
@@ -110,8 +116,8 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             string message = Language.Current.DiscordCommandMovieIssueSelect;
 
             //Setup the dropdown of issues
-            var options = ((IMovieIssueSearcher)_movieSearcher).IssueTypes.Select(x => new DiscordSelectComponentOption(x, $"{request.CategoryId}/{movie.TheMovieDbId}/{x}", null, x == issue)).ToList();
-            DiscordSelectComponent select = new DiscordSelectComponent($"MIRS/{_interactionContext.User.Id}/{request.CategoryId}/{movie.TheMovieDbId}", Language.Current.DiscordCommandIssueHelpDropdown, options);
+            var options = ((IMovieIssueSearcher)_movieSearcher).IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x), $"{request.CategoryId}/{movie.TheMovieDbId}/{x}", null, x == issue)).ToList();
+            DiscordSelectComponent select = new DiscordSelectComponent($"MIRS/{_interactionContext.User.Id}/{request.CategoryId}/{movie.TheMovieDbId}", LimitStringSize(Language.Current.DiscordCommandIssueHelpDropdown), options);
 
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder().AddEmbed(await GenerateMovieDetailsAsync(movie, _movieSearcher));
             if ((await _interactionContext.GetOriginalResponseAsync()).Components.Where(x => x.Components.Where(y => y.GetType() == typeof(DiscordSelectComponent)).ToList().Count > 0).ToList().Count > 1)

@@ -59,7 +59,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         {
             var embed = GenerateTvShowDetailsAsync(tvShow);
             var options = tvSeasons.Select(x => new DiscordSelectComponentOption(GetFormattedSeasonName(tvShow, x), $"{request.CategoryId}/{tvShow.TheTvDbId.ToString()}/{x.SeasonNumber.ToString()}")).ToList();
-            var seasonSelector = new DiscordSelectComponent($"TSS/{_interactionContext.User.Id}/{request.CategoryId}", Language.Current.DiscordCommandTvRequestHelpSeasonsDropdown, options);
+            var seasonSelector = new DiscordSelectComponent($"TSS/{_interactionContext.User.Id}/{request.CategoryId}", LimitStringSize(Language.Current.DiscordCommandTvRequestHelpSeasonsDropdown), options);
 
             var builder = (await AddPreviousDropdownsAsync(tvShow, new DiscordWebhookBuilder().AddEmbed(embed))).AddComponents(seasonSelector).WithContent(Language.Current.DiscordCommandTvRequestHelpSeasons);
             await _interactionContext.EditOriginalResponseAsync(builder);
@@ -171,8 +171,8 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             var message = Language.Current.DiscordCommandTvIssueSelect;
 
             //Setup the dropdown of issues
-            var options = _tvShowIssue.IssueTypes.Select(x => new DiscordSelectComponentOption(x, $"{request.CategoryId}/{tvShow.TheTvDbId}/{x}", null, x == issue)).ToList();
-            DiscordSelectComponent select = new DiscordSelectComponent($"TIRS/{_interactionContext.User.Id}/{request.CategoryId}/{tvShow.TheTvDbId}", Language.Current.DiscordCommandIssueHelpDropdown, options);
+            var options = _tvShowIssue.IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x), $"{request.CategoryId}/{tvShow.TheTvDbId}/{x}", null, x == issue)).ToList();
+            DiscordSelectComponent select = new DiscordSelectComponent($"TIRS/{_interactionContext.User.Id}/{request.CategoryId}/{tvShow.TheTvDbId}", LimitStringSize(Language.Current.DiscordCommandIssueHelpDropdown), options);
 
 
             var embed = GenerateTvShowDetailsAsync(tvShow);
@@ -260,7 +260,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         private async Task TvShowSelection(string customId, TvShowRequest request, IReadOnlyList<SearchedTvShow> searchedTvShows)
         {
             var options = searchedTvShows.Take(15).Select(x => new DiscordSelectComponentOption(GetFormatedTvShowTitle(x), $"{request.CategoryId}/{x.TheTvDbId.ToString()}")).ToList();
-            var select = new DiscordSelectComponent($"{customId}/{_interactionContext.User.Id}/{request.CategoryId}", Language.Current.DiscordCommandTvRequestHelpSearchDropdown, options);
+            var select = new DiscordSelectComponent($"{customId}/{_interactionContext.User.Id}/{request.CategoryId}", LimitStringSize(Language.Current.DiscordCommandTvRequestHelpSearchDropdown), options);
 
             await _interactionContext.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddComponents(select).WithContent(Language.Current.DiscordCommandTvRequestHelpSearch));
         }
@@ -393,7 +393,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                         var newOptions = tvShow.Seasons.Select(x => new DiscordSelectComponentOption(GetFormattedSeasonName(tvShow, x), $"{tvShow.TheTvDbId.ToString()}/{x.SeasonNumber.ToString()}")).ToDictionary(x => x.Value, x => x);
                         var oldOptions = previousSeasonSelector.Options;
 
-                        var currentOptions = oldOptions.Select(x => new DiscordSelectComponentOption(newOptions.ContainsKey(x.Value) ? newOptions[x.Value].Label : x.Label, x.Value)).ToList();
+                        var currentOptions = oldOptions.Select(x => new DiscordSelectComponentOption(newOptions.ContainsKey(x.Value) ? LimitStringSize(newOptions[x.Value].Label) : LimitStringSize(x.Label), x.Value)).ToList();
 
                         string defaultSelectedValue = currentOptions.First().Label;
 
@@ -405,7 +405,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                         }
                         catch { }
 
-                        var seasonSelector = new DiscordSelectComponent(previousSeasonSelector.CustomId, defaultSelectedValue, currentOptions);
+                        var seasonSelector = new DiscordSelectComponent(previousSeasonSelector.CustomId, LimitStringSize(defaultSelectedValue), currentOptions);
                         builder.AddComponents(seasonSelector);
                     }
                 }
@@ -432,11 +432,17 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             {
                 if (!title.Contains(releaseYear, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return $"{(title.Count() > 93 ? title[..90] + "..." : title)} ({releaseYear})";
+                    return $"{LimitStringSize(title, 93)} ({releaseYear})";
                 }
             }
 
-            return title.Count() > 97 ? title[..97] + "..." : title;
+            return LimitStringSize(title);
+        }
+
+
+        private string LimitStringSize(string value, int limit = 100)
+        {
+            return value.Count() > limit ? value[..(limit - 3)] + "..." : value;
         }
 
         private string GetFormattedSeasonName(TvShow tvShow, TvSeason season)
