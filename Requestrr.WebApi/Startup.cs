@@ -40,6 +40,9 @@ namespace Requestrr.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string? buildNumber = Configuration.GetValue<string>("BuildVersion");
+            Console.WriteLine($"Starting Requestrr - build {(string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber)}");
+
             services.AddControllersWithViews();
             services.AddHttpClient();
 
