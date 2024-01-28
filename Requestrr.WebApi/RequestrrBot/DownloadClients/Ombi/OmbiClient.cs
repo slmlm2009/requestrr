@@ -556,7 +556,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
                     await notifResponse.ThrowIfNotSuccessfulAsync("OmbiFindUserNotificationPreferences failed", x => x.error);
 
                     IEnumerable<dynamic> notificationPreferences = JArray.Parse(jsonNotifResponse);
-                    var matchingDiscordNotification = notificationPreferences.FirstOrDefault(n => n.agent == 1 && n.value.ToString().Trim().Equals(userUniqueId.Trim(), StringComparison.InvariantCultureIgnoreCase));
+                    var matchingDiscordNotification = notificationPreferences.FirstOrDefault(n => n.agent == 1 && (n.value.ToString().Trim().Equals(userUniqueId.Trim(), StringComparison.InvariantCultureIgnoreCase) || n.value.ToString().Trim().Equals($"<@{userUniqueId.Trim()}>", StringComparison.InvariantCultureIgnoreCase)));
 
                     if (matchingDiscordNotification != null)
                     {
