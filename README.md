@@ -14,11 +14,10 @@ Requestrr is a chatbot used to simplify using services like Sonarr/Radarr/Overse
 ### Features
 
 - Ability to request content via Discord using slash commands, buttons and more!
-- Apple's Siri integration
 - Users can get notified when their requests complete
-- Sonarr/Radarr V2/V3 integration with multiple instance support via Overseerr (only for 4k/1080p)
+- Sonarr (V2-V4)/Radarr (V2-V5) integration with multiple instance support via Overseerr (only for 4k/1080p)
 - Overseerr integration with support for per user permissions/quotas and issues
-- Ombi V3 integration with support for per user roles/quotas
+- Ombi (V3/V4) integration with support for per user roles/quotas
 - Fully configurable via a web portal
 
 <br />
@@ -31,13 +30,14 @@ https://github.com/thomst08/requestrr/wiki
 
 <br />
 
-Docker Setup & Start
+Docker Set-up & Start
 ==================
 
 Open a command prompt/terminal and then use the following command create and start the container:
 
 ```
-    docker run --name requestrr \
+    docker run -d \
+      --name requestrr \
       -p 4545:4545 \
       -v path to config:/root/config \
       --restart=unless-stopped \
@@ -55,28 +55,8 @@ Once you have configured the bot and invited it to your Discord server, simply t
 Build Instructions
 ==================
 
-### Setup
-* npm. You can install npm via brew on mac. On mac you might need to re install your xcode command line tools. See https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d.
-* .netcore sdk. Download [SDK 6.0.407](https://dotnet.microsoft.com/download/dotnet-core/6.0) installer for your environment.
-
-### Building
-* In directory [Requestrr.WebApi/ClientApp](Requestrr.WebApi/ClientApp) run `npm run install:clean`. You can safefly exit it once the build is done running. For example
-```
-./src/components/Inputs/MultiDropdown.jsx
-  Line 29:  Expected '!==' and instead saw '!='  eqeqeq
-  Line 53:  No duplicate props allowed           react/jsx-no-duplicate-props
-
-./src/views/TvShows.jsx
-  Line 38:  'Input' is defined but never used  no-unused-vars
-
-./src/views/Movies.jsx
-  Line 38:  'Input' is defined but never used  no-unused-vars
-
-Search for the keywords to learn more about each warning.
-To ignore, add // eslint-disable-next-line to the line before.
-```
-
-* In directory [Requestrr.WebApi](Requestrr.WebApi) run `dotnet publish -c release -o publish -r linux-x64`.
+Refer to the Wiki for detailed steps on how to build:
+https://github.com/thomst08/requestrr/wiki/Build-Instructions
 
 <br>
 
