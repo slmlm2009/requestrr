@@ -4,7 +4,7 @@ COPY publish/ /root/
 
 # allow all users access to this so we can run container as non root.
 # create /root/tmp if nonexistent
-RUN chmod -R 755 /root && mkdir /root/tmp
+RUN chmod -R 755 /root && mkdir /root/tmp && chmod -R 777 /root/tmp
 
 WORKDIR /root/
 
