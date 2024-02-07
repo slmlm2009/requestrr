@@ -105,11 +105,11 @@ function Sonarr(props) {
     setTestSettingsSuccess(false);
     setTestSettingsError("");
     setHostname(reduxState.settings.hostname);
-    setIsHostnameValid(validateNonEmptyString(reduxState.settings.hostname));
+    setIsHostnameValid(false);
     setPort(reduxState.settings.port);
-    setIsPortValid(validatePort(reduxState.settings.port));
+    setIsPortValid(false);
     setApiKey(reduxState.settings.apiKey);
-    setIsApiKeyValid(validateNonEmptyString(reduxState.settings.apiKey));
+    setIsApiKeyValid(false);
     setUseSSL(reduxState.settings.useSSL);
     setApiVersion(reduxState.settings.version);
     setBaseUrl(reduxState.settings.baseUrl);

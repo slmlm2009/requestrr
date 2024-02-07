@@ -41,6 +41,13 @@ function SonarrCategory(props) {
   useEffect(() => {
     if (props.category.wasCreated)
       setIsOpen(true);
+
+    if (props.canConnect) {
+      dispatch(loadProfiles(false));
+      dispatch(loadRootPaths(false));
+      dispatch(loadTags(false));
+      dispatch(loadLanguages(false));
+    }
   }, []);
 
 
