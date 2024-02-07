@@ -24,6 +24,7 @@ using Requestrr.WebApi.Controllers.DownloadClients;
 using Requestrr.WebApi.Controllers.ChatClients;
 using Requestrr.WebApi.Controllers.Authentication;
 using Requestrr.WebApi.RequestrrBot.Movies;
+using Requestrr.WebApi.RequestrrBot.Locale;
 
 namespace Requestrr.WebApi
 {
@@ -40,8 +41,13 @@ namespace Requestrr.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+#if DEBUG
+            string buildNumber = "Development Build";
+#else
             string? buildNumber = Configuration.GetValue<string>("BuildVersion");
+#endif
             Console.WriteLine($"Starting Requestrr - build {(string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber)}");
+            Language.BuildVersion = string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber;
 
             services.AddControllersWithViews();
             services.AddHttpClient();

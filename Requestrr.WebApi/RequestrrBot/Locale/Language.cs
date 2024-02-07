@@ -26,6 +26,7 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
     public class Language
     {
         public static Language Current = null;
+        public static string BuildVersion = string.Empty;
 
         public string Error { get; set; }
 
