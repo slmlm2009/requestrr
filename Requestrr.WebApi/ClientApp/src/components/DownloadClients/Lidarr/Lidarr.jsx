@@ -41,7 +41,40 @@ function Lidarr(props) {
     return {
       // settings: state.movies.radarr
       settings: {
-        categories: []
+        hostname: "",
+        baseUrl: "",
+        port: 8686,
+        apiKey: "",
+        useSSL: false,
+        categories: [
+          // {
+          //   id: 0,
+          //   name: "movie",
+          //   profileId: 1,
+          //   rootFolder: "/tmp",
+          //   minimumAvailability: "announced",
+          //   tags: [
+          //   ],
+          // },
+        ],
+        searchNewRequests: true,
+        monitorNewRequests: true,
+        version: "1",
+        isLoadingPaths: false,
+        hasLoadedPaths: false,
+        arePathsValid: false,
+        paths: [
+        ],
+        isLoadingProfiles: false,
+        hasLoadedProfiles: false,
+        areProfilesValid: false,
+        profiles: [
+        ],
+        isLoadingTags: false,
+        hasLoadedTags: false,
+        areTagsValid: false,
+        tags: [
+        ],
       }
     }
   });
@@ -60,11 +93,11 @@ function Lidarr(props) {
     let previousNames = prevState === undefined ? [] : prevState.settings.categories.map(x => x.name);
     let currentNames = reduxState.settings.categories.map(x => x.name);
 
-    // if (!(prevState?.settings?.profiles?.length === reduxState.settings.profiles.length && prevState?.settings?.profiles?.reduce((a, b, i) => a && reduxState.settings.profiles[i], true))
-    //   || !(prevState?.settings?.paths?.length === reduxState.settings.paths.length && prevState?.settings?.paths?.reduce((a, b, i) => a && reduxState.settings.paths[i], true))
-    //   || !(previousNames.length === currentNames.length && currentNames.every((value, index) => previousNames[index] === value))) {
-    //   onValueChange();
-    // }
+    if (!(prevState?.settings?.profiles?.length === reduxState.settings.profiles.length && prevState?.settings?.profiles?.reduce((a, b, i) => a && reduxState.settings.profiles[i], true))
+      || !(prevState?.settings?.paths?.length === reduxState.settings.paths.length && prevState?.settings?.paths?.reduce((a, b, i) => a && reduxState.settings.paths[i], true))
+      || !(previousNames.length === currentNames.length && currentNames.every((value, index) => previousNames[index] === value))) {
+      onValueChange();
+    }
   });
 
 
@@ -204,7 +237,7 @@ function Lidarr(props) {
     <>
       <div>
         <h6 className="heading-small text-muted mb-4">
-          Radarr Connection Settings
+          Lidarr Connection Settings
         </h6>
       </div>
       <div className="pl-lg-4">
@@ -259,7 +292,7 @@ function Lidarr(props) {
           <Col lg="6">
             <Textbox
               name="Base Url"
-              placeholder="Enter base url configured in Radarr, leave empty if none configured."
+              placeholder="Enter base url configured in Lidarr, leave empty if none configured."
               value={baseUrl}
               onChange={newBaseUrl => setBaseUrl(newBaseUrl)} />
           </Col>
@@ -359,7 +392,7 @@ function Lidarr(props) {
               <label
                 className="custom-control-label"
                 htmlFor="SearchNewRequests">
-                <span className="text-muted">Automatically search for movie when request is made</span>
+                <span className="text-muted">Automatically search for music when request is made</span>
               </label>
             </FormGroup>
           </Col>
