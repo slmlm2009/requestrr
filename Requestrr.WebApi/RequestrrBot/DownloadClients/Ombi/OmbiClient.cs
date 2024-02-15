@@ -11,16 +11,19 @@ using Newtonsoft.Json.Linq;
 using Requestrr.WebApi.Extensions;
 using Requestrr.WebApi.RequestrrBot.Movies;
 using Requestrr.WebApi.RequestrrBot.TvShows;
+using static Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi.OmbiClient;
 
 namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
 {
-    public class OmbiClient : IMovieRequester, IMovieSearcher, ITvShowSearcher, ITvShowRequester
+    public class OmbiClient : IMovieRequester, IMovieSearcher, ITvShowSearcher, ITvShowRequester, IMovieIssueSearcher, IMovieIssueRequester
     {
         private IHttpClientFactory _httpClientFactory;
         private readonly ILogger<OmbiClient> _logger;
         private OmbiSettingsProvider _ombiSettingsProvider;
         private OmbiSettings OmbiSettings => _ombiSettingsProvider.Provide();
         private string BaseURL => GetBaseURL(OmbiSettings);
+
+        public Dictionary<string, int> IssueTypes => GetOmbiIssueCategoriesAsync();
 
         public OmbiClient(IHttpClientFactory httpClientFactory, ILogger<OmbiClient> logger, OmbiSettingsProvider OmbiSettingsProvider)
         {
@@ -624,15 +627,19 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
 
         private async Task<HttpResponseMessage> HttpPostAsync(OmbiUser ombiUser, string url, string content)
         {
-            var apiAlias = Sanitize(ombiUser.ApiAlias);
-            var apiUsername = Sanitize(ombiUser.Username);
 
             var postRequest = new StringContent(content);
             postRequest.Headers.Clear();
             postRequest.Headers.Add("Content-Type", "application/json");
             postRequest.Headers.Add("ApiKey", OmbiSettings.ApiKey);
-            postRequest.Headers.Add("ApiAlias", !string.IsNullOrWhiteSpace(apiAlias) ? apiAlias : "Unknown");
-            postRequest.Headers.Add("UserName", !string.IsNullOrWhiteSpace(apiUsername) ? apiUsername : "api");
+            
+            if (ombiUser != null)
+            {
+                var apiAlias = Sanitize(ombiUser.ApiAlias);
+                var apiUsername = Sanitize(ombiUser.Username);
+                postRequest.Headers.Add("ApiAlias", !string.IsNullOrWhiteSpace(apiAlias) ? apiAlias : "Unknown");
+                postRequest.Headers.Add("UserName", !string.IsNullOrWhiteSpace(apiUsername) ? apiUsername : "api");
+            }
 
             var client = _httpClientFactory.CreateClient();
             return await client.PostAsync(url, postRequest);
@@ -648,6 +655,169 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
             return Regex.Replace(value, @"[^\u0000-\u007F]+", string.Empty);
         }
 
+
+        /// <summary>
+        /// Handles the fetching of all categories form the Ombi API
+        /// </summary>
+        /// <returns>Returns Dictionary of string and int, string is the name of the categorie and int is the ID</returns>
+        private Dictionary<string, int> GetOmbiIssueCategoriesAsync()
+        {
+            HttpResponseMessage response = HttpGetAsync($"{BaseURL}/api/v1/Issues/categories").Result;
+            string jsonResponse = response.Content.ReadAsStringAsync().Result;
+            _ = response.ThrowIfNotSuccessfulAsync("OmbiFindUserNotificationPreferences failed", x => x.error);
+
+            List<JSONIssueCategorie> notificationPreferences = JsonConvert.DeserializeObject<List<JSONIssueCategorie>>(jsonResponse);
+            Dictionary<string, int> categories = new Dictionary<string, int>();
+            foreach (JSONIssueCategorie i in notificationPreferences)
+            {
+                categories.Add(i.CategorieName, i.Id);
+            }
+
+            return categories;
+        }
+
+
+
+        /// <summary>
+        /// Handles the searching for movies currently in library and match movie name
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="movieName"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        public async Task<IReadOnlyList<Movie>> SearchMovieLibraryAsync(MovieRequest request, string movieName)
+        {
+            var retryCount = 0;
+
+            while (retryCount <= 5)
+            {
+                try
+                {
+                    var response = await HttpGetAsync($"{BaseURL}/api/v1/search/movie/{movieName}");
+                    await response.ThrowIfNotSuccessfulAsync("OmbiMovieSearch failed", x => x.error);
+
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var movies = JsonConvert.DeserializeObject<List<JSONMovie>>(jsonResponse)
+                        .Where(x => x.available)
+                        .ToArray();
+
+                    return movies.Select(Convert).ToArray();
+                }
+                catch (System.Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred while searching for movies from Ombi: " + ex.Message);
+                    retryCount++;
+                    await Task.Delay(1000);
+                }
+            }
+
+            throw new System.Exception("An error occurred while searching for movies from Ombi");
+        }
+
+
+
+        /// <summary>
+        /// Handles the searching for Movie DB ID and checking it is in the current library
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="theMovieDbId"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        public async Task<Movie> SearchMovieLibraryAsync(MovieRequest request, int theMovieDbId)
+        {
+            var retryCount = 0;
+
+            while (retryCount <= 5)
+            {
+                try
+                {
+                    var response = await HttpGetAsync($"{BaseURL}/api/v1/search/movie/info/{theMovieDbId}");
+                    await response.ThrowIfNotSuccessfulAsync("OmbiMovieSearchByMovieDbId failed", x => x.error);
+
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var jsonMovie = JsonConvert.DeserializeObject<JSONMovie>(jsonResponse);
+                    if (!jsonMovie.available)
+                        return null;
+
+                    var convertedMovie = Convert(jsonMovie);
+                    return convertedMovie?.TheMovieDbId == theMovieDbId.ToString() ? convertedMovie : null;
+                }
+                catch (System.Exception ex)
+                {
+                    _logger.LogError(ex, $"An error occurred while searching for a movie by tmdbId \"{theMovieDbId}\" from Ombi: " + ex.Message);
+                    retryCount++;
+                    await Task.Delay(1000);
+                }
+            }
+
+            throw new System.Exception("An error occurred while searching for a movie by tmdbId from Ombi");
+        }
+
+
+
+        /// <summary>
+        /// Handles the submission of issues to Ombi
+        /// </summary>
+        /// <param name="theMovieDbId"></param>
+        /// <param name="issueValue"></param>
+        /// <param name="issueDescription"></param>
+        /// <returns>True if succesfull, false if failed to submit</returns>
+        /// <exception cref="System.Exception">Something went wrong contacting Ombi</exception>
+        public async Task<bool> SubmitMovieIssueAsync(int theMovieDbId, string issueValue, string issueDescription)
+        {
+            var retryCount = 0;
+
+            while (retryCount <= 5)
+            {
+                try
+                {
+                    var response = await HttpGetAsync($"{BaseURL}/api/v1/search/movie/info/{theMovieDbId}");
+                    await response.ThrowIfNotSuccessfulAsync("OmbiMovieSearchByMovieDbId failed", x => x.error);
+
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var jsonMovie = JsonConvert.DeserializeObject<JSONMovie>(jsonResponse);
+                    if (!jsonMovie.available)
+                        return false;
+
+
+                    response = await HttpPostAsync(null, $"{BaseURL}/api/v1/Issues", JsonConvert.SerializeObject(new
+                    {
+                        title = jsonMovie.title,
+                        requestType = 1,
+                        providerId = string.IsNullOrWhiteSpace(jsonMovie.imdbId) ? jsonMovie.theMovieDbId : jsonMovie.imdbId,
+                        subject = IssueTypes.Where(x => x.Value.ToString() == issueValue).FirstOrDefault().Key,
+                        description = issueDescription,
+                        issueCategoryId = int.Parse(issueValue)
+                    }));
+
+                    await response.ThrowIfNotSuccessfulAsync("OmbiIssueMovieRequest failed", x => x.error);
+                    return true;
+                }
+                catch (System.Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred while searching for movies from Ombi: " + ex.Message);
+                    retryCount++;
+                    await Task.Delay(1000);
+                }
+            }
+
+            throw new System.Exception("An error occurred while searching for movies from Ombi");
+        }
+
+
+        /// <summary>
+        /// Used to hold categorie information from Ombi
+        /// </summary>
+        public class JSONIssueCategorie
+        {
+            [JsonProperty("value")]
+            public string CategorieName { get; set; }
+
+            [JsonProperty("id")]
+            public int Id { get; set; }
+        }
+
+
         public class JSONMovie
         {
             public string title { get; set; }
@@ -661,6 +831,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
             public string posterPath { get; set; }
             public string releaseDate { get; set; }
             public string theMovieDbId { get; set; }
+            public string imdbId { get; set; } = string.Empty;
         }
 
         public class JSONTvShow
