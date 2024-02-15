@@ -12,6 +12,10 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
         public static string BotUsername = "[BotUsername]";
         public static string MovieTMDB = "[MovieTMDB]";
         public static string CommandPrefix = "[CommandPrefix]";
+
+        public static string IssueLabel = "[Issue]";
+        public static string IssueTitle = "[Title]";
+
         public static string TvShowCommandTvDb = "[TvShowCommandTvDb]";
         public static string MovieCommandTmDb = "[MovieCommandTmDb]";
         public static string MovieCommandTitle = "[MovieCommandTitle]";
@@ -382,6 +386,15 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
         public string DiscordCommandIssueName { get; set; }
         [JsonProperty("Discord.Command.Issue.Description")]
         public string DiscordCommandIssueDescription { get; set; }
+
+        [JsonProperty("Discord.Command.Issue.Interaction.Title")]
+        public string DiscordCommandIssueInteractionTitle { get; set; }
+
+        [JsonProperty("Discord.Command.Issue.Interaction.Label")]
+        public string DiscordCommandIssueInteractionLabel { get; set; }
+
+        [JsonProperty("Discord.Command.Issue.Interaction.Placeholder")]
+        public string DiscordCommandIssueInteractionPlaceholder { get; set; }
 
 
         [JsonProperty("Discord.Command.Movie.Issue.Title.Name")]
