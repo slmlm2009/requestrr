@@ -22,6 +22,6 @@ namespace Requestrr.WebApi.RequestrrBot.TvShows
         /// <returns>Returns a list of movies matching the name in the library</returns>
         Task<SearchedTvShow> SearchTvShowLibraryAsync(TvShowRequest request, int tvDbId);
         
-        List<string> IssueTypes { get; }
+        Dictionary<string, int> IssueTypes { get; }
     }
 }
