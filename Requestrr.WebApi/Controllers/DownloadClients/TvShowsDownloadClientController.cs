@@ -61,7 +61,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                     MonitorNewRequests = _downloadClientsSettings.Sonarr.MonitorNewRequests,
                     Version = _downloadClientsSettings.Sonarr.Version
                 },
-                Ombi = new OmbiSettingsModel
+                Ombi = new OmbiTVSettings
                 {
                     Hostname = _downloadClientsSettings.Ombi.Hostname,
                     BaseUrl = _downloadClientsSettings.Ombi.BaseUrl,
@@ -69,7 +69,8 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                     ApiKey = _downloadClientsSettings.Ombi.ApiKey,
                     ApiUsername = _downloadClientsSettings.Ombi.ApiUsername,
                     UseSSL = _downloadClientsSettings.Ombi.UseSSL,
-                    Version = _downloadClientsSettings.Ombi.Version
+                    Version = _downloadClientsSettings.Ombi.Version,
+                    UseTVIssue = _downloadClientsSettings.Ombi.UseTVIssue
                 },
                 Overseerr = _downloadClientsSettings.Overseerr,
                 Restrictions = _tvShowsSettings.Restrictions

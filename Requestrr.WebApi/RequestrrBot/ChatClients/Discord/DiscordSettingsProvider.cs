@@ -60,6 +60,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                 hash.Add(clientSettings.Port);
                 hash.Add(clientSettings.UseSSL);
                 hash.Add(clientSettings.Version);
+                hash.Add(clientSettings.UseMovieIssue);
             }
             else if (settings.Movies.Client == DownloadClient.Overseerr)
             {
@@ -105,6 +106,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                 hash.Add(clientSettings.Port);
                 hash.Add(clientSettings.UseSSL);
                 hash.Add(clientSettings.Version);
+                hash.Add(clientSettings.UseTVIssue);
             }
             else if (settings.TvShows.Client == DownloadClient.Overseerr)
             {
