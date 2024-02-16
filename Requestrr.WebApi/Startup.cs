@@ -42,11 +42,11 @@ namespace Requestrr.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
 #if DEBUG
-            string buildNumber = "Development Build";
+            string buildNumber = "Development";
 #else
             string? buildNumber = Configuration.GetValue<string>("BuildVersion");
 #endif
-            Console.WriteLine($"Starting Requestrr - build {(string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber)}");
+            Console.WriteLine($"Starting Requestrr - build '{(string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber)}'");
             Language.BuildVersion = string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber;
 
             services.AddControllersWithViews();
