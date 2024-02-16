@@ -758,12 +758,13 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
         /// <summary>
         /// Handles the submission of issues to Ombi
         /// </summary>
+        /// <param name="request"></param>
         /// <param name="theMovieDbId"></param>
         /// <param name="issueValue"></param>
         /// <param name="issueDescription"></param>
         /// <returns>True if succesfull, false if failed to submit</returns>
         /// <exception cref="System.Exception">Something went wrong contacting Ombi</exception>
-        public async Task<bool> SubmitMovieIssueAsync(int theMovieDbId, string issueValue, string issueDescription)
+        public async Task<bool> SubmitMovieIssueAsync(MovieRequest request, int theMovieDbId, string issueValue, string issueDescription)
         {
             var retryCount = 0;
 
@@ -779,8 +780,8 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
                     if (!jsonMovie.available)
                         return false;
 
-
-                    response = await HttpPostAsync(null, $"{BaseURL}/api/v1/Issues", JsonConvert.SerializeObject(new
+                    var ombiUser = await FindLinkedOmbiUserAsync(request.User.UserId, request.User.Username);
+                    response = await HttpPostAsync(ombiUser, $"{BaseURL}/api/v1/Issues", JsonConvert.SerializeObject(new
                     {
                         title = jsonMovie.title,
                         requestType = 1,

@@ -358,7 +358,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
         /// <param name="issueName"></param>
         /// <param name="issueDescription"></param>
         /// <returns></returns>
-        public async Task<bool> SubmitMovieIssueAsync(int theMovieDbId, string issueValue, string issueDescription)
+        public async Task<bool> SubmitMovieIssueAsync(MovieRequest request, int theMovieDbId, string issueValue, string issueDescription)
         {
             try
             {
@@ -603,6 +603,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                 var tvShows = JsonConvert.DeserializeObject<JSONSearchResult>(jsonResponse).Results
                     .Where(x => x.MediaType == MediaTypes.TV)
                     .Where(x => x.MediaInfo != null)
+                    .Where(x => x.MediaInfo.Status == MediaStatus.AVAILABLE || x.MediaInfo.Status == MediaStatus.PARTIALLY_AVAILABLE || x.MediaInfo.Status4k == MediaStatus.AVAILABLE || x.MediaInfo.Status4k == MediaStatus.PARTIALLY_AVAILABLE)
                     .ToArray();
 
                 if (tvShows.Count() != 1)
@@ -620,7 +621,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
         }
 
 
-        public async Task<bool> SubmitTvShowIssueAsync(int thTvDbId, string issueValue, string issueDescription)
+        public async Task<bool> SubmitTvShowIssueAsync(TvShowRequest request, int thTvDbId, string issueValue, string issueDescription)
         {
             try
             {

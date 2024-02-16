@@ -5,6 +5,6 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
 {
     public interface IMovieIssueRequester
     {
-        Task<bool> SubmitMovieIssueAsync(int theMovieDbId, string issueValue, string issueDescription);
+        Task<bool> SubmitMovieIssueAsync(MovieRequest request, int theMovieDbId, string issueValue, string issueDescription);
     }
 }

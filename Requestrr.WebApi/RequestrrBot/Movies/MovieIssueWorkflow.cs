@@ -175,14 +175,15 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
             string issue = values[4];
 
             bool result = false;
+            var request = new MovieRequest(_user, _categoryId);
 
             //Check if searcher supports issues
             if (_searcher is IMovieIssueRequester)
             {
-                result = await ((IMovieIssueRequester)_requester).SubmitMovieIssueAsync(movieId, issue, textBox.Value);
+                result = await ((IMovieIssueRequester)_requester).SubmitMovieIssueAsync(request, movieId, issue, textBox.Value);
             }
 
-            await _userInterface.CompleteMovieIssueModalRequestAsync(await _searcher.SearchMovieAsync(new MovieRequest(_user, _categoryId), movieId), result);
+            await _userInterface.CompleteMovieIssueModalRequestAsync(await _searcher.SearchMovieAsync(request, movieId), result);
         }
 
 

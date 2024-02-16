@@ -214,13 +214,15 @@ namespace Requestrr.WebApi.RequestrrBot.TvShows
 
             bool result = false;
 
+            var request = new TvShowRequest(_user, _categoryId);
+
             //Check if searcher supports issues
             if (_searcher is ITvShowIssueRequester)
             {
-                result = await ((ITvShowIssueRequester)_requester).SubmitTvShowIssueAsync(tvShowId, issue, textBox.Value);
+                result = await ((ITvShowIssueRequester)_requester).SubmitTvShowIssueAsync(request, tvShowId, issue, textBox.Value);
             }
 
-            await _userInterface.CompleteTvShowIssueModalRequestAsync(await _searcher.GetTvShowDetailsAsync(new TvShowRequest(_user, _categoryId), tvShowId), result);
+            await _userInterface.CompleteTvShowIssueModalRequestAsync(await _searcher.GetTvShowDetailsAsync(request, tvShowId), result);
         }
     }
 }
