@@ -22,7 +22,8 @@ namespace Requestrr.WebApi.RequestrrBot.Notifications.Movies
             IMovieSearcher movieSearcher,
             IMovieNotifier notifier,
             ILogger logger,
-            MovieNotificationsRepository notificationRequestRepository)
+            MovieNotificationsRepository notificationRequestRepository
+        )
         {
             _movieSearcher = movieSearcher;
             _notifier = notifier;
@@ -33,41 +34,60 @@ namespace Requestrr.WebApi.RequestrrBot.Notifications.Movies
         public void Start()
         {
             _notificationTask = Task.Run(async () =>
-             {
-                 while (!_tokenSource.IsCancellationRequested)
-                 {
-                     try
-                     {
-                         var currentRequests = _notificationRequestRepository.GetAllMovieNotifications();
-                         var availableMovies = await _movieSearcher.SearchAvailableMoviesAsync(new HashSet<int>(currentRequests.Keys), _tokenSource.Token);
+            {
+                while (!_tokenSource.IsCancellationRequested)
+                {
+                    var currentRequests = new Dictionary<int, HashSet<string>>();
+                    try
+                    {
+                        currentRequests = _notificationRequestRepository.GetAllMovieNotifications();
+                        var availableMovies = await _movieSearcher.SearchAvailableMoviesAsync(new HashSet<int>(currentRequests.Keys), _tokenSource.Token);
 
-                         foreach (var request in currentRequests.Where(x => availableMovies.ContainsKey(x.Key)))
-                         {
-                             if (_tokenSource.IsCancellationRequested)
-                                 return;
+                        foreach (var request in currentRequests.Where(x => availableMovies.ContainsKey(x.Key)))
+                        {
+                            if (_tokenSource.IsCancellationRequested)
+                                return;
 
-                             try
-                             {
-                                 var userNotified = await _notifier.NotifyAsync(request.Value.ToArray(), availableMovies[request.Key], _tokenSource.Token);
+                            try
+                            {
+                                var userNotified = await _notifier.NotifyAsync(request.Value.ToArray(), availableMovies[request.Key], _tokenSource.Token);
 
-                                 foreach (var userId in userNotified)
-                                 {
-                                     _notificationRequestRepository.RemoveNotification(userId, request.Key);
-                                 }
-                             }
-                             catch (Exception ex)
-                             {
-                                 _logger.LogError(ex, "An error occurred while processing movie notifications: " + ex.Message);
-                             }
-                         }
-                     }
-                     catch (Exception ex)
-                     {
-                         _logger.LogError(ex, "An error occurred while retrieving all movie notification: " + ex.Message);
-                     }
+                                foreach (var userId in userNotified)
+                                {
+                                    _notificationRequestRepository.RemoveNotification(userId, request.Key);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "An error occurred while processing movie notifications: " + ex.Message);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "An error occurred while retrieving all movie notification: " + ex.Message);
+                        if (ex.Message.Contains("An error occurred while searching for a movie by tmdbId"))
+                        {
+                            try
+                            {
+                                string tmdbId = ex.Message.Split("An error occurred while searching for a movie by tmdbId \"")[1].Split("\"")[0];
+                                _logger.LogWarning($"Removing notifications for Movie {tmdbId}");
+                                int id = int.Parse(tmdbId);
+                                
+                                foreach (var userId in currentRequests[id])
+                                {
+                                    _notificationRequestRepository.RemoveNotification(userId, id);
+                                }
+                            }
+                            catch
+                            {
+                                _logger.LogWarning("Removing notification failed...");
+                            }
+                        }
+                    }
 
-                     await Task.Delay(TimeSpan.FromMinutes(1), _tokenSource.Token);
-                 }
+                    await Task.Delay(TimeSpan.FromMinutes(1), _tokenSource.Token);
+                }
              }, _tokenSource.Token);
         }
 
