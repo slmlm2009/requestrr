@@ -621,11 +621,11 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
         }
 
 
-        public async Task<bool> SubmitTvShowIssueAsync(TvShowRequest request, int thTvDbId, string issueValue, string issueDescription)
+        public async Task<bool> SubmitTvShowIssueAsync(TvShowRequest request, int theTvDbId, string issueValue, string issueDescription)
         {
             try
             {
-                var response = await HttpGetAsync($"{BaseURL}tv/{thTvDbId}");
+                var response = await HttpGetAsync($"{BaseURL}tv/{theTvDbId}");
                 await response.ThrowIfNotSuccessfulAsync("OverseerrTvShowSearch failed", x => x.error);
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();

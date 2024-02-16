@@ -15,7 +15,7 @@ using static Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi.OmbiClient;
 
 namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
 {
-    public class OmbiClient : IMovieRequester, IMovieSearcher, ITvShowSearcher, ITvShowRequester, IMovieIssueSearcher, IMovieIssueRequester
+    public class OmbiClient : IMovieRequester, IMovieSearcher, ITvShowSearcher, ITvShowRequester, IMovieIssueSearcher, IMovieIssueRequester, ITvShowIssueSearcher, ITvShowIssueRequester
     {
         private IHttpClientFactory _httpClientFactory;
         private readonly ILogger<OmbiClient> _logger;
@@ -784,7 +784,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
                     response = await HttpPostAsync(ombiUser, $"{BaseURL}/api/v1/Issues", JsonConvert.SerializeObject(new
                     {
                         title = jsonMovie.title,
-                        requestType = 1,
+                        requestType = jsonMovie.type,
                         providerId = string.IsNullOrWhiteSpace(jsonMovie.imdbId) ? jsonMovie.theMovieDbId : jsonMovie.imdbId,
                         subject = IssueTypes.Where(x => x.Value.ToString() == issueValue).FirstOrDefault().Key,
                         description = issueDescription,
@@ -803,6 +803,147 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
             }
 
             throw new System.Exception("An error occurred while searching for movies from Ombi");
+        }
+
+
+
+        /// <summary>
+        /// Handles the searching for TV Shows with the name in your own library
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="tvShowName"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        public async Task<IReadOnlyList<SearchedTvShow>> SearchTvShowLibraryAsync(TvShowRequest request, string tvShowName)
+        {
+            var retryCount = 0;
+
+            while (retryCount <= 5)
+            {
+                try
+                {
+                    var response = await HttpGetAsync($"{BaseURL}/api/v1/Search/Tv/{tvShowName}");
+
+                    await response.ThrowIfNotSuccessfulAsync("OmbiSearchTvShow failed", x => x.error);
+
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var jsonTvShows = JsonConvert.DeserializeObject<List<JSONTvShow>>(jsonResponse)
+                        .Where(x => x.available)
+                        .ToArray();
+
+                    return jsonTvShows.Select(x => new SearchedTvShow
+                    {
+                        Title = x.title,
+                        Banner = x.banner,
+                        TheTvDbId = x.id,
+                        FirstAired = x.firstAired,
+                    }).ToArray();
+                }
+                catch (System.Exception ex)
+                {
+                    _logger.LogError(ex, $"An error occurred while searching for tv show \"{tvShowName}\" from Ombi: " + ex.Message);
+                    retryCount++;
+                    await Task.Delay(1000);
+                }
+            }
+
+            throw new System.Exception("An error occurred while searching for tv show from Ombi");
+        }
+
+
+
+        /// <summary>
+        /// This handles the searching for a TV show with the TVDB Id in your own library
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="tvDbId"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        public async Task<SearchedTvShow> SearchTvShowLibraryAsync(TvShowRequest request, int tvDbId)
+        {
+            var retryCount = 0;
+
+            while (retryCount <= 5)
+            {
+                try
+                {
+                    var response = await HttpGetAsync($"{BaseURL}/api/v1/Search/Tv/info/{tvDbId}");
+                    await response.ThrowIfNotSuccessfulAsync("OmbiSearchTvShowByTvDbId failed", x => x.error);
+
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var jsonTvShow = JsonConvert.DeserializeObject<JSONTvShow>(jsonResponse);
+                    if (!jsonTvShow.available)
+                        return null;
+
+                    var searchedTvShow = new SearchedTvShow
+                    {
+                        Title = jsonTvShow.title,
+                        Banner = jsonTvShow.banner,
+                        TheTvDbId = jsonTvShow.id,
+                        FirstAired = jsonTvShow.firstAired,
+                    };
+
+                    return searchedTvShow.TheTvDbId == tvDbId ? searchedTvShow : null;
+                }
+                catch (System.Exception ex)
+                {
+                    _logger.LogError(ex, $"An error occurred while searching for tv show by tvDbId \"{tvDbId}\" from Ombi: " + ex.Message);
+                    retryCount++;
+                    await Task.Delay(1000);
+                }
+            }
+
+            throw new System.Exception("An error occurred while searching for tv show by tvDbId from Ombi");
+        }
+
+
+
+        /// <summary>
+        /// Handles the submission of the issue to Ombi
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="theTvDbId"></param>
+        /// <param name="issueValue"></param>
+        /// <param name="issueDescription"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
+        public async Task<bool> SubmitTvShowIssueAsync(TvShowRequest request, int theTvDbId, string issueValue, string issueDescription)
+        {
+            var retryCount = 0;
+
+            while (retryCount <= 5)
+            {
+                try
+                {
+                    var jsonTvShow = await FindTvShowByTheTvDbIdAsync(theTvDbId.ToString());
+                    if (!jsonTvShow.available)
+                        return false;
+
+
+                    var ombiUser = await FindLinkedOmbiUserAsync(request.User.UserId, request.User.Username);
+
+                    var response = await HttpPostAsync(ombiUser, $"{BaseURL}/api/v1/Issues", JsonConvert.SerializeObject(new
+                    {
+                        title = jsonTvShow.title,
+                        requestType = jsonTvShow.type,
+                        providerId = string.IsNullOrWhiteSpace(jsonTvShow.imdbId) ? jsonTvShow.id.ToString() : jsonTvShow.imdbId,
+                        subject = IssueTypes.Where(x => x.Value.ToString() == issueValue).FirstOrDefault().Key,
+                        description = issueDescription,
+                        issueCategoryId = int.Parse(issueValue)
+                    }));
+
+                    await response.ThrowIfNotSuccessfulAsync("OmbiIssueTvShowRequest failed", x => x.error);
+                    return true;
+                }
+                catch (System.Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred while searching for movies from Ombi: " + ex.Message);
+                    retryCount++;
+                    await Task.Delay(1000);
+                }
+            }
+
+            throw new System.Exception("Something went wrong while handling the submission of an tv show issue from Ombi");
         }
 
 
@@ -832,12 +973,16 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
             public string posterPath { get; set; }
             public string releaseDate { get; set; }
             public string theMovieDbId { get; set; }
+            public int type { get; set; } = 1;
             public string imdbId { get; set; } = string.Empty;
         }
 
         public class JSONTvShow
         {
             public int id { get; set; }
+
+            public string imdbId { get; set; } = string.Empty;
+            public int type { get; set; } = 0;
             public string title { get; set; }
             public string quality { get; set; }
             public string plexUrl { get; set; }
