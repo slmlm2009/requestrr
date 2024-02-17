@@ -926,7 +926,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
                     {
                         title = jsonTvShow.title,
                         requestType = jsonTvShow.type,
-                        providerId = string.IsNullOrWhiteSpace(jsonTvShow.imdbId) ? jsonTvShow.id.ToString() : jsonTvShow.imdbId,
+                        providerId = jsonTvShow.id.ToString(),
                         subject = IssueTypes.Where(x => x.Value.ToString() == issueValue).FirstOrDefault().Key,
                         description = issueDescription,
                         issueCategoryId = int.Parse(issueValue)
