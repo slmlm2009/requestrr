@@ -13,21 +13,24 @@ import {
   Row,
   Col
 } from "reactstrap";
+import { unstable_batchedUpdates } from "react-dom";
 
 
 function Ombi(props) {
+  const [ombiType] = useState(props.type);
   const [isTestingSettings, setIsTestingSettings] = useState(false);
   const [testSettingsRequested, setTestSettingsRequested] = useState(false);
   const [testSettingsSuccess, setTestSettingsSuccess] = useState(false);
   const [testSettingsError, setTestSettingsError] = useState("");
   const [hostname, setHostname] = useState("");
   const [isHostnameValid, setIsHostnameValid] = useState(false);
-  const [port, setPort] = useState("7878");
+  const [port, setPort] = useState("5000");
   const [isPortValid, setIsPortValid] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [isApiKeyValid, setIsApiKeyValid] = useState(false);
   const [apiUsername, setApiUsername] = useState("");
   const [useSSL, setUseSSL] = useState("");
+  const [useIssue, setUseIssue] = useState("");
   const [apiVersion, setApiVersion] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
 
@@ -41,7 +44,7 @@ function Ombi(props) {
 
   useEffect(() => {
     onValueChange();
-  }, [useSSL, apiVersion, apiKey, port, baseUrl, apiUsername]);
+  }, [useSSL, apiVersion, apiKey, port, baseUrl, apiUsername, useIssue]);
 
 
   useEffect(() => {
@@ -75,11 +78,20 @@ function Ombi(props) {
     setBaseUrl(props.settings.baseUrl);
     setUseSSL(props.settings.useSSL);
     setApiVersion(props.settings.version);
+    if (ombiType === "movie")
+      setUseIssue(props.settings.useMovieIssue);
+    else if (ombiType === "tv")
+      setUseIssue(props.settings.useTVIssue);
   };
 
 
   const onUseSSLChanged = (event) => {
     setUseSSL(!useSSL);
+  };
+
+
+  const onUseIssueChanged = (event) => {
+    setUseIssue(!useIssue);
   };
 
 
@@ -127,19 +139,22 @@ function Ombi(props) {
   };
 
   const onValueChange = () => {
-    props.onChange({
-      // client: client,
+    let settings = {
       hostname: hostname,
       baseUrl: baseUrl,
       port: port,
       apiKey: apiKey,
       apiUsername: apiUsername,
       useSSL: useSSL,
-      // qualityProfile: qualityProfile,
-      // path: path,
-      // profile: profile,
-      version: apiVersion,
-    });
+      version: apiVersion
+    }
+
+    if (ombiType === "movie")
+      settings.useMovieIssue = useIssue;
+    else if (ombiType === "tv")
+      settings.useTVIssue = useIssue;
+
+    props.onChange(settings);
 
     onValidate();
   };
@@ -278,6 +293,28 @@ function Ombi(props) {
             </FormGroup>
           </Col>
         </Row>
+      </div>
+      <hr className="my-4" />
+      <h6 className="heading-small text-muted">
+        Enable Issues
+      </h6>
+      <div>
+        <Col lg="6">
+          <FormGroup className="custom-control custom-control-alternative custom-checkbox mb-3">
+            <Input
+              className="custom-control-input"
+              id="useIssue"
+              type="checkbox"
+              onChange={onUseIssueChanged}
+              checked={useIssue}
+            />
+            <label
+              className="custom-control-label"
+              htmlFor="useIssue">
+              <span className="text-muted">Use Issues</span>
+            </label>
+          </FormGroup>
+        </Col>
       </div>
       <hr className="my-4" />
     </>

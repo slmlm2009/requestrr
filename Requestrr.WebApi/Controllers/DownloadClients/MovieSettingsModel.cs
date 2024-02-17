@@ -14,7 +14,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
         public RadarrSettingsModel Radarr { get; set; }
 
         [Required]
-        public OmbiSettingsModel Ombi { get; set; }
+        public OmbiMovieSettings Ombi { get; set; }
 
         [Required]
         public OverseerrSettings Overseerr { get; set; }

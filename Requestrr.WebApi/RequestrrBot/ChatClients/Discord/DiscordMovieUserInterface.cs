@@ -116,7 +116,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             string message = Language.Current.DiscordCommandMovieIssueSelect;
 
             //Setup the dropdown of issues
-            var options = ((IMovieIssueSearcher)_movieSearcher).IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x), $"{request.CategoryId}/{movie.TheMovieDbId}/{x}", null, x == issue)).ToList();
+            var options = ((IMovieIssueSearcher)_movieSearcher).IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x.Key), $"{request.CategoryId}/{movie.TheMovieDbId}/{x.Value}", null, x.Value.ToString() == issue)).ToList();
             DiscordSelectComponent select = new DiscordSelectComponent($"MIRS/{_interactionContext.User.Id}/{request.CategoryId}/{movie.TheMovieDbId}", LimitStringSize(Language.Current.DiscordCommandIssueHelpDropdown), options);
 
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder().AddEmbed(await GenerateMovieDetailsAsync(movie, _movieSearcher));
@@ -149,10 +149,11 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         {
             DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder();
 
+            
             string label = CreateInteractionString(
                 Language.Current.DiscordCommandIssueInteractionLabel,
                 LanguageTokens.IssueLabel,
-                issue,
+                ((IMovieIssueSearcher)_movieSearcher).IssueTypes.Where(x => x.Value.ToString() == issue).FirstOrDefault().Key,
                 45
             );
             string placeholder = LimitStringSize(Language.Current.DiscordCommandIssueInteractionPlaceholder);

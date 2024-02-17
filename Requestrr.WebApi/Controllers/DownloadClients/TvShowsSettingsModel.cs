@@ -13,7 +13,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
         [Required]
         public SonarrSettingsModel Sonarr { get; set; }
         [Required]
-        public OmbiSettingsModel Ombi { get; set; }
+        public OmbiTVSettings Ombi { get; set; }
         [Required]
         public OverseerrSettings Overseerr { get; set; }
         [Required]

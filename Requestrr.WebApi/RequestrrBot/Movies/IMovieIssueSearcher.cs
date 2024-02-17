@@ -21,6 +21,6 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
         /// <returns></returns>
         Task<Movie> SearchMovieLibraryAsync(MovieRequest request, int theMovieDbId);
 
-        List<string> IssueTypes { get; }
+        Dictionary<string, int> IssueTypes { get; }
     }
 }

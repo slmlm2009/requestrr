@@ -82,9 +82,9 @@ namespace Requestrr.WebApi.Controllers.DownloadClients.Ombi
             return Ok(new { ok = true });
         }
 
-        private static OmbiSettingsModel Sanitize(OmbiSettingsModel model)
+        private static SaveOmbiMoviesSettingsModel Sanitize(SaveOmbiMoviesSettingsModel model)
         {
-            return new OmbiSettingsModel
+            return new SaveOmbiMoviesSettingsModel
             {
                 Hostname = model.Hostname.Trim(),
                 ApiKey = model.ApiKey.Trim(),
@@ -92,7 +92,24 @@ namespace Requestrr.WebApi.Controllers.DownloadClients.Ombi
                 Port = model.Port,
                 BaseUrl = model.BaseUrl.Trim(),
                 UseSSL = model.UseSSL,
-                Version = model.Version
+                Version = model.Version,
+                UseMovieIssue = model.UseMovieIssue
+            };
+        }
+
+
+        private static SaveOmbiTvShowsSettingsModel Sanitize(SaveOmbiTvShowsSettingsModel model)
+        {
+            return new SaveOmbiTvShowsSettingsModel
+            {
+                Hostname = model.Hostname.Trim(),
+                ApiKey = model.ApiKey.Trim(),
+                ApiUsername = model.ApiUsername.Trim(),
+                Port = model.Port,
+                BaseUrl = model.BaseUrl.Trim(),
+                UseSSL = model.UseSSL,
+                Version = model.Version,
+                UseTVIssue = model.UseTVIssue
             };
         }
     }

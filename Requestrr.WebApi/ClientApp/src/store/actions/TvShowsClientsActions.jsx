@@ -156,6 +156,7 @@ export function saveOmbiClient(saveModel) {
                 'UseSSL': saveModel.ombi.useSSL,
                 'Version': saveModel.ombi.version,
                 'Restrictions': saveModel.restrictions,
+                'UseTVIssue': saveModel.ombi.useTVIssue
             })
         })
             .then(data => data.json())
@@ -170,6 +171,7 @@ export function saveOmbiClient(saveModel) {
                             apiUsername: saveModel.ombi.apiUsername,
                             useSSL: saveModel.ombi.useSSL,
                             version: saveModel.ombi.version,
+                            useTVIssue: saveModel.ombi.useTVIssue
                         },
                         restrictions: saveModel.restrictions
                     }));

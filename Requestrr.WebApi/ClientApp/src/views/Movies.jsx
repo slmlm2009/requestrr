@@ -226,7 +226,7 @@ function Movies(props) {
                         {
                           client === "Ombi"
                             ? <>
-                              <Ombi settings={ombi} onChange={newOmbi => setOmbi(newOmbi)} onValidate={newIsOmbiValid => setIsOmbiValid(newIsOmbiValid)} isSubmitted={isSubmitted} />
+                              <Ombi type={"movie"} settings={ombi} onChange={newOmbi => setOmbi(newOmbi)} onValidate={newIsOmbiValid => setIsOmbiValid(newIsOmbiValid)} isSubmitted={isSubmitted} />
                             </>
                             : null
                         }

@@ -15,6 +15,9 @@
                 Port = settings.DownloadClients.Ombi.Port,
                 UseSSL = (bool)settings.DownloadClients.Ombi.UseSSL,
                 Version = settings.DownloadClients.Ombi.Version,
+
+                UseMovieIssue = (bool)settings.DownloadClients.Ombi.UseMovieIssue,
+                UseTVIssue = (bool)settings.DownloadClients.Ombi.UseTVIssue,
             };
         }
     }

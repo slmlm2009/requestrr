@@ -171,7 +171,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             var message = Language.Current.DiscordCommandTvIssueSelect;
 
             //Setup the dropdown of issues
-            var options = _tvShowIssue.IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x), $"{request.CategoryId}/{tvShow.TheTvDbId}/{x}", null, x == issue)).ToList();
+            var options = _tvShowIssue.IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x.Key), $"{request.CategoryId}/{tvShow.TheTvDbId}/{x.Value}", null, x.Value.ToString() == issue)).ToList();
             DiscordSelectComponent select = new DiscordSelectComponent($"TIRS/{_interactionContext.User.Id}/{request.CategoryId}/{tvShow.TheTvDbId}", LimitStringSize(Language.Current.DiscordCommandIssueHelpDropdown), options);
 
 
@@ -216,7 +216,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             string label = CreateInteractionString(
                 Language.Current.DiscordCommandIssueInteractionLabel,
                 LanguageTokens.IssueLabel,
-                issue,
+                _tvShowIssue.IssueTypes.Where(x => x.Value.ToString() == issue).FirstOrDefault().Key,
                 45
             );
             string placeholder = LimitStringSize(Language.Current.DiscordCommandIssueInteractionPlaceholder);

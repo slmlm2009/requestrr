@@ -26,7 +26,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
         private static OverseerrTvShowCategory DefaultTvShowCategory = new OverseerrTvShowCategory { Is4K = false };
         private static OverseerrMovieCategory DefaultMovieCategory = new OverseerrMovieCategory { Is4K = false };
 
-        public List<string> IssueTypes { get => new List<string> { "Video", "Audio", "Subtitle", "Other" }; }
+        public Dictionary<string, int> IssueTypes { get => new Dictionary<string, int> { { "Video", 1 }, { "Audio", 2 }, { "Subtitle", 3 }, { "Other", 4 } }; }
 
         public OverseerrClient(IHttpClientFactory httpClientFactory, ILogger<OverseerrClient> logger, OverseerrSettingsProvider overseerrSettingsProvider)
         {
@@ -333,6 +333,15 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                 {
                     return null;
                 }
+                else if(
+                    movie.MediaInfo.Status != MediaStatus.AVAILABLE &&
+                    movie.MediaInfo.Status != MediaStatus.PARTIALLY_AVAILABLE &&
+                    movie.MediaInfo.Status4k != MediaStatus.AVAILABLE &&
+                    movie.MediaInfo.Status4k != MediaStatus.PARTIALLY_AVAILABLE
+                )
+                {
+                    return null;
+                }
 
                 return ConvertMovie(movie, category.Is4K ? movie.MediaInfo?.Status4k : movie.MediaInfo?.Status);
             }
@@ -351,7 +360,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
         /// <param name="issueName"></param>
         /// <param name="issueDescription"></param>
         /// <returns></returns>
-        public async Task<bool> SubmitMovieIssueAsync(int theMovieDbId, string issueName, string issueDescription)
+        public async Task<bool> SubmitMovieIssueAsync(MovieRequest request, int theMovieDbId, string issueValue, string issueDescription)
         {
             try
             {
@@ -362,16 +371,15 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                 JSONMedia movies = JsonConvert.DeserializeObject<JSONMedia>(jsonResponse);
 
                 int interalMediaId = movies.MediaInfo.Id;
-                int issueId = IssueTypes.IndexOf(issueName) + 1;
 
                 response = await HttpPostAsync(null, $"{BaseURL}issue", JsonConvert.SerializeObject(new
                 {
-                    issueType = issueId,
+                    issueType = int.Parse(issueValue),
                     message = issueDescription,
                     mediaId = interalMediaId
                 }));
 
-                await response.ThrowIfNotSuccessfulAsync("OverseerrRequestMovieRequest failed", x => x.error);
+                await response.ThrowIfNotSuccessfulAsync("OverseerrIssueMovieRequest failed", x => x.error);
                 return true;
             }
             catch(Exception ex)
@@ -597,6 +605,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                 var tvShows = JsonConvert.DeserializeObject<JSONSearchResult>(jsonResponse).Results
                     .Where(x => x.MediaType == MediaTypes.TV)
                     .Where(x => x.MediaInfo != null)
+                    .Where(x => x.MediaInfo.Status == MediaStatus.AVAILABLE || x.MediaInfo.Status == MediaStatus.PARTIALLY_AVAILABLE || x.MediaInfo.Status4k == MediaStatus.AVAILABLE || x.MediaInfo.Status4k == MediaStatus.PARTIALLY_AVAILABLE)
                     .ToArray();
 
                 if (tvShows.Count() != 1)
@@ -614,11 +623,11 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
         }
 
 
-        public async Task<bool> SubmitTvShowIssueAsync(int thTvDbId, string issueName, string issueDescription)
+        public async Task<bool> SubmitTvShowIssueAsync(TvShowRequest request, int theTvDbId, string issueValue, string issueDescription)
         {
             try
             {
-                var response = await HttpGetAsync($"{BaseURL}tv/{thTvDbId}");
+                var response = await HttpGetAsync($"{BaseURL}tv/{theTvDbId}");
                 await response.ThrowIfNotSuccessfulAsync("OverseerrTvShowSearch failed", x => x.error);
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -626,11 +635,10 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                 var tvShows = JsonConvert.DeserializeObject<JSONMedia>(jsonResponse);
 
                 int interalMediaId = tvShows.MediaInfo.Id;
-                int issueId = IssueTypes.IndexOf(issueName) + 1;
 
                 response = await HttpPostAsync(null, $"{BaseURL}issue", JsonConvert.SerializeObject(new
                 {
-                    issueType = issueId,
+                    issueType = int.Parse(issueValue),
                     message = issueDescription,
                     mediaId = interalMediaId
                 }));

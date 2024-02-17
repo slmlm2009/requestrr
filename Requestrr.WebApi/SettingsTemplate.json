@@ -28,7 +28,9 @@
       "ApiUsername": "",
       "BaseUrl": "",
       "UseSSL": false,
-      "Version": "3"
+      "Version": "3",
+      "UseMovieIssue": false,
+      "UseTVIssue": false
     },
     "Overseerr": {
       "Hostname": "",
@@ -103,5 +105,5 @@
   "Port": 4545,
   "BaseUrl": "",
   "DisableAuthentication": false,
-  "Version": "2.1.1"
+  "Version": "2.1.2"
 }

@@ -9,5 +9,8 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi
         public string ApiUsername { get; set; }
         public string BaseUrl { get; set; }
         public string Version { get; set; }
+
+        public bool UseMovieIssue { get; set; }
+        public bool UseTVIssue { get; set; }
     }
 }
