@@ -294,6 +294,7 @@ function Ombi(props) {
           </Col>
         </Row>
       </div>
+      <hr className="my-4" />
       <h6 className="heading-small text-muted">
         Enable Issues
       </h6>
