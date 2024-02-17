@@ -1,6 +1,6 @@
 {
   "name": "requestrr",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Requestrr is a server designed to faciliate the request of media through chat applications.",
   "main": "index.js",
   "author": "Darkalfx",
@@ -26,6 +26,7 @@
     "not op_mini all"
   ],
   "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@fortawesome/fontawesome-free": "6.5.1",
     "@reduxjs/toolkit": "1.9.3",
     "bootstrap": "4.6.2",
