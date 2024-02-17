@@ -219,6 +219,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                     catch (System.Exception ex)
                     {
                         _logger.LogError(ex, $"An error occurred while getting availability for a specific movie with TMDB ID {movieId} from Overseer: " + ex.Message);
+                        throw new Exception($"An error occurred while getting availability for a specific movie with TMDB ID {movieId} from Overseer: " + ex.Message);
                     }
                 }
 
@@ -247,6 +248,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                     catch (System.Exception ex)
                     {
                         _logger.LogError(ex, $"An error occurred while getting availability for a specific tv show with TMDB ID {showId} from Overseer: " + ex.Message);
+                        throw new Exception($"An error occurred while getting availability for a specific tv show with TMDB ID {showId} from Overseer: " + ex.Message);
                     }
                 }
 
