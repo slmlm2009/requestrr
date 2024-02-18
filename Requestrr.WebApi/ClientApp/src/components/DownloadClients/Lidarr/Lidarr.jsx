@@ -8,7 +8,7 @@ import { Alert } from "reactstrap";
 import ValidatedTextbox from "../../Inputs/ValidatedTextbox"
 import Textbox from "../../Inputs/Textbox"
 import Dropdown from "../../Inputs/Dropdown"
-// import RadarrCategoryList from "./RadarrCategoryList"
+import LidarrCategoryList from "./LidarrCategoryList"
 
 import {
   FormGroup,
@@ -358,7 +358,7 @@ function Lidarr(props) {
           </Col>
         </Row>
       </div>
-      {/* <RadarrCategoryList isSubmitted={props.isSubmitted} isSaving={props.isSaving} apiVersion={apiVersion} canConnect={isHostnameValid && isPortValid && isApiKeyValid} /> */}
+      <LidarrCategoryList isSubmitted={props.isSubmitted} isSaving={props.isSaving} apiVersion={apiVersion} canConnect={isHostnameValid && isPortValid && isApiKeyValid} />
       <div>
         <h6 className="heading-small text-muted mt-4">
           Lidarr Requests Permissions Settings

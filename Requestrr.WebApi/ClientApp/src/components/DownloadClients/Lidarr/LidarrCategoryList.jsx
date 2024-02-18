@@ -1,8 +1,8 @@
 
 import { useDispatch, useSelector } from 'react-redux';
 import React from "react";
-import { addRadarrCategory } from "../../../store/actions/RadarrClientActions"
-import RadarrCategory from "./RadarrCategory";
+// import { addRadarrCategory } from "../../../store/actions/RadarrClientActions"
+import LidarrCategory from "./LidarrCategory";
 
 // reactstrap components
 import {
@@ -12,20 +12,20 @@ import {
 
 function LidarrCategoryList(props) {
 
-  const reduxState = useSelector((state) => {
-    return {
-      categories: state.movies.radarr.categories
-    }
-  });
+  // const reduxState = useSelector((state) => {
+  //   return {
+  //     categories: state.movies.lidarr.categories
+  //   }
+  // });
   const dispatch = useDispatch();
 
 
-  const createRadarrCategory = () => {
+  const createLidarrCategory = () => {
     let newId = Math.floor((Math.random() * 900) + 1);
 
-    while (reduxState.categories.map(x => x.id).includes(newId)) {
-      newId = Math.floor((Math.random() * 900) + 1);
-    }
+    // while (reduxState.categories.map(x => x.id).includes(newId)) {
+    //   newId = Math.floor((Math.random() * 900) + 1);
+    // }
 
     let newCategory = {
       id: newId,
@@ -37,7 +37,7 @@ function LidarrCategoryList(props) {
       wasCreated: true
     };
 
-    dispatch(addRadarrCategory(newCategory));
+    // dispatch(addRadarrCategory(newCategory));
   }
 
 
@@ -45,7 +45,7 @@ function LidarrCategoryList(props) {
     <>
       <hr className="my-4" />
       <h6 className="heading-small text-muted">
-        Radarr Category Settings
+        Lidarr Category Settings
       </h6>
       <div class="table-responsive mt-4 overflow-visible">
         <div>
@@ -57,16 +57,16 @@ function LidarrCategoryList(props) {
               </tr>
             </thead>
             <tbody class="list">
-              {reduxState.categories.map((category, key) => {
+              {/* {reduxState.categories.map((category, key) => {
                 return (
                   <React.Fragment key={category.id}>
-                    <RadarrCategory key={category.id} isSubmitted={props.isSubmitted} isSaving={props.isSaving} canConnect={props.canConnect} apiVersion={props.apiVersion} category={{ ...category }} />
+                    <LidarrCategory key={category.id} isSubmitted={props.isSubmitted} isSaving={props.isSaving} canConnect={props.canConnect} apiVersion={props.apiVersion} category={{ ...category }} />
                   </React.Fragment>)
-              })}
+              })} */}
               <tr>
                 <td className="text-right" colSpan="2">
                   <FormGroup className="form-group text-right mt-2">
-                    <button onClick={createRadarrCategory} className="btn btn-icon btn-3 btn-success" type="button">
+                    <button onClick={createLidarrCategory} className="btn btn-icon btn-3 btn-success" type="button">
                       <span className="btn-inner--icon"><i className="fas fa-plus"></i></span>
                       <span className="btn-inner--text">Add new category</span>
                     </button>
