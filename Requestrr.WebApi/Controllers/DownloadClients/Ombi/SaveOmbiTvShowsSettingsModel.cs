@@ -6,5 +6,9 @@ namespace Requestrr.WebApi.Controllers.DownloadClients.Ombi
     {
         [Required]
         public string Restrictions { get; set; }
+
+
+        [Required]
+        public bool UseTVIssue { get; set; }
     }
 }

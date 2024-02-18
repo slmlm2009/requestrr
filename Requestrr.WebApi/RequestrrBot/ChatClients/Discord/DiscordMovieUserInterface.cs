@@ -116,7 +116,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             string message = Language.Current.DiscordCommandMovieIssueSelect;
 
             //Setup the dropdown of issues
-            var options = ((IMovieIssueSearcher)_movieSearcher).IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x), $"{request.CategoryId}/{movie.TheMovieDbId}/{x}", null, x == issue)).ToList();
+            var options = ((IMovieIssueSearcher)_movieSearcher).IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x.Key), $"{request.CategoryId}/{movie.TheMovieDbId}/{x.Value}", null, x.Value.ToString() == issue)).ToList();
             DiscordSelectComponent select = new DiscordSelectComponent($"MIRS/{_interactionContext.User.Id}/{request.CategoryId}/{movie.TheMovieDbId}", LimitStringSize(Language.Current.DiscordCommandIssueHelpDropdown), options);
 
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder().AddEmbed(await GenerateMovieDetailsAsync(movie, _movieSearcher));
@@ -138,14 +138,36 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             await _interactionContext.EditOriginalResponseAsync(builder);
         }
 
+        private string CreateInteractionString(string message, string split, string insert, int size)
+        {
+            List<string> tempString = message.Split(split).ToList();
+            string join = LimitStringSize(insert, size - string.Join("", tempString).Count());
+            return LimitStringSize(string.Join(join, tempString), size);
+        }
+
         public async Task DisplayMovieIssueModalAsync(MovieRequest request, Movie movie, string issue)
         {
             DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder();
 
+            
+            string label = CreateInteractionString(
+                Language.Current.DiscordCommandIssueInteractionLabel,
+                LanguageTokens.IssueLabel,
+                ((IMovieIssueSearcher)_movieSearcher).IssueTypes.Where(x => x.Value.ToString() == issue).FirstOrDefault().Key,
+                45
+            );
+            string placeholder = LimitStringSize(Language.Current.DiscordCommandIssueInteractionPlaceholder);
+            string title = CreateInteractionString(
+                Language.Current.DiscordCommandIssueInteractionTitle,
+                LanguageTokens.IssueTitle,
+                movie.Title,
+                45
+            );
+
             TextInputComponent textBox = new TextInputComponent(
-                $"Description of '{issue}' issue",
+                label,
                 $"MIRC/{_interactionContext.User.Id}/{request.CategoryId}/{movie.TheMovieDbId}/{issue}",
-                "Description",
+                placeholder,
                 string.Empty,
                 true,
                 TextInputStyle.Paragraph,
@@ -155,7 +177,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
             builder.AddComponents(textBox);
             builder.WithCustomId("MIRC");
-            builder.WithTitle($"Report Issue for '{movie.Title}'");
+            builder.WithTitle(title);
 
             await _interactionContext.CreateResponseAsync(InteractionResponseType.Modal, builder);
         }

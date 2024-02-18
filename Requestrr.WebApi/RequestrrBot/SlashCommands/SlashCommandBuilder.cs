@@ -14,6 +14,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.Logging;
 using Requestrr.WebApi.RequestrrBot.ChatClients.Discord;
 using Requestrr.WebApi.RequestrrBot.DownloadClients;
+using Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Sonarr;
@@ -25,9 +26,9 @@ namespace Requestrr.WebApi.RequestrrBot
     {
         public static string DLLFileName = "slashcommandsbuilder";
 
-        public static Type Build(ILogger logger, DiscordSettings settings, RadarrSettingsProvider radarrSettingsProvider, SonarrSettingsProvider sonarrSettingsProvider, OverseerrSettingsProvider overseerrSettingsProvider)
+        public static Type Build(ILogger logger, DiscordSettings settings, RadarrSettingsProvider radarrSettingsProvider, SonarrSettingsProvider sonarrSettingsProvider, OverseerrSettingsProvider overseerrSettingsProvider, OmbiSettingsProvider ombiSettingsProvider)
         {
-            string code = GetCode(settings, radarrSettingsProvider.Provide(), sonarrSettingsProvider.Provide(), overseerrSettingsProvider.Provide());
+            string code = GetCode(settings, radarrSettingsProvider.Provide(), sonarrSettingsProvider.Provide(), overseerrSettingsProvider.Provide(), ombiSettingsProvider.Provide());
             var tree = SyntaxFactory.ParseSyntaxTree(code);
             string fileName = $"{DLLFileName}-{Guid.NewGuid()}.dll";
 
@@ -93,7 +94,7 @@ namespace Requestrr.WebApi.RequestrrBot
             throw new Exception("Failed to build SlashCommands assembly.");
         }
 
-        private static string GetCode(DiscordSettings settings, RadarrSettings radarrSettings, SonarrSettings sonarrSettings, OverseerrSettings overseerrSettings)
+        private static string GetCode(DiscordSettings settings, RadarrSettings radarrSettings, SonarrSettings sonarrSettings, OverseerrSettings overseerrSettings, OmbiSettings ombiSettings)
         {
             var code = File.ReadAllText("SlashCommands.txt");
 
@@ -125,7 +126,7 @@ namespace Requestrr.WebApi.RequestrrBot
             code = code.Replace("[ISSUE_GROUP_NAME]", Language.Current.DiscordCommandIssueName);
             code = code.Replace("[ISSUE_GROUP_DESCRIPTION]", Language.Current.DiscordCommandIssueDescription);
 
-            
+
             code = code.Replace("[ISSUE_MOVIE_TITLE_DESCRIPTION]", Language.Current.DiscordCommandMovieIssueTitleDescription);
             code = code.Replace("[ISSUE_MOVIE_TITLE_OPTION_NAME]", Language.Current.DiscordCommandMovieIssueTitleOptionName);
             code = code.Replace("[ISSUE_MOVIE_TITLE_OPTION_DESCRIPTION]", Language.Current.DiscordCommandMovieIssueTitleOptionDescription);
@@ -209,12 +210,18 @@ namespace Requestrr.WebApi.RequestrrBot
             }
 
 
-            //Handle the removal of Issues if not needed
 
-            if(
-                (settings.MovieDownloadClient == DownloadClient.Disabled && settings.TvShowDownloadClient == DownloadClient.Disabled) ||
-                (settings.MovieDownloadClient != DownloadClient.Overseerr && settings.TvShowDownloadClient != DownloadClient.Overseerr) ||
-                (!overseerrSettings.UseMovieIssue && !overseerrSettings.UseTVIssue)
+            //Handle the removal of Issues if not needed
+            if (
+                (
+                    !(settings.MovieDownloadClient == DownloadClient.Overseerr && overseerrSettings.UseMovieIssue) &&
+                    !(settings.MovieDownloadClient == DownloadClient.Ombi && ombiSettings.UseMovieIssue)
+                )
+                &&
+                (
+                    !(settings.TvShowDownloadClient == DownloadClient.Overseerr && overseerrSettings.UseTVIssue) &&
+                    !(settings.TvShowDownloadClient == DownloadClient.Ombi && ombiSettings.UseTVIssue)
+                )
             )
             {
                 //If movies and tv clients disabled, remove the commands
@@ -230,7 +237,10 @@ namespace Requestrr.WebApi.RequestrrBot
                 code = code.Replace("[ISSUE_COMMAND_START]", string.Empty);
                 code = code.Replace("[ISSUE_COMMAND_END]", string.Empty);
 
-                if (!overseerrSettings.UseMovieIssue || settings.MovieDownloadClient != DownloadClient.Overseerr)
+                if (
+                    (!overseerrSettings.UseMovieIssue || settings.MovieDownloadClient != DownloadClient.Overseerr) &&
+                    (!ombiSettings.UseMovieIssue || settings.MovieDownloadClient != DownloadClient.Ombi)
+                )
                 {
                     //If download client does not have movies, remove movies
                     int beginIndex = code.IndexOf("[ISSUE_MOVIE_COMMAND_START]");
@@ -243,7 +253,10 @@ namespace Requestrr.WebApi.RequestrrBot
                     code = GenerateMovieIssueCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code);
                 }
 
-                if(!overseerrSettings.UseTVIssue || settings.TvShowDownloadClient != DownloadClient.Overseerr)
+                if (
+                    (!overseerrSettings.UseTVIssue || settings.TvShowDownloadClient != DownloadClient.Overseerr) &&
+                    (!ombiSettings.UseTVIssue || settings.TvShowDownloadClient != DownloadClient.Ombi)
+                )
                 {
                     //If client does not have TV issues enabled, remove tv
                     int beginIndex = code.IndexOf("[ISSUE_TV_COMMAND_START]");

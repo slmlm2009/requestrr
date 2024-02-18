@@ -17,4 +17,14 @@ namespace Requestrr.WebApi.Controllers.DownloadClients.Ombi
         [Required]
         public string Version { get; set; }
     }
+
+    public class OmbiMovieSettings : OmbiSettings
+    {
+        public bool UseMovieIssue { get; set; }
+    }
+
+    public class OmbiTVSettings : OmbiSettings
+    {
+        public bool UseTVIssue { get; set; }
+    }
 }

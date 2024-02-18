@@ -5,6 +5,7 @@ using Requestrr.WebApi.Controllers.DownloadClients.Overseerr;
 using Requestrr.WebApi.Controllers.DownloadClients.Radarr;
 using Requestrr.WebApi.Controllers.DownloadClients.Sonarr;
 using Requestrr.WebApi.RequestrrBot;
+using Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Sonarr;
 using Requestrr.WebApi.RequestrrBot.Movies;
@@ -23,7 +24,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
             });
         }
 
-        public static void SetOmbi(MoviesSettings movieSettings, OmbiSettingsModel ombiSettings)
+        public static void SetOmbi(MoviesSettings movieSettings, SaveOmbiMoviesSettingsModel ombiSettings)
         {
             SettingsFile.Write(settings =>
             {
@@ -86,7 +87,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
             });
         }
 
-        public static void SetOmbi(TvShowsSettings tvShowsSettings, OmbiSettingsModel ombiSettings)
+        public static void SetOmbi(TvShowsSettings tvShowsSettings, SaveOmbiTvShowsSettingsModel ombiSettings)
         {
             SettingsFile.Write(settings =>
             {
@@ -135,6 +136,19 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
 
                 SetTvShowSettings(tvSettings, settings);
             });
+        }
+
+
+        private static void SetOmbiSettings(SaveOmbiMoviesSettingsModel ombiSettings, dynamic settings)
+        {
+            settings.DownloadClients.Ombi.UseMovieIssue = ombiSettings.UseMovieIssue;
+            SetOmbiSettings((OmbiSettingsModel)ombiSettings, settings);
+        }
+
+        private static void SetOmbiSettings(SaveOmbiTvShowsSettingsModel ombiSettings, dynamic settings)
+        {
+            settings.DownloadClients.Ombi.UseTVIssue = ombiSettings.UseTVIssue;
+            SetOmbiSettings((OmbiSettingsModel)ombiSettings, settings);
         }
 
         private static void SetOmbiSettings(OmbiSettingsModel ombiSettings, dynamic settings)

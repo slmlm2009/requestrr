@@ -250,7 +250,7 @@ function TvShows() {
                         {
                           client === "Ombi"
                             ? <>
-                              <Ombi settings={ombi} onChange={newOmbi => { setOmbi(newOmbi) }} onValidate={newIsOmbiValid => setIsOmbiValid(newIsOmbiValid)} isSubmitted={isSubmitted} />
+                              <Ombi type={"tv"} settings={ombi} onChange={newOmbi => { setOmbi(newOmbi) }} onValidate={newIsOmbiValid => setIsOmbiValid(newIsOmbiValid)} isSubmitted={isSubmitted} />
                             </>
                             : null
                         }

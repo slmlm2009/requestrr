@@ -58,7 +58,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                     MonitorNewRequests = _downloadClientsSettings.Radarr.MonitorNewRequests,
                     Version = _downloadClientsSettings.Radarr.Version
                 },
-                Ombi = new OmbiSettingsModel
+                Ombi = new OmbiMovieSettings
                 {
                     Hostname = _downloadClientsSettings.Ombi.Hostname,
                     BaseUrl = _downloadClientsSettings.Ombi.BaseUrl,
@@ -66,7 +66,8 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                     ApiKey = _downloadClientsSettings.Ombi.ApiKey,
                     ApiUsername = _downloadClientsSettings.Ombi.ApiUsername,
                     UseSSL = _downloadClientsSettings.Ombi.UseSSL,
-                    Version = _downloadClientsSettings.Ombi.Version
+                    Version = _downloadClientsSettings.Ombi.Version,
+                    UseMovieIssue = _downloadClientsSettings.Ombi.UseMovieIssue
                 },
                 Overseerr = _downloadClientsSettings.Overseerr,
             });

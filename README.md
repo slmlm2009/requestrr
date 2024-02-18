@@ -17,7 +17,7 @@ Requestrr is a chatbot used to simplify using services like Sonarr/Radarr/Overse
 - Users can get notified when their requests complete
 - Sonarr (V2-V4) & Radarr (V2-V5) integration with support for multiple instance via Overseerr (only for 4k/1080p)
 - Overseerr integration with support for per user permissions/quotas and issue submission
-- Ombi (V3/V4) integration with support for per user roles/quotas
+- Ombi (V3/V4) integration with support for per user roles/quotas and issue submission
 - Fully configurable via a web portal
 
 <br />
@@ -46,9 +46,21 @@ Open a command prompt/terminal and then use the following command create and sta
 
 You can also choose to run the container as a different user. See [docker run](https://docs.docker.com/engine/reference/run/#user) reference for how to set the user for your container.
 
-Then simply access the web portal at http://youraddress:4545/ to create your admin account, then you can configure everything through the web portal.
-
+Then simply access the web portal at http://youraddress:4545/ to create your admin account, then you can configure everything through the web portal. <br />
 Once you have configured the bot and invited it to your Discord server, simply type **/help** to see all available commands.
+
+If you just need commands to quickly setup Requestrr with no issues, use the following commands:
+
+```
+mkdir /opt/Requestrr
+mkdir /opt/Requestrr/config
+docker run -d \
+  --name requestrr \
+  -p 4545:4545 \
+  -v /opt/Requestrr/config:/root/config \
+  --restart=unless-stopped \
+  thomst08/requestrr
+```
 
 <br />
 

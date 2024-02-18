@@ -249,6 +249,16 @@ namespace Requestrr.WebApi
 
                 File.WriteAllText(settingsFilePath, JsonConvert.SerializeObject(settingsJson));
             }
+
+            if (settingsJson.Version.ToString().Equals("2.1.1", StringComparison.InvariantCultureIgnoreCase))
+            {
+                settingsJson.Version = "2.1.2";
+
+                ((JObject)settingsJson["DownloadClients"]["Ombi"]).Add("UseMovieIssue", false);
+                ((JObject)settingsJson["DownloadClients"]["Ombi"]).Add("UseTVIssue", false);
+
+                File.WriteAllText(settingsFilePath, JsonConvert.SerializeObject(settingsJson));
+            }
         }
     }
 }

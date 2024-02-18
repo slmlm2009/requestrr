@@ -123,6 +123,7 @@ export function saveOmbiClient(saveModel) {
                 'ApiUsername': saveModel.ombi.apiUsername,
                 'UseSSL': saveModel.ombi.useSSL,
                 'Version': saveModel.ombi.version,
+                'UseMovieIssue': saveModel.ombi.useMovieIssue
             })
         })
             .then(data => data.json())
@@ -137,6 +138,7 @@ export function saveOmbiClient(saveModel) {
                             apiUsername: saveModel.ombi.apiUsername,
                             useSSL: saveModel.ombi.useSSL,
                             version: saveModel.ombi.version,
+                            useMovieIssue: saveModel.ombi.useMovieIssue
                         },
                     }));
                     return { ok: true };

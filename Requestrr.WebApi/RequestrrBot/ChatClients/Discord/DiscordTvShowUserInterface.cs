@@ -171,7 +171,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             var message = Language.Current.DiscordCommandTvIssueSelect;
 
             //Setup the dropdown of issues
-            var options = _tvShowIssue.IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x), $"{request.CategoryId}/{tvShow.TheTvDbId}/{x}", null, x == issue)).ToList();
+            var options = _tvShowIssue.IssueTypes.Select(x => new DiscordSelectComponentOption(LimitStringSize(x.Key), $"{request.CategoryId}/{tvShow.TheTvDbId}/{x.Value}", null, x.Value.ToString() == issue)).ToList();
             DiscordSelectComponent select = new DiscordSelectComponent($"TIRS/{_interactionContext.User.Id}/{request.CategoryId}/{tvShow.TheTvDbId}", LimitStringSize(Language.Current.DiscordCommandIssueHelpDropdown), options);
 
 
@@ -195,6 +195,13 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         }
 
 
+        private string CreateInteractionString(string message, string split, string insert, int size)
+        {
+            List<string> tempString = message.Split(split).ToList();
+            string join = LimitStringSize(insert, size - string.Join("", tempString).Count());
+            return LimitStringSize(string.Join(join, tempString), size);
+        }
+
         /// <summary>
         /// Used to handle the submitting of a Modal back to the user when an issue is being submitted
         /// </summary>
@@ -206,10 +213,24 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         {
             DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder();
 
+            string label = CreateInteractionString(
+                Language.Current.DiscordCommandIssueInteractionLabel,
+                LanguageTokens.IssueLabel,
+                _tvShowIssue.IssueTypes.Where(x => x.Value.ToString() == issue).FirstOrDefault().Key,
+                45
+            );
+            string placeholder = LimitStringSize(Language.Current.DiscordCommandIssueInteractionPlaceholder);
+            string title = CreateInteractionString(
+                Language.Current.DiscordCommandIssueInteractionTitle,
+                LanguageTokens.IssueTitle,
+                tvShow.Title,
+                45
+            );
+
             TextInputComponent textBox = new TextInputComponent(
-                $"Description of '{issue}' issue",
+                label,
                 $"TIRC/{_interactionContext.User.Id}/{request.CategoryId}/{tvShow.TheTvDbId}/{issue}",
-                "Description",
+                placeholder,
                 string.Empty,
                 true,
                 TextInputStyle.Paragraph,
@@ -219,7 +240,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
             builder.AddComponents(textBox);
             builder.WithCustomId("TIRC");
-            builder.WithTitle($"Report Issue for '{tvShow.Title}'");
+            builder.WithTitle(title);
 
             await _interactionContext.CreateResponseAsync(InteractionResponseType.Modal, builder);
         }
