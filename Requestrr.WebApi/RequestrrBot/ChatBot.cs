@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +24,6 @@ using Requestrr.WebApi.RequestrrBot.Notifications;
 using Requestrr.WebApi.RequestrrBot.Notifications.Movies;
 using Requestrr.WebApi.RequestrrBot.Notifications.TvShows;
 using Requestrr.WebApi.RequestrrBot.TvShows;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Requestrr.WebApi.RequestrrBot
 {
@@ -50,6 +48,7 @@ namespace Requestrr.WebApi.RequestrrBot
         private SlashCommandsExtension _slashCommands = null;
         private HashSet<ulong> _currentGuilds = new HashSet<ulong>();
         private Language _previousLanguage = Language.Current;
+        private int _waitTimeout = 0;
 
         public ChatBot(IServiceProvider serviceProvider, ILogger<ChatBot> logger, DiscordSettingsProvider discordSettingsProvider)
         {
@@ -70,24 +69,30 @@ namespace Requestrr.WebApi.RequestrrBot
             {
                 while (true)
                 {
+                    if (_waitTimeout > 0)
+                        _waitTimeout--;
                     try
                     {
-                        var previousGuildCount = _currentGuilds.Count;
+                        bool guildsChanged = false;
                         var newSettings = _discordSettingsProvider.Provide();
 
                         try
                         {
-                            var newGuilds = new HashSet<ulong>(_client?.Guilds.Keys.ToArray() ?? Array.Empty<ulong>());
-
-                            if (newGuilds.Any())
+                            HashSet<ulong> guilds = new HashSet<ulong>(_client?.Guilds.Keys.ToArray() ?? Array.Empty<ulong>());
+                            guildsChanged = !(new HashSet<ulong>(guilds).SetEquals(_currentGuilds));
+                            
+                            if (guildsChanged)
                             {
-                                _currentGuilds.UnionWith(newGuilds);
+                                _currentGuilds.Clear();
+                                _currentGuilds.UnionWith(guilds);
                             }
-
                         }
-                        catch (System.Exception) { }
+                        catch (System.Exception)
+                        {
+                            guildsChanged = false;
+                        }
 
-                        if (!_currentSettings.Equals(newSettings) || Language.Current != _previousLanguage || _currentGuilds.Count != previousGuildCount)
+                        if (!_currentSettings.Equals(newSettings) || Language.Current != _previousLanguage || guildsChanged || (_client == null && _waitTimeout <= 0))
                         {
                             var previousSettings = _currentSettings;
                             _logger.LogWarning("Bot configuration changed: restarting bot");
@@ -97,6 +102,7 @@ namespace Requestrr.WebApi.RequestrrBot
                             _logger.LogWarning("Bot has been restarted.");
 
                             SlashCommandBuilder.CleanUp();
+                            _waitTimeout = 5;
                         }
                     }
                     catch (Exception ex)
@@ -164,7 +170,7 @@ namespace Requestrr.WebApi.RequestrrBot
                     {
                         await _client.ConnectAsync();
                     }
-                    catch(Exception ex) when (ex.InnerException is DSharpPlus.Exceptions.UnauthorizedException)
+                    catch (Exception ex) when (ex.InnerException is DSharpPlus.Exceptions.UnauthorizedException)
                     {
                         _logger.LogError("Discord token is incorrect, please cehck your token settings.");
                         _client = null;
@@ -287,11 +293,11 @@ namespace Requestrr.WebApi.RequestrrBot
         {
             try
             {
-                if(e.Values.FirstOrDefault().Key.ToLower().StartsWith("mir"))
+                if (e.Values.FirstOrDefault().Key.ToLower().StartsWith("mir"))
                 {
                     await HandleMovieIssueModalAsync(e);
                 }
-                else if(e.Values.FirstOrDefault().Key.ToLower().StartsWith("tir"))
+                else if (e.Values.FirstOrDefault().Key.ToLower().StartsWith("tir"))
                 {
                     await HandleTvShowIssueModalAsync(e);
                 }
@@ -506,8 +512,8 @@ namespace Requestrr.WebApi.RequestrrBot
 
                     //TODO: finish here
                     await CreateTvShowIssueWorkFlow(e, int.Parse(category)).HandleIssueTVSelectionAsync(int.Parse(tvShow), issue);
-                        
-                        //.HandleIssueMovieSelectionAsync(int.Parse(movie), issue);
+
+                    //.HandleIssueMovieSelectionAsync(int.Parse(movie), issue);
                 }
             }
             else if (e.Id.ToLower().StartsWith("tirb"))
@@ -532,7 +538,7 @@ namespace Requestrr.WebApi.RequestrrBot
         private async Task HandleTvShowIssueModalAsync(ModalSubmitEventArgs e)
         {
             KeyValuePair<string, string> firstTextbox = e.Values.FirstOrDefault();
-            
+
             if (firstTextbox.Key.ToLower().StartsWith("tirc"))
             {
                 string[] values = firstTextbox.Key.Split("/");

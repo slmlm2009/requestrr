@@ -44,7 +44,7 @@ namespace Requestrr.WebApi
 #if DEBUG
             string buildNumber = "Development";
 #else
-            string? buildNumber = Configuration.GetValue<string>("BuildVersion");
+            string buildNumber = "v2.1.5";
 #endif
             Console.WriteLine($"Starting Requestrr - build '{(string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber)}'");
             Language.BuildVersion = string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber;
