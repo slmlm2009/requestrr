@@ -80,7 +80,7 @@ namespace Requestrr.WebApi.RequestrrBot
                         {
                             HashSet<ulong> guilds = new HashSet<ulong>(_client?.Guilds.Keys.ToArray() ?? Array.Empty<ulong>());
                             guildsChanged = !(new HashSet<ulong>(guilds).SetEquals(_currentGuilds));
-                            
+
                             if (guildsChanged)
                             {
                                 _currentGuilds.Clear();
@@ -92,7 +92,8 @@ namespace Requestrr.WebApi.RequestrrBot
                             guildsChanged = false;
                         }
 
-                        if (!_currentSettings.Equals(newSettings) || Language.Current != _previousLanguage || guildsChanged || (_client == null && _waitTimeout <= 0))
+
+                        if (!_currentSettings.Equals(newSettings) || Language.Current != _previousLanguage || guildsChanged || (_client == null && _waitTimeout <= 0 && !string.IsNullOrWhiteSpace(newSettings.BotToken)))
                         {
                             var previousSettings = _currentSettings;
                             _logger.LogWarning("Bot configuration changed: restarting bot");
