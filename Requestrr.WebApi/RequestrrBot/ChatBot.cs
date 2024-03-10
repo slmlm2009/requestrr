@@ -79,7 +79,7 @@ namespace Requestrr.WebApi.RequestrrBot
                         try
                         {
                             HashSet<ulong> guilds = new HashSet<ulong>(_client?.Guilds.Keys.ToArray() ?? Array.Empty<ulong>());
-                            guildsChanged = !(new HashSet<ulong>(guilds).SetEquals(_currentGuilds));
+                            guildsChanged = !(new HashSet<ulong>(guilds).SetEquals(_currentGuilds)) && _client != null;
 
                             if (guildsChanged)
                             {
@@ -103,7 +103,10 @@ namespace Requestrr.WebApi.RequestrrBot
                             _logger.LogWarning("Bot has been restarted.");
 
                             SlashCommandBuilder.CleanUp();
-                            _waitTimeout = 5;
+
+                            //Delay till next restart
+                            if(_waitTimeout <= 0)
+                                _waitTimeout = 5;
                         }
                     }
                     catch (Exception ex)
@@ -116,25 +119,31 @@ namespace Requestrr.WebApi.RequestrrBot
             });
         }
 
+        private async Task DisposeClient()
+        {
+            if (_client != null)
+            {
+                await _client.DisconnectAsync();
+                _client.Ready -= Connected;
+                _client.ComponentInteractionCreated -= DiscordComponentInteractionCreatedHandler;
+                _client.ModalSubmitted -= DiscordModalSubmittedHandler;
+                _client.Dispose();
+            }
+
+            if (_slashCommands != null)
+            {
+                _slashCommands.SlashCommandErrored -= SlashCommandErrorHandler;
+                _slashCommands.Dispose();
+            }
+        }
+
         private async Task RestartBot(DiscordSettings previousSettings, DiscordSettings newSettings, HashSet<ulong> currentGuilds)
         {
             if (!string.IsNullOrEmpty(newSettings.BotToken))
             {
-                if (!string.Equals(previousSettings.BotToken, newSettings.BotToken, StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(previousSettings.BotToken, newSettings.BotToken, StringComparison.OrdinalIgnoreCase) || _client == null || _slashCommands == null)
                 {
-                    if (_client != null)
-                    {
-                        await _client.DisconnectAsync();
-                        _client.Ready -= Connected;
-                        _client.ComponentInteractionCreated -= DiscordComponentInteractionCreatedHandler;
-                        _client.ModalSubmitted -= DiscordModalSubmittedHandler;
-                        _client.Dispose();
-                    }
-
-                    if (_slashCommands != null)
-                    {
-                        _slashCommands.SlashCommandErrored -= SlashCommandErrorHandler;
-                    }
+                    await DisposeClient();
 
                     var config = new DiscordConfiguration()
                     {
@@ -187,38 +196,53 @@ namespace Requestrr.WebApi.RequestrrBot
                 {
                     if (_client.Guilds.Any())
                     {
-                        await ApplyBotConfigurationAsync(newSettings);
-
-                        var prop = _slashCommands.GetType().GetProperty("_updateList", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        prop.SetValue(_slashCommands, new List<KeyValuePair<ulong?, Type>>());
-
-                        var slashCommandType = SlashCommandBuilder.Build(_logger, newSettings, _serviceProvider.Get<RadarrSettingsProvider>(), _serviceProvider.Get<SonarrSettingsProvider>(), _serviceProvider.Get<OverseerrSettingsProvider>(), _serviceProvider.Get<OmbiSettingsProvider>());
-
-                        if (newSettings.EnableRequestsThroughDirectMessages)
+                        try
                         {
-                            try { _slashCommands.RegisterCommands(slashCommandType); }
-                            catch (System.Exception ex) { _logger.LogError(ex, "Error while registering global slash commands: " + ex.Message); }
+                            await ApplyBotConfigurationAsync(newSettings);
 
-                            foreach (var guildId in _client.Guilds.Keys)
+                            var prop = _slashCommands.GetType().GetProperty("_updateList", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                            prop.SetValue(_slashCommands, new List<KeyValuePair<ulong?, Type>>());
+
+                            var slashCommandType = SlashCommandBuilder.Build(_logger, newSettings, _serviceProvider.Get<RadarrSettingsProvider>(), _serviceProvider.Get<SonarrSettingsProvider>(), _serviceProvider.Get<OverseerrSettingsProvider>(), _serviceProvider.Get<OmbiSettingsProvider>());
+
+                            if (newSettings.EnableRequestsThroughDirectMessages)
                             {
-                                try { _slashCommands.RegisterCommands<EmptySlashCommands>(guildId); }
-                                catch (System.Exception ex) { _logger.LogError(ex, $"Error while emptying guild-specific slash commands for guid {guildId}: " + ex.Message); }
+                                try { _slashCommands.RegisterCommands(slashCommandType); }
+                                catch (System.Exception ex) { _logger.LogError(ex, "Error while registering global slash commands: " + ex.Message); }
+
+                                foreach (var guildId in _client.Guilds.Keys)
+                                {
+                                    try { _slashCommands.RegisterCommands<EmptySlashCommands>(guildId); }
+                                    catch (System.Exception ex) { _logger.LogError(ex, $"Error while emptying guild-specific slash commands for guid {guildId}: " + ex.Message); }
+                                }
                             }
+                            else
+                            {
+                                try { _slashCommands.RegisterCommands<EmptySlashCommands>(); }
+                                catch (System.Exception ex) { _logger.LogError(ex, "Error while emptying global slash commands: " + ex.Message); }
+
+                                foreach (var guildId in _client.Guilds.Keys)
+                                {
+                                    try { _slashCommands.RegisterCommands(slashCommandType, guildId); }
+                                    catch (System.Exception ex) { _logger.LogError(ex, $"Error while registering guild-specific slash commands for guid {guildId}: " + ex.Message); }
+                                }
+                            }
+
+                            await _slashCommands.RefreshCommands();
+                            await Task.Delay(TimeSpan.FromMinutes(1));
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            try { _slashCommands.RegisterCommands<EmptySlashCommands>(); }
-                            catch (System.Exception ex) { _logger.LogError(ex, "Error while emptying global slash commands: " + ex.Message); }
+                            _logger.LogError($"Error settings up bot\n{ex.Message}");
 
-                            foreach (var guildId in _client.Guilds.Keys)
-                            {
-                                try { _slashCommands.RegisterCommands(slashCommandType, guildId); }
-                                catch (System.Exception ex) { _logger.LogError(ex, $"Error while registering guild-specific slash commands for guid {guildId}: " + ex.Message); }
-                            }
+                            await DisposeClient();
+                            _client = null;
+                            _slashCommands = null;
+
+                            //Wait for about 60 seconds till trying again
+                            //Could be network issue
+                            _waitTimeout = 12;
                         }
-
-                        await _slashCommands.RefreshCommands();
-                        await Task.Delay(TimeSpan.FromMinutes(1));
                     }
                 }
                 else
