@@ -128,6 +128,9 @@ namespace Requestrr.WebApi
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+#if !DEBUG
+                .UseContentRoot(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location))
+#endif
                 .UseUrls($"http://*:{Port}")
                 .ConfigureAppConfiguration((hostingContext, config) =>
             {

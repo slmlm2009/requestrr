@@ -123,11 +123,7 @@ namespace Requestrr.WebApi
 
             app.UseStaticFiles(new StaticFileOptions
             {
-#if DEBUG
                 FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "ClientApp/build")),
-#else
-                FileProvider = new PhysicalFileProvider(Program.CombindPath("ClientApp/build")),
-#endif
                 RequestPath = !string.IsNullOrWhiteSpace(Program.BaseUrl) ? Program.BaseUrl : string.Empty
             }); ;
 
@@ -140,11 +136,7 @@ namespace Requestrr.WebApi
 
             app.UseSpaStaticFiles(new StaticFileOptions
             {
-#if DEBUG
                 FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "ClientApp/build/static")),
-#else
-                FileProvider = new PhysicalFileProvider(Program.CombindPath("ClientApp/build/static")),
-#endif
                 RequestPath = "/static"
             });
 
