@@ -445,6 +445,9 @@ namespace Requestrr.WebApi.RequestrrBot
         {
             try
             {
+                if(!Directory.Exists(TempFolder))
+                    return;
+
                 var dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
                 var filesToDelete = Directory.GetFiles(TempFolder, $"*.dll");
 
