@@ -25,7 +25,7 @@ namespace Requestrr.WebApi.RequestrrBot
                 if(lastSlash != -1)
                     lastSlash++;
 
-                _settingsFolderLocation = lastSlash == -1 ? "./" : fullPath.Substring(0, lastSlash);
+                _settingsFolderLocation = Path.GetFullPath(lastSlash == -1 ? "./" : fullPath.Substring(0, lastSlash));
                 _settingsFolder = lastSlash == -1 ? string.Empty : fullPath.Substring(lastSlash, fullPath.Length - lastSlash);
             }
         }

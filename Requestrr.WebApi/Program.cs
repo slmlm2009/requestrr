@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime;
 using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -27,15 +28,20 @@ namespace Requestrr.WebApi
                     case "-h":
                         Console.WriteLine($"Requestrr version: {Language.BuildVersion}");
                         Console.WriteLine("Description:");
-                        Console.WriteLine("  A chatbot used to connectservices like Sonarr/Radarr/Overseerr/Ombi to Discord");
+                        Console.WriteLine("  A chatbot used to connectservices like Sonarr/Radarr/Overseerr/Ombi to Discord\n");
                         Console.WriteLine("Options:");
-                        Console.WriteLine("  -h, --help\t\tDisplays the help message and exits the program");
-                        Console.WriteLine("  -c, --config-dir\t\tChange the config folder");
+                        Console.WriteLine("  -h, --help           Displays the help message and exits the program");
+                        Console.WriteLine("  -c, --config-dir     Change the config folder");
+                        Console.WriteLine("                       Example: -c \"C:\\Requestrr\\config\"");
+                        Console.WriteLine("                                -c /opt/Requestrr/config");
+                        Console.WriteLine("                                -c ./config");
                         return;
                     case "--config-dir":
                     case "-c":
-                        try{
+                        try
+                        {
                             SettingsFile.SettingsFolder = args[++i];
+                            SettingsFile.CommandLineSettings = true;
                         }
                         catch
                         {
@@ -46,8 +52,22 @@ namespace Requestrr.WebApi
                 }
             }
 
-
-
+            try
+            {
+                if (!SettingsFile.CommandLineSettings)
+                {
+                    var config = new ConfigurationBuilder()
+                        .AddJsonFile("./appsettings.json", optional: false, reloadOnChange: true)
+                        .Build();
+                    SettingsFile.SettingsFolder = config.GetValue<string>("ConfigFolder");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error reading configuration folder locations.");
+                Console.WriteLine(e.Message);
+                return;
+            }
 
             UpdateSettingsFile();
             SetLanguage();
