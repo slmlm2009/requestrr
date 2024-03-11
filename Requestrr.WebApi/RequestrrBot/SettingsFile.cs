@@ -20,7 +20,7 @@ namespace Requestrr.WebApi.RequestrrBot
             get => Path.Combine(_settingsFolderLocation, _settingsFolder);
             set
             {
-                string valueData = (Path.IsPathRooted(value) ? value : Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), value)).Replace("\\", "/");
+                string valueData = Path.IsPathRooted(value) ? value : Program.CombindPath(value).Replace("\\", "/");
                 string fullPath = valueData.Length == 0 ? string.Empty : (valueData[valueData.Length - 1] == '/' ? valueData.Substring(0, valueData.Length - 1) : valueData);
                 int lastSlash = fullPath.LastIndexOf("/");
                 if(lastSlash != -1)
