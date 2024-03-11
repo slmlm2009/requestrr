@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,13 +20,13 @@ namespace Requestrr.WebApi.RequestrrBot
             get => Path.Combine(_settingsFolderLocation, _settingsFolder);
             set
             {
-                string valueData = value.Replace("\\", "/");
+                string valueData = (Path.IsPathRooted(value) ? value : Path.GetFullPath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), value)).Replace("\\", "/");
                 string fullPath = valueData.Length == 0 ? string.Empty : (valueData[valueData.Length - 1] == '/' ? valueData.Substring(0, valueData.Length - 1) : valueData);
                 int lastSlash = fullPath.LastIndexOf("/");
                 if(lastSlash != -1)
                     lastSlash++;
 
-                _settingsFolderLocation = Path.GetFullPath(lastSlash == -1 ? "./" : fullPath.Substring(0, lastSlash));
+                _settingsFolderLocation = lastSlash == -1 ? fullPath : fullPath.Substring(0, lastSlash);
                 _settingsFolder = lastSlash == -1 ? string.Empty : fullPath.Substring(lastSlash, fullPath.Length - lastSlash);
             }
         }

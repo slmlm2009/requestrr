@@ -25,6 +25,10 @@ using Requestrr.WebApi.Controllers.ChatClients;
 using Requestrr.WebApi.Controllers.Authentication;
 using Requestrr.WebApi.RequestrrBot.Movies;
 using Requestrr.WebApi.RequestrrBot.Locale;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Requestrr.WebApi
 {
@@ -36,6 +40,11 @@ namespace Requestrr.WebApi
         }
 
         public IConfiguration Configuration { get; }
+
+        public IFeatureCollection ServerFeatures => throw new NotImplementedException();
+
+        public IServiceProvider Services => throw new NotImplementedException();
+
         private ChatBot _requestrrBot;
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -49,7 +58,7 @@ namespace Requestrr.WebApi
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "ClientApp/build";
+                configuration.RootPath = Program.CombindPath("ClientApp/build");
             });
 
             var authenticationSettings = Configuration.GetSection("Authentication");
@@ -114,7 +123,11 @@ namespace Requestrr.WebApi
 
             app.UseStaticFiles(new StaticFileOptions
             {
+#if DEBUG
                 FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "ClientApp/build")),
+#else
+                FileProvider = new PhysicalFileProvider(Program.CombindPath("ClientApp/build")),
+#endif
                 RequestPath = !string.IsNullOrWhiteSpace(Program.BaseUrl) ? Program.BaseUrl : string.Empty
             }); ;
 
@@ -127,7 +140,11 @@ namespace Requestrr.WebApi
 
             app.UseSpaStaticFiles(new StaticFileOptions
             {
+#if DEBUG
                 FileProvider = new PhysicalFileProvider(Path.Combine(env.ContentRootPath, "ClientApp/build/static")),
+#else
+                FileProvider = new PhysicalFileProvider(Program.CombindPath("ClientApp/build/static")),
+#endif
                 RequestPath = "/static"
             });
 

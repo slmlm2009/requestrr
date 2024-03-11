@@ -1,11 +1,14 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Requestrr.WebApi.RequestrrBot;
@@ -32,9 +35,9 @@ namespace Requestrr.WebApi
                         Console.WriteLine("Options:");
                         Console.WriteLine("  -h, --help           Displays the help message and exits the program");
                         Console.WriteLine("  -c, --config-dir     Change the config folder");
-                        Console.WriteLine("                       Example: -c \"C:\\Requestrr\\config\"");
-                        Console.WriteLine("                                -c /opt/Requestrr/config");
-                        Console.WriteLine("                                -c ./config");
+                        Console.WriteLine("                       Example: Requestrr.WebApi.exe -c \"C:\\Requestrr\\config\"");
+                        Console.WriteLine("                                Requestrr.WebApi.dll -c /opt/Requestrr/config");
+                        Console.WriteLine("                                Requestrr.WebApi.exe -c ./config");
                         return;
                     case "--config-dir":
                     case "-c":
@@ -57,7 +60,7 @@ namespace Requestrr.WebApi
                 if (!SettingsFile.CommandLineSettings)
                 {
                     var config = new ConfigurationBuilder()
-                        .AddJsonFile("./appsettings.json", optional: false, reloadOnChange: true)
+                        .AddJsonFile(CombindPath("appsettings.json"), optional: false, reloadOnChange: true)
                         .Build();
                     SettingsFile.SettingsFolder = config.GetValue<string>("ConfigFolder");
                 }
@@ -90,7 +93,7 @@ namespace Requestrr.WebApi
             {
                 if (!File.Exists(SettingsFile.FilePath))
                 {
-                    File.WriteAllText(SettingsFile.FilePath, File.ReadAllText("SettingsTemplate.json").Replace("[PRIVATEKEY]", Guid.NewGuid().ToString()));
+                    File.WriteAllText(SettingsFile.FilePath, File.ReadAllText(CombindPath("SettingsTemplate.json")).Replace("[PRIVATEKEY]", Guid.NewGuid().ToString()));
                 }
                 else
                 {
@@ -100,19 +103,26 @@ namespace Requestrr.WebApi
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to write to config folder: {ex.Message}");
-                throw new Exception("No config file to load and cannot create one.  Bot cannot start.");
+                throw new Exception($"No config file to load and cannot create one.  Bot cannot start.");
             }
 
 
             if (!File.Exists(NotificationsFile.FilePath))
             {
-                File.WriteAllText(NotificationsFile.FilePath, File.ReadAllText("NotificationsTemplate.json"));
+                File.WriteAllText(NotificationsFile.FilePath, File.ReadAllText(CombindPath("NotificationsTemplate.json")));
             }
+        }
+
+
+        public static string CombindPath(string path)
+        {
+            return Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), path);
         }
 
         private static void SetLanguage()
         {
-            Language.Current = JsonConvert.DeserializeObject<Language>(File.ReadAllText($"locales/{SettingsFile.Read().ChatClients.Language}.json"));
+            string path = CombindPath($"locales/{SettingsFile.Read().ChatClients.Language}.json");
+            Language.Current = JsonConvert.DeserializeObject<Language>(File.ReadAllText(path));
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

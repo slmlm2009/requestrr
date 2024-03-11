@@ -91,7 +91,7 @@ namespace Requestrr.WebApi.RequestrrBot
         {
             //Build a list of commands being created
             Dictionary<string, List<string>> commandList = new Dictionary<string, List<string>>();
-            var code = File.ReadAllText("SlashCommands.txt");
+            var code = File.ReadAllText(Program.CombindPath("SlashCommands.txt"));
 
             commandList.Add(Language.Current.DiscordCommandRequestGroupName, new List<string>());
 
