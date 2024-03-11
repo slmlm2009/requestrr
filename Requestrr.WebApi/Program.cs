@@ -108,14 +108,18 @@ namespace Requestrr.WebApi
                 if (!SettingsFile.CommandLineSettings)
                 {
                     var config = new ConfigurationBuilder()
+#if DEBUG
+                        .AddJsonFile("appsettings.Development.json", optional: false, reloadOnChange: true)
+#else
                         .AddJsonFile(CombindPath("appsettings.json"), optional: false, reloadOnChange: true)
+#endif
                         .Build();
                     SettingsFile.SettingsFolder = config.GetValue<string>("ConfigFolder");
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error reading configuration folder locations.");
+                Console.WriteLine("Error reading config folder location.");
                 Console.WriteLine(e.Message);
                 return;
             }
@@ -123,7 +127,7 @@ namespace Requestrr.WebApi
             UpdateSettingsFile();
             SetLanguage();
 
-            if (cliPort != -1)
+            if (cliPort != -1 && cliPort != (int)SettingsFile.Read().Port)
             {
                 Console.WriteLine("Changing port from cli arguments...");
                 SettingsFile.Write(settings =>
@@ -132,7 +136,7 @@ namespace Requestrr.WebApi
                 });
             }
 
-            if (cliBaseUrl != null)
+            if (cliBaseUrl != null && cliBaseUrl != SettingsFile.Read().BaseUrl)
             {
                 Console.WriteLine("Changing base url from cli arguments...");
                 SettingsFile.Write(settings =>
