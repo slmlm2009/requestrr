@@ -23,6 +23,9 @@ namespace Requestrr.WebApi
 
         public static void Main(string[] args)
         {
+            string cliBaseUrl = null;
+            int cliPort = -1;
+
             for (int i = 0; i < args.Length; i++)
             {
                 switch (args[i])
@@ -36,8 +39,17 @@ namespace Requestrr.WebApi
                         Console.WriteLine("  -h, --help           Displays the help message and exits the program");
                         Console.WriteLine("  -c, --config-dir     Change the config folder");
                         Console.WriteLine("                       Example: Requestrr.WebApi.exe -c \"C:\\Requestrr\\config\"");
-                        Console.WriteLine("                                Requestrr.WebApi.dll -c /opt/Requestrr/config");
+                        Console.WriteLine("                                Requestrr.WebApi -c /opt/Requestrr/config");
                         Console.WriteLine("                                Requestrr.WebApi.exe -c ./config");
+                        Console.WriteLine("  -p, --port           Change the port of Requestrr, this will update the config file");
+                        Console.WriteLine("                       This allows for the changing of the port used for Requestrr, eg: http://localhost:port");
+                        Console.WriteLine("                       Example: Requestrr.WebApi.exe -p 4546");
+                        Console.WriteLine("                                Requestrr.WebApi --port 4547");
+                        Console.WriteLine("  -u, --base-url       Change the base URL of Requestrr, this will update the config file");
+                        Console.WriteLine("                       This allows the changing of the base URL to access Requestrr, eg: http://localhost:4545/baseURL");
+                        Console.WriteLine("                       Example: Requestrr.WebApi.exe -u \"/requestrr\"");
+                        Console.WriteLine("                                Requestrr.WebApi --base-url \"/\"");
+                        Console.WriteLine("                                Requestrr.WebApi.exe -u \"\"");
                         return;
                     case "--config-dir":
                     case "-c":
@@ -48,7 +60,43 @@ namespace Requestrr.WebApi
                         }
                         catch
                         {
-                            Console.WriteLine("Error: Missing arguments");
+                            Console.WriteLine("Error: Missing argument, config director path missing");
+                            return;
+                        }
+                        break;
+                    case "--port":
+                    case "-p":
+                        try
+                        {
+                            cliPort = int.Parse(args[++i]);
+                            if (cliPort < 0 || cliPort > 65535)
+                                throw new Exception("Invalid port number");
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Error: Missing argument, port needs to include a number between 0 to 65535");
+                            return;
+                        }
+                        break;
+                    case "--base-url":
+                    case "-u":
+                        try
+                        {
+                            cliBaseUrl = args[++i];
+                            if (cliBaseUrl == "/")
+                                cliBaseUrl = string.Empty;
+                            else if (cliBaseUrl[cliBaseUrl.Length - 1] == '/')
+                                throw new Exception("End slash");
+                        }
+                        catch (Exception ex)
+                        when (ex.Message == "End slash")
+                        {
+                            Console.WriteLine("Error: Base URL cannot end in a slash '/'");
+                            return;
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Error: Missing argument, URL is missing");
                             return;
                         }
                         break;
@@ -74,6 +122,24 @@ namespace Requestrr.WebApi
 
             UpdateSettingsFile();
             SetLanguage();
+
+            if (cliPort != -1)
+            {
+                Console.WriteLine("Changing port from cli arguments...");
+                SettingsFile.Write(settings =>
+                {
+                    settings.Port = cliPort;
+                });
+            }
+
+            if (cliBaseUrl != null)
+            {
+                Console.WriteLine("Changing base url from cli arguments...");
+                SettingsFile.Write(settings =>
+                {
+                    settings.BaseUrl = cliBaseUrl;
+                });
+            }
 
             Port = (int)SettingsFile.Read().Port;
             BaseUrl = SettingsFile.Read().BaseUrl;
@@ -114,9 +180,15 @@ namespace Requestrr.WebApi
         }
 
 
+        /// <summary>
+        /// Combinds the pasted in path and connects to the location of the executable
+        /// and returns the full path for the directory.
+        /// </summary>
+        /// <param name="path">String of the path relitive to the executable</param>
+        /// <returns>Returns the full path to the file/directory</returns>
         public static string CombindPath(string path)
         {
-            return Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), path);
+            return Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), path));
         }
 
         private static void SetLanguage()
@@ -129,6 +201,7 @@ namespace Requestrr.WebApi
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
 #if !DEBUG
+                //Used to link local files relitive to the executable, not the executed directory of the user.
                 .UseContentRoot(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location))
 #endif
                 .UseUrls($"http://*:{Port}")
