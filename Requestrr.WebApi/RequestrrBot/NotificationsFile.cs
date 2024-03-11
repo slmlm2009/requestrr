@@ -14,7 +14,7 @@ namespace Requestrr.WebApi.RequestrrBot
         private static object _lock = new object();
 
         public const string _notificationFile = "notifications.json";
-        public static string FilePath { get => $"{SettingsFile.SettingsFolder}/{_notificationFile}".Replace("//", "/"); }
+        public static string FilePath { get => Path.Combine(SettingsFile.SettingsFolder, _notificationFile); }
 
 
         public static dynamic _cachedNotifications = null;

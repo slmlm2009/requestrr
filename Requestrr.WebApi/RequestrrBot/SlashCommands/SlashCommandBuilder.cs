@@ -24,7 +24,10 @@ namespace Requestrr.WebApi.RequestrrBot
 {
     public static class SlashCommandBuilder
     {
+        private const string _tempFolderName = "tmp";
+
         public static string DLLFileName = "slashcommandsbuilder";
+        public static string TempFolder { get => Path.Combine(SettingsFile.SettingsFolder, _tempFolderName); }
 
         public static Type Build(ILogger logger, DiscordSettings settings, RadarrSettingsProvider radarrSettingsProvider, SonarrSettingsProvider sonarrSettingsProvider, OverseerrSettingsProvider overseerrSettingsProvider, OmbiSettingsProvider ombiSettingsProvider)
         {
@@ -58,23 +61,13 @@ namespace Requestrr.WebApi.RequestrrBot
             string tmpDirectory = string.Empty;
             var dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            try
+            if (!Directory.Exists(TempFolder))
             {
-                tmpDirectory = dirInfo.EnumerateDirectories().Where(x => x.Name == "tmp").Single().FullName;
-                if(tmpDirectory == string.Empty || tmpDirectory == null)
-                {
-                    throw new Exception("tmp folder cannot be found");
-                }
-            }
-            catch
-            {
-                logger.LogWarning("No tmp folder found, creating one.");
-                Directory.CreateDirectory("tmp");
-                dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-                tmpDirectory = dirInfo.EnumerateDirectories().Where(x => x.Name == "tmp").Single().FullName;
+                Console.WriteLine("No temp folder found, creating one...");
+                Directory.CreateDirectory(TempFolder);
             }
 
-            string path = Path.Combine(tmpDirectory, fileName);
+            string path = Path.Combine(TempFolder, fileName);
 
             var compilationResult = compilation.Emit(path);
             if (compilationResult.Success)
@@ -86,7 +79,7 @@ namespace Requestrr.WebApi.RequestrrBot
             {
                 foreach (Diagnostic codeIssue in compilationResult.Diagnostics)
                 {
-                    string issue = $"ID: {codeIssue.Id}, Message: {codeIssue.GetMessage()}, Location: { codeIssue.Location.GetLineSpan()},Severity: { codeIssue.Severity}";
+                    string issue = $"ID: {codeIssue.Id}, Message: {codeIssue.GetMessage()}, Location: {codeIssue.Location.GetLineSpan()},Severity: {codeIssue.Severity}";
                     logger.LogError("Failed to build SlashCommands assembly: " + issue);
                 }
             }
@@ -314,7 +307,7 @@ namespace Requestrr.WebApi.RequestrrBot
             }
 
             //Sort list of commands into one list
-            var listOfCommands = commandList.Select(x => x.Value.Count == 0 ? new string[] {x.Key} : (x.Value.Select(y => $"{x.Key} {y}"))).SelectMany(x => x).ToList();
+            var listOfCommands = commandList.Select(x => x.Value.Count == 0 ? new string[] { x.Key } : (x.Value.Select(y => $"{x.Key} {y}"))).SelectMany(x => x).ToList();
 
             //Find and check there is no duplicates, if there it, this will not work....
             if (listOfCommands.Count != listOfCommands.Distinct().Count())
@@ -453,8 +446,7 @@ namespace Requestrr.WebApi.RequestrrBot
             try
             {
                 var dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-                var tmpDirectory = dirInfo.EnumerateDirectories().Where(x => x.Name == "tmp").Single().FullName;
-                var filesToDelete = Directory.GetFiles(tmpDirectory, $"*.dll");
+                var filesToDelete = Directory.GetFiles(TempFolder, $"*.dll");
 
                 foreach (var dllToDelete in filesToDelete.Where(x => x.Contains(SlashCommandBuilder.DLLFileName, StringComparison.OrdinalIgnoreCase)))
                 {

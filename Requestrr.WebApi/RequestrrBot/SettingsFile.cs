@@ -16,7 +16,7 @@ namespace Requestrr.WebApi.RequestrrBot
 
         public static bool CommandLineSettings { get; set; } = false;
         public static string SettingsFolder {
-            get => $"{_settingsFolderLocation}{_settingsFolder}".Replace("//", "/");
+            get => Path.Combine(_settingsFolderLocation, _settingsFolder);
             set
             {
                 string valueData = value.Replace("\\", "/");
@@ -29,7 +29,7 @@ namespace Requestrr.WebApi.RequestrrBot
                 _settingsFolder = lastSlash == -1 ? string.Empty : fullPath.Substring(lastSlash, fullPath.Length - lastSlash);
             }
         }
-        public static string FilePath { get => $"{SettingsFolder}/{_settingsFile}".Replace("//", "/"); }
+        public static string FilePath { get => Path.Combine(SettingsFolder, _settingsFile); }
 
         public static string SettingPath { get => _settingsFolderLocation; }
 

@@ -30,7 +30,12 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
     public class Language
     {
         public static Language Current = null;
+
+#if DEBUG
+        public static string BuildVersion = "Development";
+#else
         public static string BuildVersion = "v2.1.5";
+#endif
 
         public string Error { get; set; }
 
