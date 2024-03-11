@@ -50,7 +50,6 @@ namespace Requestrr.WebApi
 
 
             UpdateSettingsFile();
-            return;
             SetLanguage();
 
             Port = (int)SettingsFile.Read().Port;
