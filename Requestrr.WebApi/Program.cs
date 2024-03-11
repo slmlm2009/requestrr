@@ -19,7 +19,38 @@ namespace Requestrr.WebApi
 
         public static void Main(string[] args)
         {
+            for (int i = 0; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "--help":
+                    case "-h":
+                        Console.WriteLine($"Requestrr version: {Language.BuildVersion}");
+                        Console.WriteLine("Description:");
+                        Console.WriteLine("  A chatbot used to connectservices like Sonarr/Radarr/Overseerr/Ombi to Discord");
+                        Console.WriteLine("Options:");
+                        Console.WriteLine("  -h, --help\t\tDisplays the help message and exits the program");
+                        Console.WriteLine("  -c, --config-dir\t\tChange the config folder");
+                        return;
+                    case "--config-dir":
+                    case "-c":
+                        try{
+                            SettingsFile.SettingsFolder = args[++i];
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Error: Missing arguments");
+                            return;
+                        }
+                        break;
+                }
+            }
+
+
+
+
             UpdateSettingsFile();
+            return;
             SetLanguage();
 
             Port = (int)SettingsFile.Read().Port;
@@ -30,21 +61,10 @@ namespace Requestrr.WebApi
 
         private static void UpdateSettingsFile()
         {
-            try
-            {
-                DirectoryInfo dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-                string configDirectory = dirInfo.EnumerateDirectories().Where(x => x.Name == "config").Single().FullName;
-                if (configDirectory == string.Empty || configDirectory == null)
-                {
-                    throw new Exception("config folder cannot be found");
-                }
-            }
-            catch
+            if (!Directory.Exists(SettingsFile.SettingsFolder))
             {
                 Console.WriteLine("No config folder found, creating one...");
-                Directory.CreateDirectory("config");
-                DirectoryInfo dirInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-                string configDirectory = dirInfo.EnumerateDirectories().Where(x => x.Name == "config").Single().FullName;
+                Directory.CreateDirectory(SettingsFile.SettingsFolder);
             }
 
             try
@@ -58,12 +78,12 @@ namespace Requestrr.WebApi
                     SettingsFileUpgrader.Upgrade(SettingsFile.FilePath);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Failed to write to config folder: {ex.Message}");
                 throw new Exception("No config file to load and cannot create one.  Bot cannot start.");
             }
-            
+
 
             if (!File.Exists(NotificationsFile.FilePath))
             {
