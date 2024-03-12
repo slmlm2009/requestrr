@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +9,10 @@ using Requestrr.WebApi.Controllers.DownloadClients.Ombi;
 using Requestrr.WebApi.Controllers.DownloadClients.Overseerr;
 using Requestrr.WebApi.Controllers.DownloadClients.Radarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients;
+using Requestrr.WebApi.RequestrrBot.DownloadClients.Sonarr;
+using Requestrr.WebApi.RequestrrBot.Locale;
 using Requestrr.WebApi.RequestrrBot.Movies;
+using Requestrr.WebApi.RequestrrBot.TvShows;
 using RadarrSettingsCategory = Requestrr.WebApi.Controllers.DownloadClients.Radarr.RadarrSettingsCategory;
 
 namespace Requestrr.WebApi.Controllers.DownloadClients
@@ -19,15 +23,18 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
     public class MovieDownloadClientController : ControllerBase
     {
         private readonly MoviesSettings _moviesSettings;
+        private readonly TvShowsSettings _tvShowsSettings;
         private readonly DownloadClientsSettings _downloadClientsSettings;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public MovieDownloadClientController(
             IHttpClientFactory httpClientFactory,
             MoviesSettingsProvider moviesSettingsProvider,
+            TvShowsSettingsProvider tvShowsSettingsProvider,
             DownloadClientsSettingsProvider downloadClientsSettingsProvider)
         {
             _moviesSettings = moviesSettingsProvider.Provide();
+            _tvShowsSettings = tvShowsSettingsProvider.Provide();
             _downloadClientsSettings = downloadClientsSettingsProvider.Provide();
             _httpClientFactory = httpClientFactory;
         }
@@ -35,6 +42,27 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
         [HttpGet()]
         public async Task<IActionResult> GetAsync()
         {
+            List<string> tvCategories = new List<string>();
+            switch(_tvShowsSettings.Client)
+            {
+                case "Sonarr":
+                    foreach(SonarrCategory category in _downloadClientsSettings.Sonarr.Categories)
+                    {
+                        tvCategories.Add(category.Name.ToLower());
+                    }
+                    break;
+                case "Overseerr":
+                    foreach (RequestrrBot.DownloadClients.Overseerr.OverseerrTvShowCategory category in _downloadClientsSettings.Overseerr.TvShows.Categories)
+                    {
+                        tvCategories.Add(category.Name.ToLower());
+                    }
+                    break;
+                case "Ombi":
+                    tvCategories.Add(Language.Current.DiscordCommandTvRequestTitleName.ToLower());
+                    break;
+            }
+
+
             return Ok(new MovieSettingsModel
             {
                 Client = _moviesSettings.Client,
@@ -70,6 +98,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                     UseMovieIssue = _downloadClientsSettings.Ombi.UseMovieIssue
                 },
                 Overseerr = _downloadClientsSettings.Overseerr,
+                TVCategories = tvCategories.ToArray()
             });
         }
 

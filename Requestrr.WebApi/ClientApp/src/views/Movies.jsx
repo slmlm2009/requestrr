@@ -78,7 +78,7 @@ function Movies(props) {
         setOverseerr(data.payload.overseerr);
       });
   }, []);
-
+ 
 
   useEffect(() => {
     if (!isSubmitted)

@@ -38,7 +38,8 @@ function OverseerrTvShow(props) {
 
   const reduxState = useSelector((state) => {
     return {
-      settings: state.tvShows.overseerr
+      settings: state.tvShows.overseerr,
+      movieCatgory: state.tvShows.movieCatgory
     }
   });
   const dispatch = useDispatch();
@@ -180,10 +181,11 @@ function OverseerrTvShow(props) {
       return false;
     } else if (/^[\w-]{1,32}$/.test(category.name)) {
       let names = reduxState.settings.categories.map(x => x.name);
+      let matchedMovie = reduxState.movieCatgory.filter(x => x.toLowerCase() === category.name.toLowerCase());
 
       if (new Set(names).size !== names.length) {
         return false;
-      } else if (reduxState.settings.sonarrServiceSettings.sonarrServices.every(x => x.id !== category.serviceId)) {
+      } else if (reduxState.settings.sonarrServiceSettings.sonarrServices.every(x => x.id !== category.serviceId) || matchedMovie.length !== 0) {
         return false;
       } else {
         let sonarrService = reduxState.settings.sonarrServiceSettings.sonarrServices.filter(x => x.id === category.serviceId)[0];
