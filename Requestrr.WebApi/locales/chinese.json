@@ -40,7 +40,7 @@
   "Discord.Notification.Movie.Channel": "电影**《[MovieTitle]》**已经完成下载了！",
   "Discord.Notification.Movie.DM": "你请求的电影**《[MovieTitle]》**已经完成下载了！",
   "Discord.Command.Ping.Response": "乓",
-  "Discord.Command.Help.Message": "你好 [AuthorUsername]！我是 [BotUsername]，你的个人多媒体机器人!\n\n我简单易用，请参阅下面的当前可用命令：\n\n目前可用的命令有：\n**[CommandPrefix][TvShowCommandTitle]**\n**[CommandPrefix][TvShowCommandTvDb]**\n**[CommandPrefix][MovieCommandTitle]**\n**[CommandPrefix][MovieCommandTmDb]**\n**[CommandPrefix]help**\n**[CommandPrefix]ping**\n\n__**这里是一个使用指令的例子**__\n`[CommandPrefix][MovieCommandTitle] 死侍 2`\n\n如果你需要有关特定命令的任何其他帮助，只需键入该命令，我将很乐意为你提供帮助。\n\n如果你遇到损坏的媒体或遇到错误，请通知服务器管理员。\n\n如果啟用了 Overseerr 並且啟用了“問題”，用戶可以使用以下命令報告問題：\n**[CommandPrefix][MovieCommandIssue]**\n**[CommandPrefix][MovieCommandTmDbIssue]**\n**[CommandPrefix][TvShowCommandIssue]**\n**[CommandPrefix][TvShowCommandTvDbIssue]**",
+  "Discord.Command.Help.Message": "你好 [AuthorUsername]！我是 [BotUsername]，你的个人多媒体机器人!\n\n我简单易用，请参阅下面的当前可用命令：\n\n目前可用的命令有：\n[FullCommandList]\n\n__**这里是一个使用指令的例子**__\n`[CommandPrefix][MovieCommandTitle] 死侍 2`\n\n如果你需要有关特定命令的任何其他帮助，只需键入该命令，我将很乐意为你提供帮助。\n\n如果你遇到损坏的媒体或遇到错误，请通知服务器管理员。\n\n[IssueEnabledStart]问题已启用，提交问题将允许您记录所选媒体的问题，这是通过`[MovieCommandIssue]`命令完成的.[IssueEnabledEnd]",
   "Discord.Command.Movie.NotFound": "我无法找到名为\"《[MovieTitle]》\"的电影，请更换关键词试试。",
   "Discord.Command.Movie.NotFoundTMDB": "我无法找到 TheMovieDbId 为\"[MovieTMDB]\"的电影，请更换关键词试试。",
   "Discord.Command.Movie.AlreadyAvailable": "这部电影现在已经可以观看了，请尽情享受!",
