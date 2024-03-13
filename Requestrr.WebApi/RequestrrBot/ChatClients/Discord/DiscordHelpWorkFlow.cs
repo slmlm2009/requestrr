@@ -30,17 +30,60 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                 { LanguageTokens.BotUsername, _discordClient.CurrentUser.Username },
                 { LanguageTokens.CommandPrefix, "/" },
                 { LanguageTokens.MovieCommandTitle, $"{Language.Current.DiscordCommandRequestGroupName.ToLower()} {Language.Current.DiscordCommandMovieRequestTitleName.ToLower()}" },
-                { LanguageTokens.MovieCommandTmDb, $"{Language.Current.DiscordCommandRequestGroupName.ToLower()} {Language.Current.DiscordCommandMovieRequestTmbdName.ToLower()}" },
-                { LanguageTokens.TvShowCommandTitle, $"{Language.Current.DiscordCommandRequestGroupName.ToLower()} {Language.Current.DiscordCommandTvRequestTitleName.ToLower()}" },
-                { LanguageTokens.TvShowCommandTvDb, $"{Language.Current.DiscordCommandRequestGroupName.ToLower()} {Language.Current.DiscordCommandTvRequestTvdbName.ToLower()}" },
 
-                { LanguageTokens.MovieCommandIssue, $"{Language.Current.DiscordCommandIssueName.ToLower()} {Language.Current.DiscordCommandMovieIssueTitleName.ToLower()}" },
-                { LanguageTokens.MovieCommandTmDbIssue, $"{Language.Current.DiscordCommandIssueName.ToLower()} {Language.Current.DiscordCommandMovieIssueTmdbName.ToLower()}" },
-                { LanguageTokens.TvShowCommandIssue, $"{Language.Current.DiscordCommandIssueName.ToLower()} {Language.Current.DiscordCommandTvIssueTitleName.ToLower()}" },
-                { LanguageTokens.TvShowCommandTvDbIssue, $"{Language.Current.DiscordCommandIssueName.ToLower()} {Language.Current.DiscordCommandTvIssueTvdbName.ToLower()}" },
+                { LanguageTokens.FullCommandList, GenerateSlashList() },
+                { LanguageTokens.MovieCommandIssue, $"{Language.Current.DiscordCommandIssueName.ToLower()}" }
             });
 
+            bool issueEnabled = false;
+            if (SlashCommandBuilder.CommandList.ContainsKey(SlashCommandBuilder.CommandType.IssueMovie))
+                issueEnabled = SlashCommandBuilder.CommandList[SlashCommandBuilder.CommandType.IssueMovie].Count != 0;
+
+            if (!issueEnabled && SlashCommandBuilder.CommandList.ContainsKey(SlashCommandBuilder.CommandType.IssueTv))
+                issueEnabled = SlashCommandBuilder.CommandList[SlashCommandBuilder.CommandType.IssueTv].Count != 0;
+
+            if (!issueEnabled)
+            {
+                var beginIndex = message.IndexOf(LanguageTokens.IssueEnabledStart);
+                var endIndex = message.IndexOf(LanguageTokens.IssueEnabledEnd) + LanguageTokens.IssueEnabledEnd.Length;
+
+                message = message.Replace(message.Substring(beginIndex, endIndex - beginIndex), string.Empty);
+            }
+
+            message = message.Replace(LanguageTokens.IssueEnabledStart, string.Empty);
+            message = message.Replace(LanguageTokens.IssueEnabledEnd, string.Empty);
+
             await _context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true).WithContent(message));
+        }
+
+
+        private string GenerateSlashList()
+        {
+            string list = string.Empty;
+
+            if (SlashCommandBuilder.CommandList.ContainsKey(SlashCommandBuilder.CommandType.Movie))
+                list += GenerateSlashType(SlashCommandBuilder.CommandList[SlashCommandBuilder.CommandType.Movie]);
+            if (SlashCommandBuilder.CommandList.ContainsKey(SlashCommandBuilder.CommandType.Tv))
+                list += GenerateSlashType(SlashCommandBuilder.CommandList[SlashCommandBuilder.CommandType.Tv]);
+            if (SlashCommandBuilder.CommandList.ContainsKey(SlashCommandBuilder.CommandType.IssueMovie))
+                list += GenerateSlashType(SlashCommandBuilder.CommandList[SlashCommandBuilder.CommandType.IssueMovie]);
+            if (SlashCommandBuilder.CommandList.ContainsKey(SlashCommandBuilder.CommandType.IssueTv))
+                list += GenerateSlashType(SlashCommandBuilder.CommandList[SlashCommandBuilder.CommandType.IssueTv]);
+            if (SlashCommandBuilder.CommandList.ContainsKey(SlashCommandBuilder.CommandType.Misc))
+                list += GenerateSlashType(SlashCommandBuilder.CommandList[SlashCommandBuilder.CommandType.Misc]);
+
+            return list;
+        }
+
+        private string GenerateSlashType(List<string> list)
+        {
+            string commands = string.Empty;
+            foreach (string i in list)
+            {
+                commands += $"**/{i}**\n";
+            }
+
+            return commands;
         }
     }
 }

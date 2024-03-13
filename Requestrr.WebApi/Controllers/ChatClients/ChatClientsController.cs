@@ -166,7 +166,7 @@ namespace Requestrr.WebApi.Controllers.ChatClients
 
         private string[] GetLanguages()
         {
-            return Directory.GetFiles("locales", "*.json", SearchOption.TopDirectoryOnly)
+            return Directory.GetFiles(Program.CombindPath("locales"), "*.json", SearchOption.TopDirectoryOnly)
                  .Select(x => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Path.GetFileNameWithoutExtension(x).ToLower()))
                  .ToArray();
         }

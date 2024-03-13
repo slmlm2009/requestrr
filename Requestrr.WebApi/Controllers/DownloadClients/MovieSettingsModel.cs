@@ -18,5 +18,8 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
 
         [Required]
         public OverseerrSettings Overseerr { get; set; }
+
+        [Required]
+        public string[] TVCategories { get; set; }
     }
 }

@@ -18,5 +18,8 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
         public OverseerrSettings Overseerr { get; set; }
         [Required]
         public string Restrictions { get; set; }
+
+        [Required]
+        public string[] MovieCategories { get; set; }
     }
 }
