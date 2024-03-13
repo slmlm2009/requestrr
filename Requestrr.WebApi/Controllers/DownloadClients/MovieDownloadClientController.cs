@@ -56,6 +56,8 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                     {
                         tvCategories.Add(category.Name.ToLower());
                     }
+                    if(tvCategories.Count == 0)
+                        tvCategories.Add(Language.Current.DiscordCommandTvRequestTitleName.ToLower());
                     break;
                 case "Ombi":
                     tvCategories.Add(Language.Current.DiscordCommandTvRequestTitleName.ToLower());

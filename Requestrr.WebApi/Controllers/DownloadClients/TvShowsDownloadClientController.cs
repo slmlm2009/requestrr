@@ -58,6 +58,8 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                     {
                         movieCategories.Add(category.Name.ToLower());
                     }
+                    if(movieCategories.Count == 0)
+                        movieCategories.Add(Language.Current.DiscordCommandMovieRequestTitleName.ToLower());
                     break;
                 case "Ombi":
                     movieCategories.Add(Language.Current.DiscordCommandMovieRequestTitleName.ToLower());
