@@ -24,15 +24,19 @@ namespace Requestrr.WebApi.RequestrrBot
 {
     public static class SlashCommandBuilder
     {
-        private enum CommandType
+        public enum CommandType
         {
             Misc, Movie, Tv, IssueMovie, IssueTv
         }
+
+        private static Dictionary<CommandType, List<string>> _commandList = new Dictionary<CommandType, List<string>>();
 
         private const string _tempFolderName = "tmp";
 
         public static string DLLFileName = "slashcommandsbuilder";
         public static string TempFolder { get => Path.Combine(SettingsFile.SettingsFolder, _tempFolderName); }
+
+        public static Dictionary<CommandType, List<string>> CommandList { get => _commandList; }
 
         public static Type Build(ILogger logger, DiscordSettings settings, RadarrSettingsProvider radarrSettingsProvider, SonarrSettingsProvider sonarrSettingsProvider, OverseerrSettingsProvider overseerrSettingsProvider, OmbiSettingsProvider ombiSettingsProvider)
         {
@@ -95,7 +99,7 @@ namespace Requestrr.WebApi.RequestrrBot
         private static string GetCode(DiscordSettings settings, RadarrSettings radarrSettings, SonarrSettings sonarrSettings, OverseerrSettings overseerrSettings, OmbiSettings ombiSettings)
         {
             //Build a list of commands being created
-            Dictionary<CommandType, List<string>> commandList = new Dictionary<CommandType, List<string>>
+            _commandList = new Dictionary<CommandType, List<string>>
             {
                 { CommandType.Movie, new List<string>() },
                 { CommandType.Tv, new List<string>() },
@@ -132,8 +136,8 @@ namespace Requestrr.WebApi.RequestrrBot
 
             string request = Language.Current.DiscordCommandRequestGroupName;
             string issue = Language.Current.DiscordCommandIssueName;
-            commandList[CommandType.Misc].Add(Language.Current.DiscordCommandPingRequestName);
-            commandList[CommandType.Misc].Add(Language.Current.DiscordCommandHelpRequestName);
+            _commandList[CommandType.Misc].Add(Language.Current.DiscordCommandHelpRequestName);
+            _commandList[CommandType.Misc].Add(Language.Current.DiscordCommandPingRequestName);
 
             //Issue command handling
             code = code.Replace("[ISSUE_GROUP_NAME]", Language.Current.DiscordCommandIssueName);
@@ -163,8 +167,8 @@ namespace Requestrr.WebApi.RequestrrBot
                 var endIndex = code.IndexOf("[REQUEST_COMMAND_END]") + "[REQUEST_COMMAND_END]".Length;
 
                 code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
-                commandList.Remove(CommandType.Movie);
-                commandList.Remove(CommandType.Tv);
+                _commandList.Remove(CommandType.Movie);
+                _commandList.Remove(CommandType.Tv);
             }
             else
             {
@@ -174,21 +178,21 @@ namespace Requestrr.WebApi.RequestrrBot
                     var endIndex = code.IndexOf("[MOVIE_COMMAND_END]") + "[MOVIE_COMMAND_END]".Length;
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
-                    commandList.Remove(CommandType.Movie);
+                    _commandList.Remove(CommandType.Movie);
                 }
                 else if (settings.MovieDownloadClient == DownloadClient.Radarr)
                 {
-                    code = GenerateMovieCategories(radarrSettings.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.Movie], request);
+                    code = GenerateMovieCategories(radarrSettings.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, _commandList[CommandType.Movie], request);
                 }
                 else if (settings.MovieDownloadClient == DownloadClient.Overseerr && overseerrSettings.Movies.Categories.Any())
                 {
-                    code = GenerateMovieCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.Movie], request);
+                    code = GenerateMovieCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, _commandList[CommandType.Movie], request);
                 }
                 else
                 {
 
-                    commandList[CommandType.Movie].Add($"{request} {Language.Current.DiscordCommandMovieRequestTitleName}");
-                    commandList[CommandType.Movie].Add($"{request} {Language.Current.DiscordCommandMovieRequestTmbdName}");
+                    _commandList[CommandType.Movie].Add($"{request} {Language.Current.DiscordCommandMovieRequestTitleName}");
+                    _commandList[CommandType.Movie].Add($"{request} {Language.Current.DiscordCommandMovieRequestTmbdName}");
 
                     code = code.Replace("[REQUEST_MOVIE_TITLE_NAME]", Language.Current.DiscordCommandMovieRequestTitleName);
                     code = code.Replace("[REQUEST_MOVIE_TMDB_NAME]", Language.Current.DiscordCommandMovieRequestTmbdName);
@@ -205,20 +209,20 @@ namespace Requestrr.WebApi.RequestrrBot
                     var endIndex = code.IndexOf("[TV_COMMAND_END]") + "[TV_COMMAND_END]".Length;
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
-                    commandList.Remove(CommandType.Tv);
+                    _commandList.Remove(CommandType.Tv);
                 }
                 else if (settings.TvShowDownloadClient == DownloadClient.Sonarr)
                 {
-                    code = GenerateTvShowCategories(sonarrSettings.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.Tv], request);
+                    code = GenerateTvShowCategories(sonarrSettings.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, _commandList[CommandType.Tv], request);
                 }
                 else if (settings.TvShowDownloadClient == DownloadClient.Overseerr && overseerrSettings.TvShows.Categories.Any())
                 {
-                    code = GenerateTvShowCategories(overseerrSettings.TvShows.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.Tv], request);
+                    code = GenerateTvShowCategories(overseerrSettings.TvShows.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, _commandList[CommandType.Tv], request);
                 }
                 else
                 {
-                    commandList[CommandType.Tv].Add($"{request} {Language.Current.DiscordCommandTvRequestTitleName}");
-                    commandList[CommandType.Tv].Add($"{request} {Language.Current.DiscordCommandTvRequestTvdbName}");
+                    _commandList[CommandType.Tv].Add($"{request} {Language.Current.DiscordCommandTvRequestTitleName}");
+                    _commandList[CommandType.Tv].Add($"{request} {Language.Current.DiscordCommandTvRequestTvdbName}");
 
                     code = code.Replace("[REQUEST_TV_TITLE_NAME]", Language.Current.DiscordCommandTvRequestTitleName);
                     code = code.Replace("[REQUEST_TV_TVDB_NAME]", Language.Current.DiscordCommandTvRequestTvdbName);
@@ -256,8 +260,8 @@ namespace Requestrr.WebApi.RequestrrBot
 
                 code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
 
-                commandList.Remove(CommandType.IssueMovie);
-                commandList.Remove(CommandType.IssueTv);
+                _commandList.Remove(CommandType.IssueMovie);
+                _commandList.Remove(CommandType.IssueTv);
             }
             else
             {
@@ -274,16 +278,16 @@ namespace Requestrr.WebApi.RequestrrBot
                     int endIndex = code.IndexOf("[ISSUE_MOVIE_COMMAND_END]") + "[ISSUE_MOVIE_COMMAND_END]".Length;
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
-                    commandList.Remove(CommandType.IssueMovie);
+                    _commandList.Remove(CommandType.IssueMovie);
                 }
                 else if (overseerrSettings.UseMovieIssue && settings.MovieDownloadClient == DownloadClient.Overseerr && overseerrSettings.Movies.Categories.Any())
                 {
-                    code = GenerateMovieIssueCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.IssueMovie], issue);
+                    code = GenerateMovieIssueCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, _commandList[CommandType.IssueMovie], issue);
                 }
                 else
                 {
-                    commandList[CommandType.IssueMovie].Add($"{issue} {Language.Current.DiscordCommandMovieIssueTitleName}");
-                    commandList[CommandType.IssueMovie].Add($"{issue} {Language.Current.DiscordCommandMovieIssueTmdbName}");
+                    _commandList[CommandType.IssueMovie].Add($"{issue} {Language.Current.DiscordCommandMovieIssueTitleName}");
+                    _commandList[CommandType.IssueMovie].Add($"{issue} {Language.Current.DiscordCommandMovieIssueTmdbName}");
 
                     code = code.Replace("[ISSUE_MOVIE_TITLE_NAME]", Language.Current.DiscordCommandMovieIssueTitleName);
                     code = code.Replace("[ISSUE_MOVIE_TMDB_NAME]", Language.Current.DiscordCommandMovieIssueTmdbName);
@@ -299,16 +303,16 @@ namespace Requestrr.WebApi.RequestrrBot
                     int endIndex = code.IndexOf("[ISSUE_TV_COMMAND_END]") + "[ISSUE_TV_COMMAND_END]".Length;
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
-                    commandList.Remove(CommandType.IssueTv);
+                    _commandList.Remove(CommandType.IssueTv);
                 }
                 else if (overseerrSettings.UseTVIssue && settings.TvShowDownloadClient == DownloadClient.Overseerr && overseerrSettings.TvShows.Categories.Any())
                 {
-                    code = GenerateTvShowIssueCategories(overseerrSettings.TvShows.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.IssueTv], issue);
+                    code = GenerateTvShowIssueCategories(overseerrSettings.TvShows.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, _commandList[CommandType.IssueTv], issue);
                 }
                 else
                 {
-                    commandList[CommandType.IssueTv].Add($"{issue} {Language.Current.DiscordCommandTvIssueTitleName}");
-                    commandList[CommandType.IssueTv].Add($"{issue} {Language.Current.DiscordCommandTvIssueTvdbName}");
+                    _commandList[CommandType.IssueTv].Add($"{issue} {Language.Current.DiscordCommandTvIssueTitleName}");
+                    _commandList[CommandType.IssueTv].Add($"{issue} {Language.Current.DiscordCommandTvIssueTvdbName}");
 
                     code = code.Replace("[ISSUE_TV_TITLE_NAME]", Language.Current.DiscordCommandTvIssueTitleName);
                     code = code.Replace("[ISSUE_TV_TVDB_NAME]", Language.Current.DiscordCommandTvIssueTvdbName);
@@ -327,7 +331,7 @@ namespace Requestrr.WebApi.RequestrrBot
             }
 
             //Sort list of commands into one list
-            List<string> listOfCommands = commandList.SelectMany(x => x.Value).ToList();
+            List<string> listOfCommands = _commandList.SelectMany(x => x.Value).ToList();
 
             //Find and check there is no duplicates, if there it, this will not work....
             if (listOfCommands.Count != listOfCommands.Distinct().Count())
