@@ -24,6 +24,11 @@ namespace Requestrr.WebApi.RequestrrBot
 {
     public static class SlashCommandBuilder
     {
+        private enum CommandType
+        {
+            Misc, Movie, Tv, IssueMovie, IssueTv
+        }
+
         private const string _tempFolderName = "tmp";
 
         public static string DLLFileName = "slashcommandsbuilder";
@@ -90,10 +95,15 @@ namespace Requestrr.WebApi.RequestrrBot
         private static string GetCode(DiscordSettings settings, RadarrSettings radarrSettings, SonarrSettings sonarrSettings, OverseerrSettings overseerrSettings, OmbiSettings ombiSettings)
         {
             //Build a list of commands being created
-            Dictionary<string, List<string>> commandList = new Dictionary<string, List<string>>();
+            Dictionary<CommandType, List<string>> commandList = new Dictionary<CommandType, List<string>>
+            {
+                { CommandType.Movie, new List<string>() },
+                { CommandType.Tv, new List<string>() },
+                { CommandType.IssueMovie, new List<string>() },
+                { CommandType.IssueTv, new List<string>() },
+                { CommandType.Misc, new List<string>() }
+            };
             var code = File.ReadAllText(Program.CombindPath("SlashCommands.txt"));
-
-            commandList.Add(Language.Current.DiscordCommandRequestGroupName, new List<string>());
 
             code = code.Replace("[REQUEST_GROUP_NAME]", Language.Current.DiscordCommandRequestGroupName);
             code = code.Replace("[REQUEST_GROUP_DESCRIPTION]", Language.Current.DiscordCommandRequestGroupDescription);
@@ -110,9 +120,6 @@ namespace Requestrr.WebApi.RequestrrBot
             code = code.Replace("[REQUEST_TV_TVDB_OPTION_NAME]", Language.Current.DiscordCommandTvRequestTvdbOptionName);
             code = code.Replace("[REQUEST_TV_TVDB_OPTION_DESCRIPTION]", Language.Current.DiscordCommandTvRequestTvdbOptionDescription);
 
-            commandList.Add(Language.Current.DiscordCommandPingRequestName, new List<string>());
-            commandList.Add(Language.Current.DiscordCommandHelpRequestName, new List<string>());
-
             code = code.Replace("[REQUEST_PING_NAME]", Language.Current.DiscordCommandPingRequestName);
             code = code.Replace("[REQUEST_PING_DESCRIPTION]", Language.Current.DiscordCommandPingRequestDescription);
             code = code.Replace("[REQUEST_HELP_NAME]", Language.Current.DiscordCommandHelpRequestName);
@@ -123,9 +130,12 @@ namespace Requestrr.WebApi.RequestrrBot
             code = code.Replace("[REQUIRED_CHANNEL_IDS]", string.Join(",", settings.MonitoredChannels.Select(x => $"{x}UL")));
 
 
-            //Issue command handling
-            commandList.Add(Language.Current.DiscordCommandIssueName, new List<string>());
+            string request = Language.Current.DiscordCommandRequestGroupName;
+            string issue = Language.Current.DiscordCommandIssueName;
+            commandList[CommandType.Misc].Add(Language.Current.DiscordCommandPingRequestName);
+            commandList[CommandType.Misc].Add(Language.Current.DiscordCommandHelpRequestName);
 
+            //Issue command handling
             code = code.Replace("[ISSUE_GROUP_NAME]", Language.Current.DiscordCommandIssueName);
             code = code.Replace("[ISSUE_GROUP_DESCRIPTION]", Language.Current.DiscordCommandIssueDescription);
 
@@ -153,6 +163,8 @@ namespace Requestrr.WebApi.RequestrrBot
                 var endIndex = code.IndexOf("[REQUEST_COMMAND_END]") + "[REQUEST_COMMAND_END]".Length;
 
                 code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
+                commandList.Remove(CommandType.Movie);
+                commandList.Remove(CommandType.Tv);
             }
             else
             {
@@ -162,19 +174,21 @@ namespace Requestrr.WebApi.RequestrrBot
                     var endIndex = code.IndexOf("[MOVIE_COMMAND_END]") + "[MOVIE_COMMAND_END]".Length;
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
+                    commandList.Remove(CommandType.Movie);
                 }
                 else if (settings.MovieDownloadClient == DownloadClient.Radarr)
                 {
-                    code = GenerateMovieCategories(radarrSettings.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[Language.Current.DiscordCommandRequestGroupName]);
+                    code = GenerateMovieCategories(radarrSettings.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.Movie], request);
                 }
                 else if (settings.MovieDownloadClient == DownloadClient.Overseerr && overseerrSettings.Movies.Categories.Any())
                 {
-                    code = GenerateMovieCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[Language.Current.DiscordCommandRequestGroupName]);
+                    code = GenerateMovieCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.Movie], request);
                 }
                 else
                 {
-                    commandList[Language.Current.DiscordCommandRequestGroupName].Add(Language.Current.DiscordCommandMovieRequestTitleName);
-                    commandList[Language.Current.DiscordCommandRequestGroupName].Add(Language.Current.DiscordCommandMovieRequestTmbdName);
+
+                    commandList[CommandType.Movie].Add($"{request} {Language.Current.DiscordCommandMovieRequestTitleName}");
+                    commandList[CommandType.Movie].Add($"{request} {Language.Current.DiscordCommandMovieRequestTmbdName}");
 
                     code = code.Replace("[REQUEST_MOVIE_TITLE_NAME]", Language.Current.DiscordCommandMovieRequestTitleName);
                     code = code.Replace("[REQUEST_MOVIE_TMDB_NAME]", Language.Current.DiscordCommandMovieRequestTmbdName);
@@ -191,19 +205,20 @@ namespace Requestrr.WebApi.RequestrrBot
                     var endIndex = code.IndexOf("[TV_COMMAND_END]") + "[TV_COMMAND_END]".Length;
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
+                    commandList.Remove(CommandType.Tv);
                 }
                 else if (settings.TvShowDownloadClient == DownloadClient.Sonarr)
                 {
-                    code = GenerateTvShowCategories(sonarrSettings.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[Language.Current.DiscordCommandRequestGroupName]);
+                    code = GenerateTvShowCategories(sonarrSettings.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.Tv], request);
                 }
                 else if (settings.TvShowDownloadClient == DownloadClient.Overseerr && overseerrSettings.TvShows.Categories.Any())
                 {
-                    code = GenerateTvShowCategories(overseerrSettings.TvShows.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[Language.Current.DiscordCommandRequestGroupName]);
+                    code = GenerateTvShowCategories(overseerrSettings.TvShows.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.Tv], request);
                 }
                 else
                 {
-                    commandList[Language.Current.DiscordCommandRequestGroupName].Add(Language.Current.DiscordCommandTvRequestTitleName);
-                    commandList[Language.Current.DiscordCommandRequestGroupName].Add(Language.Current.DiscordCommandTvRequestTvdbName);
+                    commandList[CommandType.Tv].Add($"{request} {Language.Current.DiscordCommandTvRequestTitleName}");
+                    commandList[CommandType.Tv].Add($"{request} {Language.Current.DiscordCommandTvRequestTvdbName}");
 
                     code = code.Replace("[REQUEST_TV_TITLE_NAME]", Language.Current.DiscordCommandTvRequestTitleName);
                     code = code.Replace("[REQUEST_TV_TVDB_NAME]", Language.Current.DiscordCommandTvRequestTvdbName);
@@ -240,6 +255,9 @@ namespace Requestrr.WebApi.RequestrrBot
                 int endIndex = code.IndexOf("[ISSUE_COMMAND_END]") + "[ISSUE_COMMAND_END]".Length;
 
                 code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
+
+                commandList.Remove(CommandType.IssueMovie);
+                commandList.Remove(CommandType.IssueTv);
             }
             else
             {
@@ -256,15 +274,16 @@ namespace Requestrr.WebApi.RequestrrBot
                     int endIndex = code.IndexOf("[ISSUE_MOVIE_COMMAND_END]") + "[ISSUE_MOVIE_COMMAND_END]".Length;
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
+                    commandList.Remove(CommandType.IssueMovie);
                 }
                 else if (overseerrSettings.UseMovieIssue && settings.MovieDownloadClient == DownloadClient.Overseerr && overseerrSettings.Movies.Categories.Any())
                 {
-                    code = GenerateMovieIssueCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[Language.Current.DiscordCommandIssueName]);
+                    code = GenerateMovieIssueCategories(overseerrSettings.Movies.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.IssueMovie], issue);
                 }
                 else
                 {
-                    commandList[Language.Current.DiscordCommandIssueName].Add(Language.Current.DiscordCommandMovieIssueTitleName);
-                    commandList[Language.Current.DiscordCommandIssueName].Add(Language.Current.DiscordCommandMovieIssueTmdbName);
+                    commandList[CommandType.IssueMovie].Add($"{issue} {Language.Current.DiscordCommandMovieIssueTitleName}");
+                    commandList[CommandType.IssueMovie].Add($"{issue} {Language.Current.DiscordCommandMovieIssueTmdbName}");
 
                     code = code.Replace("[ISSUE_MOVIE_TITLE_NAME]", Language.Current.DiscordCommandMovieIssueTitleName);
                     code = code.Replace("[ISSUE_MOVIE_TMDB_NAME]", Language.Current.DiscordCommandMovieIssueTmdbName);
@@ -280,15 +299,16 @@ namespace Requestrr.WebApi.RequestrrBot
                     int endIndex = code.IndexOf("[ISSUE_TV_COMMAND_END]") + "[ISSUE_TV_COMMAND_END]".Length;
 
                     code = code.Replace(code.Substring(beginIndex, endIndex - beginIndex), string.Empty);
+                    commandList.Remove(CommandType.IssueTv);
                 }
                 else if (overseerrSettings.UseTVIssue && settings.TvShowDownloadClient == DownloadClient.Overseerr && overseerrSettings.TvShows.Categories.Any())
                 {
-                    code = GenerateTvShowIssueCategories(overseerrSettings.TvShows.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[Language.Current.DiscordCommandIssueName]);
+                    code = GenerateTvShowIssueCategories(overseerrSettings.TvShows.Categories.Select(x => new Category { Id = x.Id, Name = x.Name }).ToArray(), code, commandList[CommandType.IssueTv], issue);
                 }
                 else
                 {
-                    commandList[Language.Current.DiscordCommandIssueName].Add(Language.Current.DiscordCommandTvIssueTitleName);
-                    commandList[Language.Current.DiscordCommandIssueName].Add(Language.Current.DiscordCommandTvIssueTvdbName);
+                    commandList[CommandType.IssueTv].Add($"{issue} {Language.Current.DiscordCommandTvIssueTitleName}");
+                    commandList[CommandType.IssueTv].Add($"{issue} {Language.Current.DiscordCommandTvIssueTvdbName}");
 
                     code = code.Replace("[ISSUE_TV_TITLE_NAME]", Language.Current.DiscordCommandTvIssueTitleName);
                     code = code.Replace("[ISSUE_TV_TVDB_NAME]", Language.Current.DiscordCommandTvIssueTvdbName);
@@ -307,7 +327,7 @@ namespace Requestrr.WebApi.RequestrrBot
             }
 
             //Sort list of commands into one list
-            var listOfCommands = commandList.Select(x => x.Value.Count == 0 ? new string[] { x.Key } : (x.Value.Select(y => $"{x.Key} {y}"))).SelectMany(x => x).ToList();
+            List<string> listOfCommands = commandList.SelectMany(x => x.Value).ToList();
 
             //Find and check there is no duplicates, if there it, this will not work....
             if (listOfCommands.Count != listOfCommands.Distinct().Count())
@@ -316,16 +336,76 @@ namespace Requestrr.WebApi.RequestrrBot
             return code;
         }
 
-        private static string GenerateMovieCategories(Category[] categories, string code, List<string> commandList)
+        private static string GenerateMovieCategories(Category[] categories, string code, List<string> commandList, string slashCommand)
         {
-            var beginIndex = code.IndexOf("[MOVIE_COMMAND_START]");
-            var endIndex = code.IndexOf("[MOVIE_COMMAND_END]") + "[MOVIE_COMMAND_END]".Length;
-            var categoryCommandTemplate = code.Substring(beginIndex, endIndex - beginIndex);
-            categoryCommandTemplate = categoryCommandTemplate.Replace("[MOVIE_COMMAND_START]", string.Empty);
-            categoryCommandTemplate = categoryCommandTemplate.Replace("[MOVIE_COMMAND_END]", string.Empty);
+            string start = "[MOVIE_COMMAND_START]";
+            string end = "[MOVIE_COMMAND_END]";
+            string dbStart = "[TMDB_COMMAND_START]";
+            string dbEnd = "[TMDB_COMMAND_END]";
+            string categoryId = "[MOVIE_CATEGORY_ID]";
+            string slashName = "[REQUEST_MOVIE_TITLE_NAME]";
+            string slashDbName = "[REQUEST_MOVIE_TMDB_NAME]";
+            string dbPrefix = "tmdb";
 
-            var tmdbStartIndex = categoryCommandTemplate.IndexOf("[TMDB_COMMAND_START]");
-            var tmdbEndIndex = categoryCommandTemplate.IndexOf("[TMDB_COMMAND_END]") + "[TMDB_COMMAND_END]".Length;
+            return GenerateCategories(start, end, dbStart, dbEnd, categoryId, slashName, slashDbName, dbPrefix, categories, code, commandList, slashCommand);
+        }
+
+
+        private static string GenerateMovieIssueCategories(Category[] categories, string code, List<string> commandList, string slashCommand)
+        {
+            string start = "[ISSUE_MOVIE_COMMAND_START]";
+            string end = "[ISSUE_MOVIE_COMMAND_END]";
+            string dbStart = "[ISSUE_TMDB_COMMAND_START]";
+            string dbEnd = "[ISSUE_TMDB_COMMAND_END]";
+            string categoryId = "[MOVIE_CATEGORY_ID]";
+            string slashName = "[ISSUE_MOVIE_TITLE_NAME]";
+            string slashDbName = "[ISSUE_MOVIE_TMDB_NAME]";
+            string dbPrefix = "tmdb";
+
+            return GenerateCategories(start, end, dbStart, dbEnd, categoryId, slashName, slashDbName, dbPrefix, categories, code, commandList, slashCommand);
+        }
+
+
+        private static string GenerateTvShowCategories(Category[] categories, string code, List<string> commandList, string slashCommand)
+        {
+            string start = "[TV_COMMAND_START]";
+            string end = "[TV_COMMAND_END]";
+            string dbStart = "[TVDB_COMMAND_START]";
+            string dbEnd = "[TVDB_COMMAND_END]";
+            string categoryId = "[TV_CATEGORY_ID]";
+            string slashName = "[REQUEST_TV_TITLE_NAME]";
+            string slashDbName = "[REQUEST_TV_TVDB_NAME]";
+            string dbPrefix = "tvdb";
+
+            return GenerateCategories(start, end, dbStart, dbEnd, categoryId, slashName, slashDbName, dbPrefix, categories, code, commandList, slashCommand);
+        }
+
+
+        private static string GenerateTvShowIssueCategories(Category[] categories, string code, List<string> commandList, string slashCommand)
+        {
+            string start = "[ISSUE_TV_COMMAND_START]";
+            string end = "[ISSUE_TV_COMMAND_END]";
+            string dbStart = "[ISSUE_TVDB_COMMAND_START]";
+            string dbEnd = "[ISSUE_TVDB_COMMAND_END]";
+            string categoryId = "[TV_CATEGORY_ID]";
+            string slashName = "[ISSUE_TV_TITLE_NAME]";
+            string slashDbName = "[ISSUE_TV_TVDB_NAME]";
+            string dbPrefix = "tvdb";
+
+            return GenerateCategories(start, end, dbStart, dbEnd, categoryId, slashName, slashDbName, dbPrefix, categories, code, commandList, slashCommand);
+        }
+
+
+        private static string GenerateCategories(string start, string end, string dbStart, string dbEnd, string categoryId, string slashName, string slashDbName, string dbPrefix, Category[] categories, string code, List<string> commandList, string slashCommand)
+        {
+            var beginIndex = code.IndexOf(start);
+            var endIndex = code.IndexOf(end) + end.Length;
+            var categoryCommandTemplate = code.Substring(beginIndex, endIndex - beginIndex);
+            categoryCommandTemplate = categoryCommandTemplate.Replace(start, string.Empty);
+            categoryCommandTemplate = categoryCommandTemplate.Replace(end, string.Empty);
+
+            var tmdbStartIndex = categoryCommandTemplate.IndexOf(dbStart);
+            var tmdbEndIndex = categoryCommandTemplate.IndexOf(dbEnd) + dbEnd.Length;
             categoryCommandTemplate = categoryCommandTemplate.Replace(categoryCommandTemplate.Substring(tmdbStartIndex, tmdbEndIndex - tmdbStartIndex), string.Empty);
 
             var sb = new StringBuilder();
@@ -333,106 +413,12 @@ namespace Requestrr.WebApi.RequestrrBot
             foreach (var category in categories)
             {
                 var currentTemplate = categoryCommandTemplate;
-                currentTemplate = currentTemplate.Replace("[MOVIE_CATEGORY_ID]", category.Id.ToString());
-                currentTemplate = currentTemplate.Replace("[REQUEST_MOVIE_TITLE_NAME]", category.Name);
-                currentTemplate = currentTemplate.Replace("[REQUEST_MOVIE_TMDB_NAME]", $"{category.Name}-tmdb");
+                currentTemplate = currentTemplate.Replace(categoryId, category.Id.ToString());
+                currentTemplate = currentTemplate.Replace(slashName, category.Name);
+                currentTemplate = currentTemplate.Replace(slashDbName, $"{category.Name}-{dbPrefix}");
 
-                commandList.Add(category.Name);
-                commandList.Add($"{category.Name}-tmdb");
-
-                sb.Append(currentTemplate);
-            }
-
-            return code.Replace(code.Substring(beginIndex, endIndex - beginIndex), sb.ToString());
-        }
-
-
-        private static string GenerateMovieIssueCategories(Category[] categories, string code, List<string> commandList)
-        {
-            var beginIndex = code.IndexOf("[ISSUE_MOVIE_COMMAND_START]");
-            var endIndex = code.IndexOf("[ISSUE_MOVIE_COMMAND_END]") + "[ISSUE_MOVIE_COMMAND_END]".Length;
-            var categoryCommandTemplate = code.Substring(beginIndex, endIndex - beginIndex);
-            categoryCommandTemplate = categoryCommandTemplate.Replace("[ISSUE_MOVIE_COMMAND_START]", string.Empty);
-            categoryCommandTemplate = categoryCommandTemplate.Replace("[ISSUE_MOVIE_COMMAND_END]", string.Empty);
-
-            var tmdbStartIndex = categoryCommandTemplate.IndexOf("[ISSUE_TMDB_COMMAND_START]");
-            var tmdbEndIndex = categoryCommandTemplate.IndexOf("[ISSUE_TMDB_COMMAND_END]") + "[ISSUE_TMDB_COMMAND_END]".Length;
-            categoryCommandTemplate = categoryCommandTemplate.Replace(categoryCommandTemplate.Substring(tmdbStartIndex, tmdbEndIndex - tmdbStartIndex), string.Empty);
-
-            var sb = new StringBuilder();
-
-            foreach (var category in categories)
-            {
-                var currentTemplate = categoryCommandTemplate;
-                currentTemplate = currentTemplate.Replace("[MOVIE_CATEGORY_ID]", category.Id.ToString());
-                currentTemplate = currentTemplate.Replace("[ISSUE_MOVIE_TITLE_NAME]", category.Name);
-                currentTemplate = currentTemplate.Replace("[ISSUE_MOVIE_TMDB_NAME]", $"{category.Name}-tmdb");
-
-                commandList.Add(category.Name);
-                commandList.Add($"{category.Name}-tmdb");
-
-                sb.Append(currentTemplate);
-            }
-
-            return code.Replace(code.Substring(beginIndex, endIndex - beginIndex), sb.ToString());
-        }
-
-
-        private static string GenerateTvShowCategories(Category[] categories, string code, List<string> commandList)
-        {
-            var beginIndex = code.IndexOf("[TV_COMMAND_START]");
-            var endIndex = code.IndexOf("[TV_COMMAND_END]") + "[TV_COMMAND_END]".Length;
-            var categoryCommandTemplate = code.Substring(beginIndex, endIndex - beginIndex);
-            categoryCommandTemplate = categoryCommandTemplate.Replace("[TV_COMMAND_START]", string.Empty);
-            categoryCommandTemplate = categoryCommandTemplate.Replace("[TV_COMMAND_END]", string.Empty);
-
-            var tvdbStartIndex = categoryCommandTemplate.IndexOf("[TVDB_COMMAND_START]");
-            var tvdbEndIndex = categoryCommandTemplate.IndexOf("[TVDB_COMMAND_END]") + "[TVDB_COMMAND_END]".Length;
-            categoryCommandTemplate = categoryCommandTemplate.Replace(categoryCommandTemplate.Substring(tvdbStartIndex, tvdbEndIndex - tvdbStartIndex), string.Empty);
-
-            var sb = new StringBuilder();
-
-            foreach (var category in categories)
-            {
-                var currentTemplate = categoryCommandTemplate;
-                currentTemplate = currentTemplate.Replace("[TV_CATEGORY_ID]", category.Id.ToString());
-                currentTemplate = currentTemplate.Replace("[REQUEST_TV_TITLE_NAME]", category.Name);
-                currentTemplate = currentTemplate.Replace("[REQUEST_TV_TVDB_NAME]", $"{category.Name}-tvdb");
-
-                commandList.Add(category.Name);
-                commandList.Add($"{category.Name}-tmdb");
-
-                sb.Append(currentTemplate);
-            }
-
-            return code.Replace(code.Substring(beginIndex, endIndex - beginIndex), sb.ToString());
-        }
-
-
-        private static string GenerateTvShowIssueCategories(Category[] categories, string code, List<string> commandList)
-        {
-            var beginIndex = code.IndexOf("[ISSUE_TV_COMMAND_START]");
-            var endIndex = code.IndexOf("[ISSUE_TV_COMMAND_END]") + "[ISSUE_TV_COMMAND_END]".Length;
-            var categoryCommandTemplate = code.Substring(beginIndex, endIndex - beginIndex);
-            categoryCommandTemplate = categoryCommandTemplate.Replace("[ISSUE_TV_COMMAND_START]", string.Empty);
-            categoryCommandTemplate = categoryCommandTemplate.Replace("[ISSUE_TV_COMMAND_END]", string.Empty);
-
-            var tvdbStartIndex = categoryCommandTemplate.IndexOf("[ISSUE_TVDB_COMMAND_START]");
-            var tvdbEndIndex = categoryCommandTemplate.IndexOf("[ISSUE_TVDB_COMMAND_END]") + "[ISSUE_TVDB_COMMAND_END]".Length;
-            categoryCommandTemplate = categoryCommandTemplate.Replace(categoryCommandTemplate.Substring(tvdbStartIndex, tvdbEndIndex - tvdbStartIndex), string.Empty);
-
-            var sb = new StringBuilder();
-
-            foreach (var category in categories)
-            {
-                var currentTemplate = categoryCommandTemplate;
-                currentTemplate = currentTemplate.Replace("[TV_CATEGORY_ID]", category.Id.ToString());
-                currentTemplate = currentTemplate.Replace("[ISSUE_TV_TITLE_NAME]", category.Name);
-                currentTemplate = currentTemplate.Replace("[ISSUE_TV_TVDB_NAME]", $"{category.Name}-tvdb");
-
-
-                commandList.Add(category.Name);
-                commandList.Add($"{category.Name}-tmdb");
+                commandList.Add($"{slashCommand} {category.Name}");
+                commandList.Add($"{slashCommand} {category.Name}-{dbPrefix}");
 
                 sb.Append(currentTemplate);
             }
