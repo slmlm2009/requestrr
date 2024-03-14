@@ -28,7 +28,7 @@ function Footer() {
         <Col xl="6">
           <div className="copyright text-center text-xl-left text-muted">
             © {new Date().getFullYear()}{" "}
-            Requestrr (v2.1.5)
+            Requestrr (v2.1.6)
           </div>
         </Col>
       </Row>
