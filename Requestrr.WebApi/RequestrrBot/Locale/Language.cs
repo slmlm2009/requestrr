@@ -16,21 +16,24 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
         public static string IssueLabel = "[Issue]";
         public static string IssueTitle = "[Title]";
 
-        public static string TvShowCommandTvDb = "[TvShowCommandTvDb]";
-        public static string MovieCommandTmDb = "[MovieCommandTmDb]";
-        public static string MovieCommandTitle = "[MovieCommandTitle]";
-        public static string TvShowCommandTitle = "[TvShowCommandTitle]";
+        public static string FullCommandList = "[FullCommandList]";
 
+        public static string MovieCommandTitle = "[MovieCommandTitle]";
         public static string MovieCommandIssue = "[MovieCommandIssue]";
-        public static string MovieCommandTmDbIssue = "[MovieCommandTmDbIssue]";
-        public static string TvShowCommandIssue = "[TvShowCommandIssue]";
-        public static string TvShowCommandTvDbIssue = "[TvShowCommandTvDbIssue]";
+
+        public static string IssueEnabledStart = "[IssueEnabledStart]";
+        public static string IssueEnabledEnd = "[IssueEnabledEnd]";
     }
 
     public class Language
     {
         public static Language Current = null;
-        public static string BuildVersion = string.Empty;
+
+#if DEBUG
+        public static string BuildVersion = "Development";
+#else
+        public static string BuildVersion = "v2.1.6";
+#endif
 
         public string Error { get; set; }
 

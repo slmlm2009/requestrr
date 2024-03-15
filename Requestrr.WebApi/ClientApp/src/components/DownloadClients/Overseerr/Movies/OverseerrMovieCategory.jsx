@@ -28,7 +28,8 @@ function OverseerrMovieCategory(props) {
 
   const reduxState = useSelector((state) => {
     return {
-      overseerr: state.movies.overseerr
+      overseerr: state.movies.overseerr,
+      tvCatgory: state.movies.tvCategories
     }
   });
   const dispatch = useDispatch();
@@ -82,6 +83,9 @@ function OverseerrMovieCategory(props) {
     } else if (/^[\w-]{1,32}$/.test(value)) {
       if (reduxState.overseerr.categories.map(x => x.id).includes(props.category.id) && reduxState.overseerr.categories.filter(c => typeof c.id !== 'undefined' && c.id !== props.category.id && c.name.toLowerCase().trim() === value.toLowerCase().trim()).length > 0) {
         newNameErrorMessage = "All categories must have different names.";
+        newIsNameValid = false;
+      } else if (reduxState.tvCatgory.filter(c => c.toLowerCase().trim() === value.toLowerCase().trim()).length > 0) {
+        newNameErrorMessage = "This category has matched a category in TV Shows, these must have different names.";
         newIsNameValid = false;
       }
     } else {

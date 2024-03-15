@@ -28,7 +28,7 @@ namespace Requestrr.WebApi.Controllers.ChatClients
                 settings.BotClient.Client = botClientSettings.Client;
 
                 settings.ChatClients.Language = chatClientsSettings.Language.ToLower();
-                Language.Current = JsonConvert.DeserializeObject<Language>(File.ReadAllText($"locales/{settings.ChatClients.Language}.json"));
+                Language.Current = JsonConvert.DeserializeObject<Language>(File.ReadAllText(Program.CombindPath($"locales/{settings.ChatClients.Language}.json")));
             });
         }
     }

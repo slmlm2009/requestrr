@@ -25,6 +25,10 @@ using Requestrr.WebApi.Controllers.ChatClients;
 using Requestrr.WebApi.Controllers.Authentication;
 using Requestrr.WebApi.RequestrrBot.Movies;
 using Requestrr.WebApi.RequestrrBot.Locale;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Requestrr.WebApi
 {
@@ -36,18 +40,17 @@ namespace Requestrr.WebApi
         }
 
         public IConfiguration Configuration { get; }
+
+        public IFeatureCollection ServerFeatures => throw new NotImplementedException();
+
+        public IServiceProvider Services => throw new NotImplementedException();
+
         private ChatBot _requestrrBot;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-#if DEBUG
-            string buildNumber = "Development";
-#else
-            string? buildNumber = Configuration.GetValue<string>("BuildVersion");
-#endif
-            Console.WriteLine($"Starting Requestrr - build '{(string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber)}'");
-            Language.BuildVersion = string.IsNullOrWhiteSpace(buildNumber) ? "unknown" : buildNumber;
+            Console.WriteLine($"Starting Requestrr - build '{(string.IsNullOrWhiteSpace(Language.BuildVersion) ? "Unknown" : Language.BuildVersion)}'");
 
             services.AddControllersWithViews();
             services.AddHttpClient();
@@ -55,7 +58,7 @@ namespace Requestrr.WebApi
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
-                configuration.RootPath = "ClientApp/build";
+                configuration.RootPath = Program.CombindPath("ClientApp/build");
             });
 
             var authenticationSettings = Configuration.GetSection("Authentication");
