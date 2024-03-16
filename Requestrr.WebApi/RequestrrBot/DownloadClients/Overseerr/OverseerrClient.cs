@@ -23,6 +23,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
         private OverseerrSettings OverseerrSettings => _overseerrSettingsProvider.Provide();
         private string BaseURL => GetBaseURL(OverseerrSettings);
         private ConcurrentDictionary<string, int> _requesterIdToOverseerUserID = new ConcurrentDictionary<string, int>();
+        private ConcurrentDictionary<string, string> _requesterIdToOverseerDisplayName = new ConcurrentDictionary<string, string>();
         private static OverseerrTvShowCategory DefaultTvShowCategory = new OverseerrTvShowCategory { Is4K = false };
         private static OverseerrMovieCategory DefaultMovieCategory = new OverseerrMovieCategory { Is4K = false };
 
@@ -372,10 +373,12 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
 
                 int interalMediaId = movies.MediaInfo.Id;
 
+                var overseerrUser = await FindLinkedOverseerUserDisplayNameAsync(request.User.UserId, request.User.Username);
+
                 response = await HttpPostAsync(null, $"{BaseURL}issue", JsonConvert.SerializeObject(new
                 {
                     issueType = int.Parse(issueValue),
-                    message = issueDescription,
+                    message = $"{issueDescription}\n\nRaised by: {overseerrUser}",
                     mediaId = interalMediaId
                 }));
 
@@ -636,10 +639,12 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
 
                 int interalMediaId = tvShows.MediaInfo.Id;
 
+                var overseerrUser = await FindLinkedOverseerUserDisplayNameAsync(request.User.UserId, request.User.Username);
+
                 response = await HttpPostAsync(null, $"{BaseURL}issue", JsonConvert.SerializeObject(new
                 {
                     issueType = int.Parse(issueValue),
-                    message = issueDescription,
+                    message = $"{issueDescription}\n\nRaised by: {overseerrUser}",
                     mediaId = interalMediaId
                 }));
 
@@ -819,7 +824,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
 
 
 
-        private async Task<string> FindLinkedOverseerUserAsync(string userId, string username, string defaultApiUserID)
+        private async Task<bool> FindLinkedOverseerUserAsync(string userId)
         {
             if (_requesterIdToOverseerUserID.TryGetValue(userId, out var overseerrUserID))
             {
@@ -827,11 +832,12 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
 
                 if (notificationSettings.DiscordID != null && notificationSettings.DiscordID.Equals(userId, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return overseerrUserID.ToString();
+                    return true;
                 }
                 else
                 {
                     _requesterIdToOverseerUserID.Remove(userId, out _);
+                    _requesterIdToOverseerDisplayName.Remove(userId, out _);
                 }
             }
 
@@ -850,7 +856,8 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                     if (notificationSettings.DiscordID != null && notificationSettings.DiscordID.Equals(userId, StringComparison.InvariantCultureIgnoreCase))
                     {
                         _requesterIdToOverseerUserID[userId] = user.ID;
-                        return user.ID.ToString();
+                        _requesterIdToOverseerDisplayName[userId] = user.DisplayName;
+                        return true;
                     }
                 }
                 catch (Exception ex)
@@ -859,9 +866,25 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                 }
             }
 
+            return false;
+        }
+
+        private async Task<string> FindLinkedOverseerUserAsync(string userId, string username, string defaultApiUserID)
+        {
+            if (await FindLinkedOverseerUserAsync(userId))
+                return _requesterIdToOverseerUserID[userId].ToString();
+
             return !string.IsNullOrWhiteSpace(defaultApiUserID) && int.TryParse(defaultApiUserID, out var defaultUserId)
                 ? defaultUserId.ToString()
                 : null;
+        }
+
+        private async Task<string> FindLinkedOverseerUserDisplayNameAsync(string userId, string username)
+        {
+            if (await FindLinkedOverseerUserAsync(userId))
+                return _requesterIdToOverseerDisplayName[userId];
+
+            return username;
         }
 
         private async Task<JSONUserNotificationSettings> GetUserNotificationSettings(int userId)
@@ -1180,6 +1203,8 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
         {
             [JsonProperty("id")]
             public int ID { get; set; }
+            [JsonProperty("displayName")]
+            public string DisplayName { get; set; }
         }
 
         public class JSONNetwork
