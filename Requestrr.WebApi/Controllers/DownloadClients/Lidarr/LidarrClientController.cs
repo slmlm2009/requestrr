@@ -3,13 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Requestrr.WebApi.RequestrrBot.DownloadClients;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr;
+using Requestrr.WebApi.RequestrrBot.Music;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -135,7 +133,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients.Lidarr
         [HttpPost()]
         public async Task<IActionResult> SaveAsync([FromBody] LidarrSettingsModel model)
         {
-            MusicSettingsModel musicSettings = new MusicSettingsModel
+            MusicSettings musicSettings = new MusicSettings
             {
                 Client = DownloadClient.Lidarr
             };

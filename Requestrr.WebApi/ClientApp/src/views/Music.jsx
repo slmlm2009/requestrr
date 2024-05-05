@@ -3,15 +3,10 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from "reactstrap";
 import { getSettings } from "../store/actions/MusicClientsActions";
-// import { getSettings } from "../store/actions/MovieClientsActions"
 import { saveDisabledClient } from "../store/actions/MusicClientsActions"
-// import { saveDisabledClient } from "../store/actions/MovieClientsActions"
-import { saveLidarrClient } from "../store/actions/LidarrClientActions.jsx";
-// import { saveRadarrClient } from "../store/actions/RadarrClientActions"
-// import { saveOmbiClient } from "../store/actions/MovieClientsActions"
-// import { saveOverseerrMovieClient as saveOverseerrClient } from "../store/actions/OverseerrClientRadarrActions"
+import { saveLidarrClient } from "../store/actions/LidarrClientActions";
 import Dropdown from "../components/Inputs/Dropdown"
-import Lidarr from "../components/DownloadClients/Lidarr/Lidarr.jsx";
+import Lidarr from "../components/DownloadClients/Lidarr/Lidarr";
 
 // reactstrap components
 import {
@@ -37,57 +32,14 @@ function Music(props) {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [client, setClient] = useState("");
-  // const [radarr, setRadarr] = useState({});
-  // const [isRadarrValid, setIsRadarrValid] = useState(false);
-  // const [ombi, setOmbi] = useState({});
-  // const [isOmbiValid, setIsOmbiValid] = useState(false);
-  // const [overseerr, setOverseerr] = useState({});
-  // const [isOverseerrValid, setIsOverseerrValid] = useState(false);
+  const [lidarr, setLidarr] = useState({});
+  const [isLidarrValid, setIsLidarrValid] = useState(false);
 
 
   const reduxState = useSelector((state) => {
     return {
-      // settings: state.music
-      settings: {
-        client: "Lidarr",
-        lidarr: {
-          hostname: "localhost",
-          baseUrl: "",
-          port: 8686,
-          apiKey: "",
-          useSSL: false,
-          categories: [
-            // {
-            //   id: ????,
-            //   name: "???",
-            //   profileId: ???,
-            //   rootFolder: "????",
-            //   minimumAvailability: "???",
-            //   tags: [
-            //   ],
-            // },
-          ],
-          searchNewRequests: true,
-          monitorNewRequests: true,
-          version: "1",
-          isLoadingPaths: false,
-          hasLoadedPaths: false,
-          arePathsValid: false,
-          paths: [
-          ],
-          isLoadingProfiles: false,
-          hasLoadedProfiles: false,
-          areProfilesValid: false,
-          profiles: [
-          ],
-          isLoadingTags: false,
-          hasLoadedTags: false,
-          areTagsValid: false,
-          tags: [
-          ],
-        }
-      }
-    }
+      settings: state.music
+    };
   });
   const dispatch = useDispatch();
 
@@ -96,11 +48,8 @@ function Music(props) {
     dispatch(getSettings())
       .then(data => {
         setIsLoading(false);
-        // setClient(data.payload.client);
-        setClient("Lidarr")
-        // setRadarr(data.payload.radarr);
-        // setOmbi(data.payload.ombi);
-        // setOverseerr(data.payload.overseerr);
+        setClient(data.payload.client);
+        setLidarr(data.payload.lidarr);
       });
   }, []);
 
@@ -110,77 +59,53 @@ function Music(props) {
       return;
 
     if (!isSaving) {
-      // if ((client === "Disabled"
-      //   || (client === "Radarr"
-      //     && isRadarrValid)
-      //   || (client === "Ombi"
-      //     && isOmbiValid)
-      //   || (client === "Overseerr"
-      //     && isOverseerrValid)
-      // )) {
-      //   setIsSaving(true);
+      if ((client === "Disabled"
+        || (client === "Lidarr"
+          && isLidarrValid)
+      )) {
+        setIsSaving(true);
 
-      //   let saveAction = null;
+        let saveAction = null;
 
-      //   if (client === "Disabled") {
-      //     saveAction = dispatch(saveDisabledClient());
-      //   }
-      //   else if (client === "Ombi") {
-      //     saveAction = dispatch(saveOmbiClient({
-      //       ombi: ombi,
-      //     }));
-      //   }
-      //   else if (client === "Overseerr") {
-      //     saveAction = dispatch(saveOverseerrClient({
-      //       overseerr: overseerr,
-      //     }));
-      //   }
-      //   else if (client === "Radarr") {
-      //     saveAction = dispatch(saveRadarrClient({
-      //       radarr: radarr,
-      //     }));
-      //   }
+        if (client === "Disabled") {
+          saveAction = dispatch(saveDisabledClient());
+        } else if (client === "Lidarr") {
+          saveAction = dispatch(saveLidarrClient({
+            lidarr: lidarr,
+          }));
+        }
 
-      //   saveAction.then(data => {
-      //     setIsSaving(false);
-      //     setIsSubmitted(false);
+        saveAction.then(data => {
+          setIsSaving(false);
+          setIsSubmitted(false);
 
-      //     if (data.ok) {
-      //       setSaveAttempted(true);
-      //       setSaveError("");
-      //       setSaveSuccess(true);
-      //     } else {
-      //       var error = "An unknown error occurred while saving.";
+          if (data.ok) {
+            setSaveAttempted(true);
+            setSaveError("");
+            setSaveSuccess(true);
+          } else {
+            var error = "An unknown error occurred while saving.";
 
-      //       if (typeof (data.error) === "string")
-      //         error = data.error;
+            if (typeof (data.error) === "string")
+              error = data.error;
 
-      //       setSaveAttempted(true);
-      //       setSaveError(error);
-      //       setSaveSuccess(false);
-      //     }
-      //   });
-      // } else {
-      //   setSaveAttempted(true);
-      //   setSaveError("Some fields are invalid, please fix them before saving.");
-      //   setSaveSuccess(false);
-      //   setIsSubmitted(false);
-      // }
+            setSaveAttempted(true);
+            setSaveError(error);
+            setSaveSuccess(false);
+          }
+        });
+      } else {
+        setSaveAttempted(true);
+        setSaveError("Some fields are invalid, please fix them before saving.");
+        setSaveSuccess(false);
+        setIsSubmitted(false);
+      }
     }
   }, [isSubmitted]);
 
 
-
-
-  // const validateNonEmptyString = value => {
-  //   return /\S/.test(value);
-  // }
-
-
   const onClientChange = () => {
-    // setRadarr(reduxState.settings.radarr);
-    // setOmbi(reduxState.settings.ombi);
-    // setOverseerr(reduxState.settings.overseerr);
+    setLidarr(reduxState.settings.lidarr);
 
     setSaveAttempted(false);
     setIsSubmitted(false);
@@ -254,10 +179,10 @@ function Music(props) {
                           client == "Lidarr" ?
                             <>
                               <Lidarr
-                                settings={undefined}
-                                onChange={undefined}
-                                onValidate={undefined}
-                                isSubmitted={undefined}
+                                onChange={values => setLidarr(values)}
+                                onValidate={value => setIsLidarrValid(value)}
+                                isSubmitted={isSubmitted}
+                                isSaving={isSaving}
                               />
                             </>
                             : null

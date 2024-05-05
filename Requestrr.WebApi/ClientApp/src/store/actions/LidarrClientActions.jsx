@@ -258,3 +258,54 @@ export function testLidarrSettings(settings) {
             });
     }
 }
+
+
+export function saveLidarrClient(saveModel) {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        return fetch("../api/music/lidarr", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${state.user.token}`
+            },
+            body: JSON.stringify({
+                'Hostname': saveModel.lidarr.hostname,
+                'BaseUrl': saveModel.lidarr.baseUrl,
+                'Port': Number(saveModel.lidarr.port),
+                'ApiKey': saveModel.lidarr.apiKey,
+                'UseSSL': saveModel.lidarr.useSSL,
+                'Categories': state.music.lidarr.categories,
+                "Version": saveModel.lidarr.version,
+                'SearchNewRequests': saveModel.lidarr.searchNewRequests,
+                'MonitorNewRequests': saveModel.lidarr.monitorNewRequests
+            })
+        })
+            .then(data => data.json())
+            .then(data => {
+                if (data.ok) {
+                    let newLidarr = {
+                        ...state.music.lidarr,
+                        hostname: saveModel.lidarr.hostname,
+                        baseUrl: saveModel.lidarr.baseUrl,
+                        port: saveModel.lidarr.port,
+                        apiKey: saveModel.lidarr.apiKey,
+                        useSSL: saveModel.lidarr.useSSL,
+                        categories: state.music.lidarr.categories,
+                        searchNewRequests: saveModel.lidarr.searchNewRequests,
+                        monitorNewRequests: saveModel.lidarr.monitorNewRequests,
+                        version: saveModel.lidarr.version
+                    };
+
+                    dispatch(setLidarrClient({
+                        lidarr: newLidarr
+                    }));
+                    return { ok: true };
+                }
+
+                return { ok: false, error: data };
+            });
+    }
+}
