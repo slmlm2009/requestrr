@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Oval } from 'react-loader-spinner'
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from "reactstrap";
-// import { testRadarrSettings as testSettings } from "../../../store/actions/RadarrClientActions"
+import { testLidarrSettings as testSettings } from "../../../store/actions/LidarrClientActions"
 // import { setRadarrConnectionSettings as setConnectionSettings } from "../../../store/actions/RadarrClientActions"
 import ValidatedTextbox from "../../Inputs/ValidatedTextbox"
 import Textbox from "../../Inputs/Textbox"
@@ -167,32 +167,32 @@ function Lidarr(props) {
       && isApiKeyValid) {
       setIsTestingSettings(true);
 
-      dispatch(testSettings({
-        hostname: hostname,
-        baseUrl: baseUrl,
-        port: port,
-        apiKey: apiKey,
-        useSSL: useSSL,
-        version: apiVersion,
-      }))
-        .then(data => {
-          if (data.ok) {
-            setTestSettingsRequested(true);
-            setTestSettingsError("");
-            setTestSettingsSuccess(true);
-          } else {
-            let error = "An unknown error occurred while testing the settings";
+    dispatch(testSettings({
+      hostname: hostname,
+      baseUrl: baseUrl,
+      port: port,
+      apiKey: apiKey,
+      useSSL: useSSL,
+      version: apiVersion
+    }))
+      .then(data => {
+        if (data.ok) {
+          setTestSettingsRequested(true);
+          setTestSettingsError("");
+          setTestSettingsSuccess(true);
+        } else {
+          let error = "An unknown error occurred while testing the settings";
 
-            if (typeof (data.error) === "string")
-              error = data.error;
+          if (typeof (data.error) === "string")
+            error = data.error;
 
-            setTestSettingsRequested(true);
-            setTestSettingsError(error);
-            setTestSettingsSuccess(false);
-          }
+          setTestSettingsRequested(true);
+          setTestSettingsError(error);
+          setTestSettingsSuccess(false);
+        }
 
-          setIsTestingSettings(false);
-        });
+        setIsTestingSettings(false);
+      });
     }
   }
 
