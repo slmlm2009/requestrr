@@ -29,6 +29,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.AspNetCore.Http.Features;
+using Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr;
+using Requestrr.WebApi.RequestrrBot.Music;
 
 namespace Requestrr.WebApi
 {
@@ -93,6 +95,7 @@ namespace Requestrr.WebApi
             services.AddSingleton<DiscordSettingsProvider>();
             services.AddSingleton<TvShowsSettingsProvider>();
             services.AddSingleton<MoviesSettingsProvider>();
+            services.AddSingleton<MusicSettingsProvider>();
             services.AddSingleton<OmbiSettingsProvider>();
             services.AddSingleton<OverseerrSettingsProvider>();
             services.AddSingleton<BotClientSettingsProvider>();
@@ -102,6 +105,7 @@ namespace Requestrr.WebApi
             services.AddSingleton<AuthenticationSettingsProvider>();
             services.AddSingleton<RadarrSettingsProvider>();
             services.AddSingleton<SonarrSettingsProvider>();
+            services.AddSingleton<LidarrSettingsProvider>();
             services.AddSingleton<RequestrrBot.ChatBot>();
         }
 

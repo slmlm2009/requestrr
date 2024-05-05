@@ -1,26 +1,25 @@
-﻿using System;
+﻿using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
+using System;
 
 namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 {
     public class LidarrSettingsProvider
     {
-
-        //TODO: Correct the Provider
         public LidarrSettings Provider()
         {
             dynamic settings = SettingsFile.Read();
-            throw new NotImplementedException("Not implements");
 
             return new LidarrSettings
             {
-                Hostname = "",
-                Port = 8686,
-                ApiKey = "",
-                BaseUrl = "",
-                SearchNewRequests = false,
-                MonitorNewRequests = false,
-                UseSSL = false,
-                Version = "1"
+                Hostname = settings.DownloadClients.Lidarr.Hostname,
+                BaseUrl = settings.DownloadClients.Lidarr.BaseUrl,
+                Port = (int)settings.DownloadClients.Lidarr.Port,
+                ApiKey = settings.DownloadClients.Lidarr.ApiKey,
+                Categories = settings.DownloadClients.Lidarr.Categories.ToObject<LidarrCategory[]>(),
+                SearchNewRequests = settings.DownloadClients.Lidarr.SearchNewRequests,
+                MonitorNewRequests = settings.DownloadClients.Lidarr.MonitorNewRequests,
+                UseSSL = (bool)settings.DownloadClients.Lidarr.UseSSL,
+                Version = settings.DownloadClients.Lidarr.Version
             };
         }
     }

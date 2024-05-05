@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
 using System;
@@ -105,19 +106,51 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 
         public static async Task<IList<JSONRootPath>> GetRootPaths(HttpClient httpClient, ILogger<LidarrClient> logger, LidarrSettings settings)
         {
-            throw new NotImplementedException();
+            try
+            {
+                HttpResponseMessage response = await HttpGetAsync(httpClient, settings, $"{GetBaseURL(settings)}/rootfolder");
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<IList<JSONRootPath>>(jsonResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "An error while getting Lidarr root paths: " + ex.Message);
+            }
 
+            throw new Exception("An error occurred while getting Lidarr root paths");
         }
 
 
         public static async Task<IList<JSONProfile>> GetProfiles(HttpClient httpClient, ILogger<LidarrClient> logger, LidarrSettings settings)
         {
-            throw new NotImplementedException();
+            try
+            {
+                HttpResponseMessage response = await HttpGetAsync(httpClient, settings, $"{GetBaseURL(settings)}/qualityprofile");
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<IList<JSONProfile>>(jsonResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "An error while getting Lidarr profiles: " + ex.Message);
+            }
+
+            throw new Exception("An error occurred while getting Lidarr profiles");
         }
 
         public static async Task<IList<JSONTag>> GetTags(HttpClient httpClient, ILogger<LidarrClient> logger, LidarrSettings settings)
         {
-            throw new NotImplementedException();
+            try
+            {
+                HttpResponseMessage response = await HttpGetAsync(httpClient, settings, $"{GetBaseURL(settings)}/tag");
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<IList<JSONTag>>(jsonResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "An error while getting Lidarr tags: " + ex.Message);
+            }
+
+            throw new Exception("An error occurred while getting Lidarr tags");
         }
 
 

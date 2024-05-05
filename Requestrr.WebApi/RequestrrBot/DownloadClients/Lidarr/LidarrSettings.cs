@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 {
     public class LidarrSettings
@@ -7,10 +9,20 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         public int Port { get; set; }
         public string ApiKey { get; set; }
         public string BaseUrl { get; set; }
-        //public RadarrCategory[] Categories { get; set; } = Array.Empty<RadarrCategory>();
+        public LidarrCategory[] Categories { get; set; } = Array.Empty<LidarrCategory>();
         public bool SearchNewRequests { get; set; }
         public bool MonitorNewRequests { get; set; }
         public bool UseSSL { get; set; }
         public string Version { get; set; }
+    }
+
+    public class LidarrCategory
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int ProfileId { get; set; }
+        public string RootFolder { get; set; }
+        public string MinimumAvailability { get; set; }
+        public int[] Tags { get; set; } = Array.Empty<int>();
     }
 }

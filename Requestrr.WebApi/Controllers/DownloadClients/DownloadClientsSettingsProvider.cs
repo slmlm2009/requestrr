@@ -1,5 +1,6 @@
 ﻿using Requestrr.WebApi.config;
 using Requestrr.WebApi.RequestrrBot;
+using Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
@@ -19,6 +20,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                 Overseerr = new OverseerrSettingsProvider().Provide(),
                 Radarr = new RadarrSettingsProvider().Provide(),
                 Sonarr = new SonarrSettingsProvider().Provide(),
+                Lidarr = new LidarrSettingsProvider().Provider()
             };
         }
     }
