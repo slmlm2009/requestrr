@@ -63,6 +63,31 @@ export function setLidarrTags(lidarrTags) {
 };
 
 
+export function setLidarrConnectionSettings(connectionSettings) {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        let lidarr = {
+            ...state.music.lidarr,
+            hostname: connectionSettings.hostname,
+            baseUrl: connectionSettings.baseUrl,
+            port: connectionSettings.port,
+            apiKey: connectionSettings.apiKey,
+            useSSL: connectionSettings.useSSL,
+            version: connectionSettings.version
+        };
+
+        dispatch(setLidarrClient({
+            lidarr: lidarr
+        }));
+
+        return new Promise((resolve, reject) => {
+            return { ok: false };
+        });
+    }
+}
+
+
 export function loadLidarrRootPaths(forceReload) {
     return (dispatch, getState) => {
         const state = getState();

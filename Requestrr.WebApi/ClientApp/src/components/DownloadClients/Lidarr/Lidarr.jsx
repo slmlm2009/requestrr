@@ -4,7 +4,7 @@ import { Oval } from 'react-loader-spinner'
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from "reactstrap";
 import { testLidarrSettings as testSettings } from "../../../store/actions/LidarrClientActions"
-// import { setRadarrConnectionSettings as setConnectionSettings } from "../../../store/actions/RadarrClientActions"
+import { setLidarrConnectionSettings as setConnectionSettings } from "../../../store/actions/LidarrClientActions"
 import ValidatedTextbox from "../../Inputs/ValidatedTextbox"
 import Textbox from "../../Inputs/Textbox"
 import Dropdown from "../../Inputs/Dropdown"
@@ -39,43 +39,7 @@ function Lidarr(props) {
 
   const reduxState = useSelector((state) => {
     return {
-      // settings: state.movies.radarr
-      settings: {
-        hostname: "",
-        baseUrl: "",
-        port: 8686,
-        apiKey: "",
-        useSSL: false,
-        categories: [
-          // {
-          //   id: 0,
-          //   name: "movie",
-          //   profileId: 1,
-          //   rootFolder: "/tmp",
-          //   minimumAvailability: "announced",
-          //   tags: [
-          //   ],
-          // },
-        ],
-        searchNewRequests: true,
-        monitorNewRequests: true,
-        version: "1",
-        isLoadingPaths: false,
-        hasLoadedPaths: false,
-        arePathsValid: false,
-        paths: [
-        ],
-        isLoadingProfiles: false,
-        hasLoadedProfiles: false,
-        areProfilesValid: false,
-        profiles: [
-        ],
-        isLoadingTags: false,
-        hasLoadedTags: false,
-        areTagsValid: false,
-        tags: [
-        ],
-      }
+      settings: state.music.lidarr
     }
   });
   const dispatch = useDispatch();
@@ -197,37 +161,37 @@ function Lidarr(props) {
   }
 
   const onValueChange = () => {
-    // dispatch(setConnectionSettings({
-    //   hostname: hostname,
-    //   baseUrl: baseUrl,
-    //   port: port,
-    //   apiKey: apiKey,
-    //   useSSL: useSSL,
-    //   version: apiVersion,
-    // }));
+    dispatch(setConnectionSettings({
+      hostname: hostname,
+      baseUrl: baseUrl,
+      port: port,
+      apiKey: apiKey,
+      useSSL: useSSL,
+      version: apiVersion,
+    }));
 
-    // props.onChange({
-    //   hostname: hostname,
-    //   baseUrl: baseUrl,
-    //   port: port,
-    //   apiKey: apiKey,
-    //   useSSL: useSSL,
-    //   version: apiVersion,
-    //   searchNewRequests: searchNewRequests,
-    //   monitorNewRequests: monitorNewRequests,
-    // });
+    props.onChange({
+      hostname: hostname,
+      baseUrl: baseUrl,
+      port: port,
+      apiKey: apiKey,
+      useSSL: useSSL,
+      version: apiVersion,
+      searchNewRequests: searchNewRequests,
+      monitorNewRequests: monitorNewRequests,
+    });
 
     onValidate();
   };
 
   const onValidate = () => {
-    // props.onValidate(
-    //   isApiKeyValid
-    //   && isHostnameValid
-    //   && isPortValid
-    //   && reduxState.settings.categories.every(x => validateCategoryName(x.name))
-    //   && reduxState.settings.areProfilesValid
-    //   && reduxState.settings.arePathsValid);
+    props.onValidate(
+      isApiKeyValid
+      && isHostnameValid
+      && isPortValid
+      && reduxState.settings.categories.every(x => validateCategoryName(x.name))
+      && reduxState.settings.areProfilesValid
+      && reduxState.settings.arePathsValid);
   };
 
 
