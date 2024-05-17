@@ -32,7 +32,6 @@ function LidarrCategoryList(props) {
       name: "new-category",
       profileId: -1,
       rootFolder: "",
-      minimumAvailability: "announced",
       tags: [],
       wasCreated: true
     };

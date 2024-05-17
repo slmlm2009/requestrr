@@ -229,13 +229,6 @@ function LidarrCategory(props) {
                 </Col>
               </Row>
               <Row>
-                <Col lg="6">
-                  <Dropdown
-                    name="Min Availability"
-                    value={props.category.minimumAvailability}
-                    items={[{ name: "Announced", value: "announced" }, { name: "In Cinemas", value: "inCinemas" }, { name: "Released", value: "released" }, { name: "PreDB", value: "preDB" }]}
-                    onChange={newMinimumAvailability => setCategory("minimumAvailability", newMinimumAvailability)} />
-                </Col>
                 {
                   props.apiVersion !== "2"
                     ? <>
