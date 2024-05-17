@@ -1,7 +1,7 @@
 
 import { useDispatch, useSelector } from 'react-redux';
 import React from "react";
-// import { addRadarrCategory } from "../../../store/actions/RadarrClientActions"
+import { addLidarrCategory } from "../../../store/actions/LidarrClientActions"
 import LidarrCategory from "./LidarrCategory";
 
 // reactstrap components
@@ -12,20 +12,20 @@ import {
 
 function LidarrCategoryList(props) {
 
-  // const reduxState = useSelector((state) => {
-  //   return {
-  //     categories: state.movies.lidarr.categories
-  //   }
-  // });
+  const reduxState = useSelector((state) => {
+    return {
+      categories: state.music.lidarr.categories
+    }
+  });
   const dispatch = useDispatch();
 
 
   const createLidarrCategory = () => {
     let newId = Math.floor((Math.random() * 900) + 1);
 
-    // while (reduxState.categories.map(x => x.id).includes(newId)) {
-    //   newId = Math.floor((Math.random() * 900) + 1);
-    // }
+    while (reduxState.categories.map(x => x.id).includes(newId)) {
+      newId = Math.floor((Math.random() * 900) + 1);
+    }
 
     let newCategory = {
       id: newId,
@@ -37,7 +37,7 @@ function LidarrCategoryList(props) {
       wasCreated: true
     };
 
-    // dispatch(addRadarrCategory(newCategory));
+    dispatch(addLidarrCategory(newCategory));
   }
 
 
@@ -57,12 +57,12 @@ function LidarrCategoryList(props) {
               </tr>
             </thead>
             <tbody class="list">
-              {/* {reduxState.categories.map((category, key) => {
+              {reduxState.categories.map((category, key) => {
                 return (
                   <React.Fragment key={category.id}>
                     <LidarrCategory key={category.id} isSubmitted={props.isSubmitted} isSaving={props.isSaving} canConnect={props.canConnect} apiVersion={props.apiVersion} category={{ ...category }} />
                   </React.Fragment>)
-              })} */}
+              })}
               <tr>
                 <td className="text-right" colSpan="2">
                   <FormGroup className="form-group text-right mt-2">

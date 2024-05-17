@@ -88,6 +88,126 @@ export function setLidarrConnectionSettings(connectionSettings) {
 }
 
 
+export function addLidarrCategory(category) {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        let categories = [...state.music.lidarr.categories];
+        categories.push(category);
+
+        let lidarr = {
+            ...state.music.lidarr,
+            categories: categories
+        };
+
+        dispatch(setLidarrClient({
+            lidarr: lidarr
+        }));
+
+        return new Promise((resolve, reject) => {
+            return { ok: true };
+        });
+    }
+};
+
+
+export function removeLidarrCategory(categoryId) {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        let categories = [...state.music.lidarr.categories];
+        categories = categories.filter(x => x.id !== categoryId);
+
+        let lidarr = {
+            ...state.music.lidarr,
+            categories: categories
+        };
+
+        dispatch(setLidarrClient({
+            lidarr: lidarr
+        }));
+
+        return new Promise((resolve, reject) => {
+            return { ok: false };
+        });
+    }
+};
+
+
+export function setLidarrCategory(categoryId, field, data) {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        let categories = [...state.music.lidarr.categories];
+        // let category = categories.find(x => x.id === categoryId);
+
+        // if (field !== "tags") {
+        //     category[field] = data;
+        // } else {
+        //     category.tags = state.music.lidarr.tags.map(x => x.id).filter(x => data.includes(x));
+        // }
+
+        for (let index = 0; index < categories.length; index++) {
+            if (categories[index].id === categoryId) {
+                let category = { ...categories[index] };
+
+                if (field === "name") {
+                    categories.name = data;
+                } else if (field === "minimumAvailability") {
+                    category.minimumAvailability = data;
+                } else if (field === "profileId") {
+                    category.profileId = data;
+                } else if (field === "rootFolder") {
+                    category.rootFolder = data;
+                } else if (field === "tags") {
+                    category.tags = state.music.lidarr.tags.map(x => x.id).filter(x => data.includes(x));
+                }
+
+                categories[index] = category;
+            }
+        }
+
+        let lidarr = {
+            ...state.music.lidarr,
+            categories: categories
+        };
+
+        dispatch(setLidarrClient({
+            lidarr: lidarr
+        }));
+
+        return new Promise((resolve, reject) => {
+            return { ok: false };
+        });
+    }
+};
+
+
+export function setLidarrCategories(categoies) {
+    return (dispatch, getState) => {
+        const state = getState();
+
+        let lidarr = {
+            ...state.music.lidarr,
+            hostname: connectionSettings.hostname,
+            baseUrl: connectionSettings.baseUrl,
+            port: connectionSettings.port,
+            apiKey: connectionSettings.apiKey,
+            useSSL: connectionSettings.useSSL,
+            version: connectionSettings.version
+        };
+
+        dispatch(setLidarrClient({
+            lidarr: lidarr
+        }));
+
+        return new Promise((resolve, reject) => {
+            return { ok: false };
+        });
+    }
+};
+
+
 export function loadLidarrRootPaths(forceReload) {
     return (dispatch, getState) => {
         const state = getState();

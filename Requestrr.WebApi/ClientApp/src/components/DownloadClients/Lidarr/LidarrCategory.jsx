@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { Oval } from 'react-loader-spinner'
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from "reactstrap";
-import { loadRadarrProfiles as loadProfiles } from "../../../store/actions/RadarrClientActions"
-import { loadRadarrRootPaths as loadRootPaths } from "../../../store/actions/RadarrClientActions"
-import { loadRadarrTags as loadTags } from "../../../store/actions/RadarrClientActions"
-import { setRadarrCategory } from "../../../store/actions/RadarrClientActions"
-import { removeRadarrCategory } from "../../../store/actions/RadarrClientActions"
+import { loadLidarrProfiles as loadProfiles } from "../../../store/actions/LidarrClientActions"
+import { loadLidarrRootPaths as loadRootPaths } from "../../../store/actions/LidarrClientActions"
+import { loadLidarrTags as loadTags } from "../../../store/actions/LidarrClientActions"
+import { setLidarrCategory } from "../../../store/actions/LidarrClientActions"
+import { removeLidarrCategory } from "../../../store/actions/LidarrClientActions"
 import ValidatedTextbox from "../../Inputs/ValidatedTextbox"
 import Dropdown from "../../Inputs/Dropdown"
 import MultiDropdown from "../../Inputs/MultiDropdown"
@@ -28,7 +28,7 @@ function LidarrCategory(props) {
 
   const reduxState = useSelector((state) => {
     return {
-      radarr: state.movies.radarr
+      lidarr: state.music.lidarr
     }
   });
   const dispatch = useDispatch();
@@ -52,8 +52,8 @@ function LidarrCategory(props) {
     const prevProps = propRef.past;
     propRef.past = props;
 
-    let previousNames = prevState === undefined ? [] : prevState.radarr.categories.map(x => x.name);
-    let currentNames = reduxState.radarr.categories.map(x => x.name);
+    let previousNames = prevState === undefined ? [] : prevState.lidarr.categories.map(x => x.name);
+    let currentNames = reduxState.lidarr.categories.map(x => x.name);
 
     if (!(previousNames.length === currentNames.length && currentNames.every((value, index) => previousNames[index] === value)))
       validateName(props.category.name)
@@ -83,7 +83,7 @@ function LidarrCategory(props) {
       newNameErrorMessage = "A category name is required.";
       newIsNameValid = false;
     } else if (/^[\w-]{1,32}$/.test(value)) {
-      if (reduxState.radarr.categories.map(x => x.id).includes(props.category.id) && reduxState.radarr.categories.filter(c => typeof c.id !== 'undefined' && c.id !== props.category.id && c.name.toLowerCase().trim() === value.toLowerCase().trim()).length > 0) {
+      if (reduxState.lidarr.categories.map(x => x.id).includes(props.category.id) && reduxState.lidarr.categories.filter(c => typeof c.id !== 'undefined' && c.id !== props.category.id && c.name.toLowerCase().trim() === value.toLowerCase().trim()).length > 0) {
         newNameErrorMessage = "All categories must have different names.";
         newIsNameValid = false;
       }
@@ -103,13 +103,13 @@ function LidarrCategory(props) {
 
 
   const setCategory = (fieldChanged, data) => {
-    dispatch(setRadarrCategory(props.category.id, fieldChanged, data));
+    dispatch(setLidarrCategory(props.category.id, fieldChanged, data));
   };
 
 
   const deleteCategory = () => {
     setIsOpen(false);
-    setTimeout(() => dispatch(removeRadarrCategory(props.category.id), 150));
+    setTimeout(() => dispatch(removeLidarrCategory(props.category.id), 150));
   };
 
 
@@ -126,7 +126,7 @@ function LidarrCategory(props) {
           </div>
         </th>
         <td class="text-right">
-          <button onClick={() => setIsOpen(!isOpen)} disabled={isOpen && (!isNameValid || !reduxState.radarr.arePathsValid || !reduxState.radarr.areProfilesValid || !reduxState.radarr.areTagsValid)} className="btn btn-icon btn-3 btn-info" type="button">
+          <button onClick={() => setIsOpen(!isOpen)} disabled={isOpen && (!isNameValid || !reduxState.lidarr.arePathsValid || !reduxState.lidarr.areProfilesValid || !reduxState.lidarr.areTagsValid)} className="btn btn-icon btn-3 btn-info" type="button">
             <span className="btn-inner--icon"><i class="fas fa-edit"></i></span>
             <span className="btn-inner--text">Edit</span>
           </button>
@@ -156,12 +156,12 @@ function LidarrCategory(props) {
                     <Dropdown
                       name="Path"
                       value={props.category.rootFolder}
-                      items={reduxState.radarr.paths.map(x => { return { name: x.path, value: x.path } })}
+                      items={reduxState.lidarr.paths.map(x => { return { name: x.path, value: x.path } })}
                       onChange={newPath => setCategory("rootFolder", newPath)} />
                     <button className="btn btn-icon btn-3 btn-default" onClick={() => dispatch(loadRootPaths(true))} disabled={!props.canConnect} type="button">
                       <span className="btn-inner--icon">
                         {
-                          reduxState.radarr.isLoadingPaths ? (
+                          reduxState.lidarr.isLoadingPaths ? (
                             <Oval
                               wrapperClass="loader"
                               type="Oval"
@@ -175,14 +175,14 @@ function LidarrCategory(props) {
                     </button>
                   </div>
                   {
-                    !reduxState.radarr.arePathsValid ? (
+                    !reduxState.lidarr.arePathsValid ? (
                       <Alert className="mt-3 mb-0 text-wrap " color="warning">
                         <strong>Could not find any paths.</strong>
                       </Alert>)
                       : null
                   }
                   {
-                    props.isSubmitted && reduxState.radarr.paths.length === 0 ? (
+                    props.isSubmitted && reduxState.lidarr.paths.length === 0 ? (
                       <Alert className="mt-3 mb-0 text-wrap " color="warning">
                         <strong>A path is required.</strong>
                       </Alert>)
@@ -194,12 +194,12 @@ function LidarrCategory(props) {
                     <Dropdown
                       name="Profile"
                       value={props.category.profileId}
-                      items={reduxState.radarr.profiles.map(x => { return { name: x.name, value: x.id } })}
+                      items={reduxState.lidarr.profiles.map(x => { return { name: x.name, value: x.id } })}
                       onChange={newProfile => setCategory("profileId", newProfile)} />
                     <button className="btn btn-icon btn-3 btn-default" onClick={() => dispatch(loadProfiles(true))} disabled={!props.canConnect} type="button">
                       <span className="btn-inner--icon">
                         {
-                          reduxState.radarr.isLoadingProfiles ? (
+                          reduxState.lidarr.isLoadingProfiles ? (
                             <Oval
                               wrapperClass="loader"
                               type="Oval"
@@ -213,14 +213,14 @@ function LidarrCategory(props) {
                     </button>
                   </div>
                   {
-                    !reduxState.radarr.areProfilesValid ? (
+                    !reduxState.lidarr.areProfilesValid ? (
                       <Alert className="mt-3 mb-0 text-wrap " color="warning">
                         <strong>Could not find any profiles.</strong>
                       </Alert>)
                       : null
                   }
                   {
-                    props.isSubmitted && reduxState.radarr.profiles.length === 0 ? (
+                    props.isSubmitted && reduxState.lidarr.profiles.length === 0 ? (
                       <Alert className="mt-3 mb-0 text-wrap " color="warning">
                         <strong>A profile is required.</strong>
                       </Alert>)
@@ -247,13 +247,13 @@ function LidarrCategory(props) {
                             labelField="name"
                             valueField="id"
                             ignoreEmptyItems={true}
-                            selectedItems={reduxState.radarr.tags.filter(x => props.category.tags.includes(x.id))}
-                            items={reduxState.radarr.tags}
+                            selectedItems={reduxState.lidarr.tags.filter(x => props.category.tags.includes(x.id))}
+                            items={reduxState.lidarr.tags}
                             onChange={newTags => setCategory("tags", newTags.map(x => x.id))} />
                           <button className="btn btn-icon btn-3 btn-default" onClick={() => dispatch(loadTags(true))} disabled={!props.canConnect} type="button">
                             <span className="btn-inner--icon">
                               {
-                                reduxState.radarr.isLoadingTags ? (
+                                reduxState.lidarr.isLoadingTags ? (
                                   <Oval
                                     wrapperClass="loader"
                                     type="Oval"
@@ -267,9 +267,9 @@ function LidarrCategory(props) {
                           </button>
                         </div>
                         {
-                          !reduxState.radarr.areTagsValid ? (
+                          !reduxState.lidarr.areTagsValid ? (
                             <Alert className="mt-3 mb-4 text-wrap " color="warning">
-                              <strong>Could not load tags, cannot reach Radarr.</strong>
+                              <strong>Could not load tags, cannot reach Lidarr.</strong>
                             </Alert>)
                             : null
                         }
@@ -279,7 +279,7 @@ function LidarrCategory(props) {
                 }
               </Row>
               {
-                reduxState.radarr.categories.length > 1
+                reduxState.lidarr.categories.length > 1
                   ? <Row>
                     <Col lg="12" className="text-right">
                       <button onClick={() => deleteCategory()} className="btn btn-icon btn-3 btn-danger" type="button">
