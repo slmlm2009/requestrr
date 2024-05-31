@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
+using Requestrr.WebApi.RequestrrBot.Music;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -76,19 +78,27 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         }
 
 
+        /// <summary>
+        /// Handles the passing of a Music name into the Muisc client
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="musicName"></param>
+        /// <returns></returns>
+        public Task<Music.Music> SearchMusicAsync(MusicRequest request, Guid guid)
+        {
+            return CreateInstance<IMusicSearcher>().SearchMusicAsync(request, guid);
+        }
+
+
+        public Task<IReadOnlyList<Music.Music>> SearchMovieAsync(MusicRequest request, string query)
+        {
+            return CreateInstance<IMusicSearcher>().SearchMusicAsync(request, query);
+        }
+
+
 
         //-----------------------------
 
-
-        //public Task<Movie> SearchMovieAsync(MovieRequest request, int theMovieDbId)
-        //{
-        //    return CreateInstance<IMovieSearcher>().SearchMovieAsync(request, theMovieDbId);
-        //}
-
-        //public Task<IReadOnlyList<Movie>> SearchMovieAsync(MovieRequest request, string movieName)
-        //{
-        //    return CreateInstance<IMovieSearcher>().SearchMovieAsync(request, movieName);
-        //}
 
         //public Task<MovieDetails> GetMovieDetails(MovieRequest request, string theMovieDbId)
         //{
@@ -105,17 +115,10 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         //    return CreateInstance<IMovieRequester>().RequestMovieAsync(request, movie);
         //}
 
-        //private T CreateInstance<T>() where T : class
-        //{
-        //    if (_settingsProvider.Provide().Version == "2")
-        //    {
-        //        return new RadarrClientV2(_httpClientFactory, _logger, _settingsProvider) as T;
-        //    }
-        //    else
-        //    {
-        //        return new RadarrClientV3(_httpClientFactory, _logger, _settingsProvider) as T;
-        //    }
-        //}
+        private T CreateInstance<T>() where T : class
+        {
+            return new LidarrClientV1(_httpClientFactory, _logger, _settingsProvider) as T;
+        }
 
         //-----------------------------
 
