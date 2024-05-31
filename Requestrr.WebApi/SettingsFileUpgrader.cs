@@ -277,7 +277,7 @@ namespace Requestrr.WebApi
                             Name = "music",
                             ProfileId = 1,
                             RootFolder = string.Empty,
-                            MinimumAvailability = "announced",
+                            //MinimumAvailability = "announced",
                             Tags = Array.Empty<int>(),
                         }
                     },

@@ -22,7 +22,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         public string Name { get; set; }
         public int ProfileId { get; set; }
         public string RootFolder { get; set; }
-        public string MinimumAvailability { get; set; }
+        //public string MinimumAvailability { get; set; }
         public int[] Tags { get; set; } = Array.Empty<int>();
     }
 }
