@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Requestrr.WebApi.RequestrrBot.DownloadClients;
+using Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Ombi;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
@@ -23,6 +24,8 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                 MovieDownloadClientConfigurationHash = ComputeMovieClientConfigurationHashCode(settings),
                 TvShowDownloadClient = settings.TvShows.Client,
                 TvShowDownloadClientConfigurationHash = ComputeTvClientConfigurationHashCode(settings),
+                MusicDownloadClient = settings.Music.Client,
+                MusicDownloadClientConfigurationHash = ComputeMusicClientConfigurationHashCode(settings),
                 StatusMessage = settings.ChatClients.Discord.StatusMessage,
                 MonitoredChannels = settings.ChatClients.Discord.MonitoredChannels.ToObject<string[]>(),
                 TvShowRoles = settings.ChatClients.Discord.TvShowRoles.ToObject<string[]>(),
@@ -123,6 +126,26 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             else
             {
                 hash.Add(DownloadClient.Disabled);
+            }
+
+            return hash.ToHashCode();
+        }
+
+
+        public int ComputeMusicClientConfigurationHashCode(dynamic settings)
+        {
+            HashCode hash = new HashCode();
+
+            if (settings.Music.Client == DownloadClient.Lidarr)
+            {
+                LidarrSettings clientSettings = new LidarrSettingsProvider().Provider();
+
+                hash.Add(clientSettings.Categories.Select(x => x.Name).GetSequenceHashCode());
+                hash.Add(clientSettings.Hostname);
+                hash.Add(clientSettings.Port);
+                hash.Add(clientSettings.ApiKey);
+                hash.Add(clientSettings.UseSSL);
+                hash.Add(clientSettings.Version);
             }
 
             return hash.ToHashCode();
