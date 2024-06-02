@@ -6,9 +6,9 @@ namespace Requestrr.WebApi.RequestrrBot.Music
 {
     public interface IMusicSearcher
     {
-        Task<IReadOnlyList<Music>> SearchMusicAsync(MusicRequest request, string query);
+        Task<IReadOnlyList<Music>> SearchMusicForArtistAsync(MusicRequest request, string artistName);
 
 
-        Task<Music> SearchMusicAsync(MusicRequest request, Guid guid);
+        Task<Music> SearchMusicForArtistIdAsync(MusicRequest request, string artistId);
     }
 }

@@ -29,20 +29,20 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         }
 
 
-        public async Task SearchMusicAsync(string query)
+        public async Task SearchMusicForArtistAsync(string artistName)
         {
-            var music = await SearchMusicsAsync(query);
+            var music = await SearchMusicForArtistListAsync(artistName);
         }
 
-        public async Task<IReadOnlyList<Music>> SearchMusicsAsync(string query)
+        public async Task<IReadOnlyList<Music>> SearchMusicForArtistListAsync(string artistName)
         {
             IReadOnlyList<Music> music = Array.Empty<Music>();
 
-            query = query.Replace(".", " ");
-            music = await _musicSearcher.SearchMusicAsync(new MusicRequest(_user, _categoryId), query);
+            artistName = artistName.Replace(".", " ");
+            music = await _musicSearcher.SearchMusicForArtistAsync(new MusicRequest(_user, _categoryId), artistName);
 
             if (!music.Any())
-                await _userInterface.WarnNoMusicFoundAsync(query);
+                await _userInterface.WarnNoMusicFoundAsync(artistName);
 
             return music;
         }
