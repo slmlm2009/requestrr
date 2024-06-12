@@ -31,7 +31,20 @@ namespace Requestrr.WebApi.RequestrrBot.Music
 
         public async Task SearchMusicForArtistAsync(string artistName)
         {
-            var music = await SearchMusicForArtistListAsync(artistName);
+            IReadOnlyList<Music> musicList = await SearchMusicForArtistListAsync(artistName);
+
+            if (musicList.Any())
+            {
+                if (musicList.Count > 1)
+                {
+                    await _userInterface.ShowMusicSelection(new MusicRequest(_user, _categoryId), musicList);
+                }
+                else if (musicList.Count == 1)
+                {
+                    Music music = musicList.Single();
+                    await HandleMusicSelectionAsync(music);
+                }
+            }
         }
 
         public async Task<IReadOnlyList<Music>> SearchMusicForArtistListAsync(string artistName)
@@ -45,6 +58,32 @@ namespace Requestrr.WebApi.RequestrrBot.Music
                 await _userInterface.WarnNoMusicFoundAsync(artistName);
 
             return music;
+        }
+
+
+        private async Task HandleMusicSelectionAsync(Music music)
+        {
+            if (CanBeRequested(music))
+            {
+                await _userInterface.DisplayMusicDetailsAsync(new MusicRequest(_user, _categoryId), music);
+            }
+            else
+            {
+                if (music.Available)
+                {
+                    await _userInterface.WarnMusicAlreadyAvailableAsync(music);
+                }
+                else
+                {
+                    //await _notificationWorkflow.NotifyForExistingRequestAsync();
+                }
+            }
+        }
+
+
+        private static bool CanBeRequested(Music music)
+        {
+            return !music.Available && !music.Requested;
         }
     }
 }

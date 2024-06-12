@@ -220,7 +220,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         {
             try
             {
-                JSONMusic foundMusicJson = await FindExistingArtistByMusicDbIdAsync(artistId);
+                JSONMusicArtist foundMusicJson = await FindExistingArtistByMusicDbIdAsync(artistId);
 
                 if (foundMusicJson == null)
                 {
@@ -228,7 +228,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                     await response.ThrowIfNotSuccessfulAsync("LidarrMusicLookup failed", x => x.error);
 
                     string jsonResponse = await response.Content.ReadAsStringAsync();
-                    foundMusicJson = JsonConvert.DeserializeObject<JSONMusic>(jsonResponse);
+                    foundMusicJson = JsonConvert.DeserializeObject<JSONMusicArtist>(jsonResponse);
                 }
 
                 return foundMusicJson != null ? ConvertToMusic(foundMusicJson) : null;
@@ -259,7 +259,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                 await response.ThrowIfNotSuccessfulAsync("LidarrMusicLookup failed", x => x.error);
 
                 string jsonResponse = await response.Content.ReadAsStringAsync();
-                List<JSONMusic> jsonMusic = JsonConvert.DeserializeObject<List<JSONMusic>>(jsonResponse);
+                List<JSONMusicArtist> jsonMusic = JsonConvert.DeserializeObject<List<JSONMusicArtist>>(jsonResponse);
 
                 //TODO: Correct this, searching should handle both artist and albums
                 return jsonMusic.Where(x => x != null).Select(x => ConvertToMusic(x)).ToArray();
@@ -274,7 +274,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 
 
 
-        private async Task<JSONMusic> FindExistingArtistByMusicDbIdAsync(string artistId)
+        private async Task<JSONMusicArtist> FindExistingArtistByMusicDbIdAsync(string artistId)
         {
             try
             {
@@ -282,7 +282,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                 await response.ThrowIfNotSuccessfulAsync("Could not search music by Id", x => x.error);
 
                 string jsonResponse = await response.Content.ReadAsStringAsync();
-                JSONMusic[] jsonMusicList = JsonConvert.DeserializeObject<List<JSONMusic>>(jsonResponse).ToArray();
+                JSONMusicArtist[] jsonMusicList = JsonConvert.DeserializeObject<List<JSONMusicArtist>>(jsonResponse).ToArray();
 
                 if (jsonMusicList.Any())
                     return jsonMusicList.First();
@@ -320,24 +320,24 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         //}
 
 
-        private Music.Music ConvertToMusic(JSONMusic jsonMusic)
+        private Music.Music ConvertToMusic(JSONMusicArtist jsonArtist)
         {
-            string downloadClientId = jsonMusic.Id.ToString();
+            string downloadClientId = jsonArtist.Id.ToString();
 
             return new Music.Music
             {
                 DownloadClientId = downloadClientId,
-                ArtistId = jsonMusic.ArtistMetadataId.ToString(),
-                ArtistName = jsonMusic.ArtistName,
-                Overview = jsonMusic.Overview,
+                ArtistId = jsonArtist.ForeignArtistId.ToString(),
+                ArtistName = jsonArtist.ArtistName,
+                Overview = jsonArtist.Overview,
 
-                Available = !string.IsNullOrWhiteSpace(jsonMusic.Folder),
+                Available = !string.IsNullOrWhiteSpace(jsonArtist.Folder),
                 Quality = string.Empty,
                 Requested = (!string.IsNullOrWhiteSpace(downloadClientId)),
 
                 PlexUrl = string.Empty,
                 EmbyUrl = string.Empty,
-                PosterPath = GetPosterImageUrl(jsonMusic.Images)
+                PosterPath = GetPosterImageUrl(jsonArtist.Images)
                 //ReleaseDate = jsonMusic..Empty
             };
         }
@@ -432,7 +432,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         //}
 
 
-        private class JSONMusic
+        private class JSONMusicArtist
         {
             [JsonProperty("id")]
             public int? Id { get; set; }
