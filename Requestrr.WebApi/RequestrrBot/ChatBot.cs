@@ -367,7 +367,7 @@ namespace Requestrr.WebApi.RequestrrBot
                         await CreateMovieNotificationWorkflow(e)
                             .AddNotificationAsync(e.Id.Split("/").Skip(1).First(), int.Parse(e.Id.Split("/").Last()));
                     }
-                    if (e.Id.ToLower().StartsWith("tr") || e.Id.ToLower().StartsWith("ts"))
+                    else if (e.Id.ToLower().StartsWith("tr") || e.Id.ToLower().StartsWith("ts"))
                     {
                         await HandleTvRequestAsync(e);
                     }
@@ -385,6 +385,10 @@ namespace Requestrr.WebApi.RequestrrBot
 
                         await CreateTvShowNotificationWorkflow(e)
                             .AddNotificationAsync(userId, tvDbId, seasonType, int.Parse(seasonNumber));
+                    }
+                    else if (e.Id.ToLower().StartsWith("mur"))
+                    {
+                        await HandleMusicRequestAsync(e);
                     }
                 }
             }
@@ -580,6 +584,46 @@ namespace Requestrr.WebApi.RequestrrBot
                     .SubmitIssueTvShowModalReadAsync(firstTextbox);
             }
         }
+
+
+
+        /// <summary>
+        /// Handles requests for music artist coming in
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        private async Task HandleMusicRequestAsync(ComponentInteractionCreateEventArgs e)
+        {
+            if (e.Id.ToLower().StartsWith("mursa"))
+            {
+                if (e.Values != null && e.Values.Any())
+                {
+                    await CreateMusicRequestWorkFlow(e, int.Parse(e.Values.Single().Split("/").First()))
+                        .HandleMusicArtistSelectionAsync(e.Values.Single().Split("/").Last());
+                }
+            }
+            //else if (e.Id.ToLower().StartsWith("mrc"))
+            //{
+            //    var categoryId = int.Parse(e.Id.Split("/").Skip(2).First());
+
+            //    await CreateMovieRequestWorkFlow(e, categoryId)
+            //        .RequestMovieAsync(int.Parse(e.Id.Split("/").Last()));
+            //}
+        }
+
+
+
+        /// <summary>
+        /// Returns Music Requesting workflow
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="categoryId"></param>
+        /// <returns></returns>
+        private MusicRequestingWorkflow CreateMusicRequestWorkFlow(ComponentInteractionCreateEventArgs e, int categoryId)
+        {
+            return _musicWorkflowFactory.CreateRequestingWorkflow(e.Interaction, categoryId);
+        }
+
 
 
         private MovieRequestingWorkflow CreateMovieRequestWorkFlow(ComponentInteractionCreateEventArgs e, int categoryId)
