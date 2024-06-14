@@ -228,7 +228,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                     await response.ThrowIfNotSuccessfulAsync("LidarrMusicLookup failed", x => x.error);
 
                     string jsonResponse = await response.Content.ReadAsStringAsync();
-                    foundMusicJson = JsonConvert.DeserializeObject<JSONMusicArtist>(jsonResponse);
+                    foundMusicJson = JsonConvert.DeserializeObject<List<JSONMusicArtist>>(jsonResponse).First();
                 }
 
                 return foundMusicJson != null ? ConvertToMusic(foundMusicJson) : null;
@@ -331,7 +331,8 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                 ArtistName = jsonArtist.ArtistName,
                 Overview = jsonArtist.Overview,
 
-                Available = !string.IsNullOrWhiteSpace(jsonArtist.Folder),
+                Available = !string.IsNullOrWhiteSpace(jsonArtist.Path),
+                Monitored = jsonArtist.Monitored,
                 Quality = string.Empty,
                 Requested = (!string.IsNullOrWhiteSpace(downloadClientId)),
 
@@ -472,6 +473,9 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 
             [JsonProperty("images")]
             public List<JSONImage> Images { get; set; }
+
+            [JsonProperty("path")]
+            public string Path { get; set; } = null;
 
             [JsonProperty("qualityProfileId")]
             public int QualityProfileId { get; set; }

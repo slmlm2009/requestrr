@@ -9,6 +9,7 @@
 
 
         public bool Available { get; set; }
+        public bool Monitored { get; set; }
         public string Quality { get; set; }
         public bool Requested { get; set; }
 

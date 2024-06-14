@@ -61,6 +61,12 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         }
 
 
+        public async Task HandleMusicArtistSelectionAsync(string musicId)
+        {
+            await HandleMusicSelectionAsync(await _musicSearcher.SearchMusicForArtistIdAsync(new MusicRequest(_user, _categoryId), musicId));
+        }
+
+
         private async Task HandleMusicSelectionAsync(Music music)
         {
             if (CanBeRequested(music))
