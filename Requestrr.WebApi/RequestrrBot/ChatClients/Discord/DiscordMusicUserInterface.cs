@@ -28,7 +28,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         public async Task ShowMusicSelection(MusicRequest request, IReadOnlyList<Music.Music> music)
         {
             List<DiscordSelectComponentOption> options = music.Take(15).Select(x => new DiscordSelectComponentOption(GetFormattedMusicArtistName(x), $"{request.CategoryId}/{x.ArtistId}")).ToList();
-            DiscordSelectComponent select = new DiscordSelectComponent($"MuRS/A/{_interationContext.User.Id}/{request.CategoryId}", LimitStringSize("Select option"), options);
+            DiscordSelectComponent select = new DiscordSelectComponent($"MuRSA/{_interationContext.User.Id}/{request.CategoryId}", LimitStringSize("Select option"), options);
             ///FIX STRING
 
             await _interationContext.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddComponents(select).WithContent("Music xxxxx"));
@@ -42,7 +42,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             string message = "Example Message";
             ///FIX STRING
 
-            DiscordButtonComponent requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MuRS/{_interationContext.User.Id}/{request.CategoryId}/{music.ArtistId}", "Request Button");
+            DiscordButtonComponent requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MuRC/{_interationContext.User.Id}/{request.CategoryId}/{music.ArtistId}", "Request Button");
             ///FIX STRING
 
             var builder = (await AddPreviousDropdownsAsync(music, new DiscordWebhookBuilder().AddEmbed(await GenerateMusicDetailsAsync(music, _musicSearcher)))).AddComponents(requestButton).WithContent(message);
@@ -72,7 +72,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         public static async Task<DiscordEmbed> GenerateMusicDetailsAsync(Music.Music music, IMusicSearcher musicSearcher = null)
         {
             DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
-                .WithTitle($"{music.ArtistId}")
+                .WithTitle(music.ArtistName)
                 .WithTimestamp(DateTime.Now)
                 .WithUrl($"https://musicbrainz.org/artist/{music.ArtistId}")
                 .WithFooter("Powered by Requestrr");
@@ -122,7 +122,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         private async Task<DiscordWebhookBuilder> AddPreviousDropdownsAsync(Music.Music music, DiscordWebhookBuilder builder)
         {
             DiscordSelectComponent previousMusicSelector = (DiscordSelectComponent)(await _interationContext.GetOriginalResponseAsync()).Components.FirstOrDefault(x => x.Components.OfType<DiscordSelectComponent>().Any())?.Components?.Single();
-            if (previousMusicSelector == null)
+            if (previousMusicSelector != null)
             {
                 DiscordSelectComponent musicSelector = new DiscordSelectComponent(previousMusicSelector.CustomId, GetFormattedMusicArtistName(music), previousMusicSelector.Options);
                 builder.AddComponents(musicSelector);
