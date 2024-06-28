@@ -31,6 +31,7 @@ function LidarrCategoryList(props) {
       id: newId,
       name: "new-category",
       profileId: -1,
+      metadataProfileId: -1,
       rootFolder: "",
       tags: [],
       wasCreated: true

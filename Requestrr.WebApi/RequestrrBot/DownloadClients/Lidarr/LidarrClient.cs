@@ -66,6 +66,21 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 
 
         /// <summary>
+        /// Returns all metadata profiles setup in Lidarr
+        /// </summary>
+        /// <param name="httpClient"></param>
+        /// <param name="logger"></param>
+        /// <param name="settings"></param>
+        /// <returns>Returns a list of JSONProfile objects</returns>
+        public static Task<IList<JSONProfile>> GetMetadataProfiles(HttpClient httpClient, ILogger<LidarrClient> logger, LidarrSettings settings)
+        {
+            return LidarrClientV1.GetMetadataProfiles(httpClient, logger, settings);
+        }
+
+
+
+
+        /// <summary>
         /// Returns all tags setup in Lidarr
         /// </summary>
         /// <param name="httpClient"></param>
@@ -133,6 +148,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
             public string name { get; set; }
             public int id { get; set; }
         }
+
 
         public class JSONTag
         {

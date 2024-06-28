@@ -125,6 +125,14 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         }
 
 
+        /// <summary>
+        /// Fetches profile information from Lidarr
+        /// </summary>
+        /// <param name="httpClient"></param>
+        /// <param name="logger"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static async Task<IList<JSONProfile>> GetProfiles(HttpClient httpClient, ILogger<LidarrClient> logger, LidarrSettings settings)
         {
             try
@@ -140,6 +148,34 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 
             throw new Exception("An error occurred while getting Lidarr profiles");
         }
+
+
+
+        /// <summary>
+        /// Fetches metadata profile information from Lidarr
+        /// </summary>
+        /// <param name="httpClient"></param>
+        /// <param name="logger"></param>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static async Task<IList<JSONProfile>> GetMetadataProfiles(HttpClient httpClient, ILogger<LidarrClient> logger, LidarrSettings settings)
+        {
+            try
+            {
+                HttpResponseMessage response = await HttpGetAsync(httpClient, settings, $"{GetBaseURL(settings)}/metadataprofile");
+                string jsonResponse = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<IList<JSONProfile>>(jsonResponse);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "An error while getting Lidarr metadata profiles: " + ex.Message);
+            }
+
+            throw new Exception("An error occurred while getting Lidarr metadata profiles");
+        }
+
+
 
         public static async Task<IList<JSONTag>> GetTags(HttpClient httpClient, ILogger<LidarrClient> logger, LidarrSettings settings)
         {
@@ -335,7 +371,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                 artistName = jsonMusic.ArtistName,
                 mbId = jsonMusic.ArtistId,
                 qualityProfileId = category.ProfileId,
-                metadataProfileId = category.ProfileId,
+                metadataProfileId = category.MetadataProfileId,
                 monitored = _lidarrSettings.MonitorNewRequests,
                 tags = JToken.FromObject(category.Tags),
                 rootFolderPath = category.RootFolder,

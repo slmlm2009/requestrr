@@ -31,6 +31,7 @@
           "Id": 0,
           "Name": "music",
           "ProfileId": "1",
+          "MetadataProfileId": "1",
           "RootFolder": "",
           "Tags": []
         }

@@ -78,7 +78,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients.Lidarr
         /// <summary>
         /// Handles the fetching of Profiles from Lidarr
         /// </summary>
-        /// <param name="model">Lidarr Settings the user is currnetly using</param>
+        /// <param name="model">Lidarr settings the user is currently using</param>
         /// <returns>All profiles returned by Lidarr</returns>
         [HttpPost("profile")]
         public async Task<IActionResult> GetLidarrProfiles([FromBody] TestLidarrSettingsModel model)
@@ -94,7 +94,32 @@ namespace Requestrr.WebApi.Controllers.DownloadClients.Lidarr
             }
             catch (Exception)
             {
-                return BadRequest("Could not load the profiles from Lidarr, check your settings.");
+                return BadRequest("Could not load profiles from Lidarr, check your settings.");
+            }
+        }
+
+
+
+        /// <summary>
+        /// Handles the fetching of Metadata profiles form Lidarr
+        /// </summary>
+        /// <param name="model">Lidarr setttings the user is currently using</param>
+        /// <returns>All metadata profiles returned by Lidarr</returns>
+        [HttpPost("metadataprofile")]
+        public async Task<IActionResult> GetLidarrMetadatProfile([FromBody] TestLidarrSettingsModel model)
+        {
+            try
+            {
+                IList<LidarrClient.JSONProfile> metadataProfiles = await LidarrClient.GetMetadataProfiles(_httpClientFactory.CreateClient(), _logger, ConvertToLidarrSettings(model));
+                return Ok(metadataProfiles.Select(x => new LidarrProfile
+                {
+                    Id = x.id,
+                    Name = x.name
+                }));
+            }
+            catch (Exception)
+            {
+                return BadRequest("Could not load metadata profiles from Lidarr, check your settings.");
             }
         }
 

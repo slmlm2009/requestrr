@@ -118,6 +118,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                     Name = x.Name,
                     //MinimumAvailability = x.MinimumAvailability,
                     ProfileId = x.ProfileId,
+                    MetadataProfileId = x.MetadataProfileId,
                     RootFolder = x.RootFolder,
                     Tags = x.Tags
                 }).ToArray());

@@ -4,6 +4,7 @@ import { Oval } from 'react-loader-spinner'
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from "reactstrap";
 import { loadLidarrProfiles as loadProfiles } from "../../../store/actions/LidarrClientActions"
+import { loadLidarrMetadataProfiles as loadMetadataProfiles } from "../../../store/actions/LidarrClientActions"
 import { loadLidarrRootPaths as loadRootPaths } from "../../../store/actions/LidarrClientActions"
 import { loadLidarrTags as loadTags } from "../../../store/actions/LidarrClientActions"
 import { setLidarrCategory } from "../../../store/actions/LidarrClientActions"
@@ -40,6 +41,7 @@ function LidarrCategory(props) {
 
     if (props.canConnect) {
       dispatch(loadProfiles(false));
+      dispatch(loadMetadataProfiles(false));
       dispatch(loadRootPaths(false));
       dispatch(loadTags(false));
     }
@@ -60,6 +62,7 @@ function LidarrCategory(props) {
 
     if (props.canConnect) {
       dispatch(loadProfiles(false));
+      dispatch(loadMetadataProfiles(false));
       dispatch(loadRootPaths(false));
       dispatch(loadTags(false));
     }
@@ -229,47 +232,79 @@ function LidarrCategory(props) {
                 </Col>
               </Row>
               <Row>
-                {
-                  props.apiVersion !== "2"
-                    ? <>
-                      <Col lg="6">
-                        <div className="input-group-button mb-4">
-                          <MultiDropdown
-                            name="Tags"
-                            placeholder=""
-                            labelField="name"
-                            valueField="id"
-                            ignoreEmptyItems={true}
-                            selectedItems={reduxState.lidarr.tags.filter(x => props.category.tags.includes(x.id))}
-                            items={reduxState.lidarr.tags}
-                            onChange={newTags => setCategory("tags", newTags.map(x => x.id))} />
-                          <button className="btn btn-icon btn-3 btn-default" onClick={() => dispatch(loadTags(true))} disabled={!props.canConnect} type="button">
-                            <span className="btn-inner--icon">
-                              {
-                                reduxState.lidarr.isLoadingTags ? (
-                                  <Oval
-                                    wrapperClass="loader"
-                                    type="Oval"
-                                    color="#11cdef"
-                                    height={19}
-                                    width={19}
-                                  />)
-                                  : (<i className="fas fa-download"></i>)
-                              }</span>
-                            <span className="btn-inner--text">Load</span>
-                          </button>
-                        </div>
+                <Col lg="6">
+                  <div className="input-group-button mb-4">
+                    <MultiDropdown
+                      name="Tags"
+                      placeholder=""
+                      labelField="name"
+                      valueField="id"
+                      ignoreEmptyItems={true}
+                      selectedItems={reduxState.lidarr.tags.filter(x => props.category.tags.includes(x.id))}
+                      items={reduxState.lidarr.tags}
+                      onChange={newTags => setCategory("tags", newTags.map(x => x.id))} />
+                    <button className="btn btn-icon btn-3 btn-default" onClick={() => dispatch(loadTags(true))} disabled={!props.canConnect} type="button">
+                      <span className="btn-inner--icon">
                         {
-                          !reduxState.lidarr.areTagsValid ? (
-                            <Alert className="mt-3 mb-4 text-wrap " color="warning">
-                              <strong>Could not load tags, cannot reach Lidarr.</strong>
-                            </Alert>)
-                            : null
-                        }
-                      </Col>
-                    </>
-                    : null
-                }
+                          reduxState.lidarr.isLoadingTags ? (
+                            <Oval
+                              wrapperClass="loader"
+                              type="Oval"
+                              color="#11cdef"
+                              height={19}
+                              width={19}
+                            />)
+                            : (<i className="fas fa-download"></i>)
+                        }</span>
+                      <span className="btn-inner--text">Load</span>
+                    </button>
+                  </div>
+                  {
+                    !reduxState.lidarr.areTagsValid ? (
+                      <Alert className="mt-3 mb-4 text-wrap " color="warning">
+                        <strong>Could not load tags, cannot reach Lidarr.</strong>
+                      </Alert>)
+                      : null
+                  }
+                </Col>
+                <Col lg="6" className="mb-4">
+                  <div className="input-group-button">
+                    <Dropdown
+                      name="Metadata Profile"
+                      value={props.category.metadataProfileId}
+                      items={reduxState.lidarr.metadataProfiles.map(x => { return { name: x.name, value: x.id } })}
+                      onChange={newMetadataProfile => setCategory("metadataProfileId", newMetadataProfile)} />
+                    <button className="btn btn-icon btn-3 btn-default" onClick={() => dispatch(loadMetadataProfiles(true))} disabled={!props.canConnect} type="button">
+                      <span className="btn-inner--icon">
+                        {
+                          reduxState.lidarr.isLoadingMetadataProfiles ? (
+                            <Oval
+                              wrapperClass="loader"
+                              type="Oval"
+                              color="#11cdef"
+                              height={19}
+                              width={19}
+                            />)
+                            : (<i className="fas fa-download"></i>)
+                        }</span>
+                      <span className="btn-inner--text">Load</span>
+                    </button>
+                  </div>
+                  {
+                    !reduxState.lidarr.areMetadataProfilesValid ? (
+                      <Alert className="mt-3 mb-0 text-wrap " color="warning">
+                        <strong>Could not find any metadata profiles.</strong>
+                      </Alert>)
+                      : null
+                  }
+                  {
+                    props.isSubmitted && reduxState.lidarr.metadataProfiles.length === 0 ? (
+                      <Alert className="mt-3 mb-0 text-wrap " color="warning">
+                        <strong>A metadata profile is required.</strong>
+                      </Alert>)
+                      : null
+                  }
+                </Col>
               </Row>
               {
                 reduxState.lidarr.categories.length > 1

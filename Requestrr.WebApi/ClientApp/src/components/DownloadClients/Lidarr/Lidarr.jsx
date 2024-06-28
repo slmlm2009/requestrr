@@ -58,6 +58,7 @@ function Lidarr(props) {
     let currentNames = reduxState.settings.categories.map(x => x.name);
 
     if (!(prevState?.settings?.profiles?.length === reduxState.settings.profiles.length && prevState?.settings?.profiles?.reduce((a, b, i) => a && reduxState.settings.profiles[i], true))
+      || !(prevState?.settings?.metadataProfiles?.length === reduxState.settings.metadataProfiles.length && prevState?.settings?.metadataProfiles?.reduce((a, b, i) => a && reduxState.settings.metadataProfiles[i], true))
       || !(prevState?.settings?.paths?.length === reduxState.settings.paths.length && prevState?.settings?.paths?.reduce((a, b, i) => a && reduxState.settings.paths[i], true))
       || !(previousNames.length === currentNames.length && currentNames.every((value, index) => previousNames[index] === value))) {
       onValueChange();
@@ -191,6 +192,7 @@ function Lidarr(props) {
       && isPortValid
       && reduxState.settings.categories.every(x => validateCategoryName(x.name))
       && reduxState.settings.areProfilesValid
+      && reduxState.settings.areMetadataProfilesValid
       && reduxState.settings.arePathsValid);
   };
 
