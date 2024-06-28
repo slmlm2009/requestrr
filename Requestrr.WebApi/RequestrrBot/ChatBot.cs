@@ -602,13 +602,13 @@ namespace Requestrr.WebApi.RequestrrBot
                         .HandleMusicArtistSelectionAsync(e.Values.Single().Split("/").Last());
                 }
             }
-            //else if (e.Id.ToLower().StartsWith("mrc"))
-            //{
-            //    var categoryId = int.Parse(e.Id.Split("/").Skip(2).First());
+            else if (e.Id.ToLower().StartsWith("murca"))
+            {
+                var categoryId = int.Parse(e.Id.Split("/").Skip(2).First());
 
-            //    await CreateMovieRequestWorkFlow(e, categoryId)
-            //        .RequestMovieAsync(int.Parse(e.Id.Split("/").Last()));
-            //}
+                await CreateMusicRequestWorkFlow(e, categoryId)
+                    .RequestMusicArtistAsync(e.Id.Split("/").Last());
+            }
         }
 
 

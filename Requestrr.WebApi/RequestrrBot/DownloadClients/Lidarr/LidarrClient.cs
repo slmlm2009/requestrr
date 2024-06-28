@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 {
-    public class LidarrClient : IMusicSearcher
+    public class LidarrClient : IMusicSearcher, IMusicRequester
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<LidarrClient> _logger;
@@ -109,10 +109,10 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         //    return CreateInstance<IMovieSearcher>().SearchAvailableMoviesAsync(theMovieDbIds, token);
         //}
 
-        //public Task<MovieRequestResult> RequestMovieAsync(MovieRequest request, Movie movie)
-        //{
-        //    return CreateInstance<IMovieRequester>().RequestMovieAsync(request, movie);
-        //}
+        public Task<MusicRequestResult> RequestMusicAsync(MusicRequest request, Music.Music music)
+        {
+            return CreateInstance<IMusicRequester>().RequestMusicAsync(request, music);
+        }
 
         private T CreateInstance<T>() where T : class
         {

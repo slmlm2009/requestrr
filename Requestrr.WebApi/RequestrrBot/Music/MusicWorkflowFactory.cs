@@ -35,6 +35,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
                     ),
                 categoryId,
                 GetMusicClient<IMusicSearcher>(settings),
+                GetMusicClient<IMusicRequester>(settings),
                 new DiscordMusicUserInterface(interation, GetMusicClient<IMusicSearcher>(settings))
                 //CreateMusicNotificationWorkflow(interation, settings)
                 );

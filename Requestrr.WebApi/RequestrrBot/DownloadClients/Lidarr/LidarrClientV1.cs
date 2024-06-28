@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Requestrr.WebApi.Extensions;
-using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
 using Requestrr.WebApi.RequestrrBot.Music;
 using System;
 using System.Collections.Generic;
@@ -17,7 +16,7 @@ using static Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr.LidarrClient;
 
 namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 {
-    public class LidarrClientV1 : IMusicSearcher
+    public class LidarrClientV1 : IMusicSearcher, IMusicRequester
     {
         private IHttpClientFactory _httpClientFactory;
         private readonly ILogger<LidarrClient> _logger;
@@ -212,8 +211,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         /// <summary>
         /// Handles the fetching of a single query based on Music DB Id
         /// </summary>
-        /// <param name="request"></param>
-        /// <param name="guid"></param>
+        /// <param name="artistId"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public async Task<Music.Music> SearchMusicForArtistIdAsync(MusicRequest request, string artistId)
@@ -296,6 +294,117 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         }
 
 
+        public async Task<MusicRequestResult> RequestMusicAsync(MusicRequest request, Music.Music music)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(music.DownloadClientId))
+                    await CreateMusicInLidarr(request, music);
+                else
+                    await UpdateExistingMusic(request, music);
+
+                return new MusicRequestResult();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An error while requesting music \"{music.ArtistName}\" from Lidarr: " + ex.Message);
+            }
+
+            throw new Exception("An error occurred while requesting a music from Lidarr");
+        }
+
+
+        private async Task CreateMusicInLidarr(MusicRequest request, Music.Music music)
+        {
+            LidarrCategory category = null;
+
+            try
+            {
+                category = _lidarrSettings.Categories.SingleOrDefault(x => x.Id == request.CategoryId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occured while requesting music \"{music.ArtistName}\" from Lidarr, could not find category with id {request.CategoryId}");
+                throw new Exception($"An error occurred while requesting music \"{music.ArtistName}\" from Lidarr, could not find category with id {request.CategoryId}");
+            }
+
+            Music.Music jsonMusic = await SearchMusicForArtistIdAsync(request, music.ArtistId);
+            HttpResponseMessage response = await HttpPostAsync($"{BaseURL}/artist", JsonConvert.SerializeObject(new
+            {
+                foreignArtistId = jsonMusic.ArtistId,
+                artistName = jsonMusic.ArtistName,
+                mbId = jsonMusic.ArtistId,
+                qualityProfileId = category.ProfileId,
+                metadataProfileId = category.ProfileId,
+                monitored = _lidarrSettings.MonitorNewRequests,
+                tags = JToken.FromObject(category.Tags),
+                rootFolderPath = category.RootFolder,
+                addOptions = new
+                {
+                    searchForMissingAlbums = _lidarrSettings.SearchNewRequests
+                }
+            }));
+
+            await response.ThrowIfNotSuccessfulAsync("LidarrMusicCreation failed", x => x.error);
+        }
+
+
+        private async Task UpdateExistingMusic(MusicRequest request, Music.Music music)
+        {
+            LidarrCategory category = null;
+            int lidarrMusicId = int.Parse(music.DownloadClientId);
+            HttpResponseMessage response = await HttpGetAsync($"{BaseURL}/artist/{lidarrMusicId}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    await CreateMusicInLidarr(request, music);
+                    return;
+                }
+
+                await response.ThrowIfNotSuccessfulAsync("LidarrGetMusic failed", x => x.error);
+            }
+
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            dynamic lidarrMusic = JObject.Parse(jsonResponse);
+
+            try
+            {
+                category = _lidarrSettings.Categories.Single(x => x.Id == request.CategoryId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error occurred while requesting music \"{music.ArtistName}\" from Lidarr, cound not find category with id {request.CategoryId}");
+                throw new Exception($"An error occurred while requesting music \"{music.ArtistName}\" from Lidarr, could not find category with id {request.CategoryId}");
+            }
+
+            lidarrMusic.tags = JToken.FromObject(category.Tags);
+            lidarrMusic.monitored = _lidarrSettings.MonitorNewRequests;
+
+            response = await HttpPutAsync($"{BaseURL}/artist/{lidarrMusicId}", JsonConvert.SerializeObject(lidarrMusic));
+            await response.ThrowIfNotSuccessfulAsync("LidarrUpdateMusic failed", x => x.error);
+
+            if (_lidarrSettings.SearchNewRequests)
+            {
+                try
+                {
+                    response = await HttpPostAsync($"{BaseURL}/command", JsonConvert.SerializeObject(new
+                    {
+                        name = "musicSearch",
+                        musicIds = new[] { lidarrMusicId }
+                    }));
+
+                    await response.ThrowIfNotSuccessfulAsync("LidarrMusicSearchCommand failed", x => x.error);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"An error while sending search command for music \"{music.ArtistName}\" to Lidarr: " + ex.Message);
+                    throw;
+                }
+            }
+        }
+
 
         //private Music.Music ConvertToMusic(JSONMusicSearch jsonMusic)
         //{
@@ -320,6 +429,30 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         //}
 
 
+        private async Task<HttpResponseMessage> HttpPostAsync(string url, string content)
+        {
+            StringContent postRequest = new StringContent(content);
+            postRequest.Headers.Clear();
+            postRequest.Headers.Add("Content-Type", "application/json");
+            postRequest.Headers.Add("X-Api-Key", _lidarrSettings.ApiKey);
+
+            HttpClient client = _httpClientFactory.CreateClient();
+            return await client.PostAsync(url, postRequest);
+        }
+
+
+        private async Task<HttpResponseMessage> HttpPutAsync(string url, string content)
+        {
+            StringContent postRequest = new StringContent(content);
+            postRequest.Headers.Clear();
+            postRequest.Headers.Add("Content-Type", "application/json");
+            postRequest.Headers.Add("X-Api-Key", _lidarrSettings.ApiKey);
+
+            HttpClient client = _httpClientFactory.CreateClient();
+            return await client.PutAsync(url, postRequest);
+        }
+
+
         private Music.Music ConvertToMusic(JSONMusicArtist jsonArtist)
         {
             string downloadClientId = jsonArtist.Id.ToString();
@@ -334,7 +467,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                 Available = !string.IsNullOrWhiteSpace(jsonArtist.Path),
                 Monitored = jsonArtist.Monitored,
                 Quality = string.Empty,
-                Requested = (!string.IsNullOrWhiteSpace(downloadClientId)),
+                Requested = !jsonArtist.Monitored && (!string.IsNullOrWhiteSpace(downloadClientId) || _lidarrSettings.MonitorNewRequests) ? jsonArtist.Monitored : true,
 
                 PlexUrl = string.Empty,
                 EmbyUrl = string.Empty,

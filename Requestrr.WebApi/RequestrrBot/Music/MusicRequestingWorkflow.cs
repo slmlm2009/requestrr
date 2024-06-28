@@ -10,7 +10,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         private readonly int _categoryId;
         private readonly MusicUserRequester _user;
         private readonly IMusicSearcher _musicSearcher;
-        //private readonly IMusicRequester
+        private readonly IMusicRequester _requester;
         private readonly IMusicUserInterface _userInterface;
         //private readonly IMusicNotificationWorkflow _notificationWorkflow;
 
@@ -19,12 +19,14 @@ namespace Requestrr.WebApi.RequestrrBot.Music
             MusicUserRequester user,
             int categoryId,
             IMusicSearcher searcher,
+            IMusicRequester requester,
             IMusicUserInterface userInterface
         )
         {
             _categoryId = categoryId;
             _user = user;
             _musicSearcher = searcher;
+            _requester = requester;
             _userInterface = userInterface;
         }
 
@@ -85,6 +87,29 @@ namespace Requestrr.WebApi.RequestrrBot.Music
                 }
             }
         }
+
+
+        /// <summary>
+        /// Handles the request for an artist
+        /// </summary>
+        /// <param name="artistId"></param>
+        /// <returns></returns>
+        public async Task RequestMusicArtistAsync(string artistId)
+        {
+            Music music = await _musicSearcher.SearchMusicForArtistIdAsync(new MusicRequest(_user, _categoryId), artistId);
+            MusicRequestResult result = await _requester.RequestMusicAsync(new MusicRequest(_user, _categoryId), music);
+
+            if (result.WasDenied)
+            {
+                await _userInterface.DisplayRequestDeniedAsync(music);
+            }
+            else
+            {
+                await _userInterface.DisplayRequestSuccessAsync(music);
+                //await _not
+            }
+        }
+
 
 
         private static bool CanBeRequested(Music music)

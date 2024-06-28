@@ -9,6 +9,8 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         Task WarnNoMusicFoundAsync(string musicName);
 
         Task DisplayMusicDetailsAsync(MusicRequest request, Music music);
+        Task DisplayRequestDeniedAsync(Music music);
+        Task DisplayRequestSuccessAsync(Music music);
 
         Task WarnMusicAlreadyAvailableAsync(Music music);
     }

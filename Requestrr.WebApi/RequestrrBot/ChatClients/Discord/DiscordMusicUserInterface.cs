@@ -42,7 +42,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             string message = "Example Message";
             ///FIX STRING
 
-            DiscordButtonComponent requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MuRC/{_interationContext.User.Id}/{request.CategoryId}/{music.ArtistId}", "Request Button");
+            DiscordButtonComponent requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MuRCA/{_interationContext.User.Id}/{request.CategoryId}/{music.ArtistId}", "Request Button");
             ///FIX STRING
 
             var builder = (await AddPreviousDropdownsAsync(music, new DiscordWebhookBuilder().AddEmbed(await GenerateMusicDetailsAsync(music, _musicSearcher)))).AddComponents(requestButton).WithContent(message);
@@ -65,6 +65,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         public async Task WarnNoMusicFoundAsync(string musicName)
         {
             await _interationContext.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent(Language.Current.DiscordCommandMovieNotFound)); //.ReplaceTokens(????)
+            ///FIX STRING
         }
 
 
@@ -103,6 +104,30 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             ///FIX STRING
 
             return embedBuilder.Build();
+        }
+
+
+        public async Task DisplayRequestSuccessAsync(Music.Music music)
+        {
+            DiscordButtonComponent successButton = new DiscordButtonComponent(ButtonStyle.Success, $"0/1/0", "Success Button");
+            ///FIX STRING
+
+            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(music, new DiscordWebhookBuilder().AddEmbed(await GenerateMusicDetailsAsync(music, _musicSearcher)))).AddComponents(successButton).WithContent("Successfully added test");
+            ///FIX STRING
+            
+            await _interationContext.EditOriginalResponseAsync(builder);
+        }
+
+
+        public async Task DisplayRequestDeniedAsync(Music.Music music)
+        {
+            DiscordButtonComponent deniedButton = new DiscordButtonComponent(ButtonStyle.Danger, $"0/1/0", "Deny Button Text");
+            ///FIX STRING
+
+            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(music, new DiscordWebhookBuilder().AddEmbed(await GenerateMusicDetailsAsync(music, _musicSearcher)))).AddComponents(deniedButton).WithContent("Request Denied");
+            ///FIX STRING
+            
+            await _interationContext.EditOriginalResponseAsync(builder);
         }
 
 
