@@ -1,6 +1,6 @@
 ﻿namespace Requestrr.WebApi.RequestrrBot.Music
 {
-    public class Music
+    public class MusicArtist
     {
         public string DownloadClientId { get; set; }
         public string ArtistId { get; set; }

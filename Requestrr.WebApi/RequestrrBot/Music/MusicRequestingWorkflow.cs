@@ -33,7 +33,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
 
         public async Task SearchMusicForArtistAsync(string artistName)
         {
-            IReadOnlyList<Music> musicList = await SearchMusicForArtistListAsync(artistName);
+            IReadOnlyList<MusicArtist> musicList = await SearchMusicForArtistListAsync(artistName);
 
             if (musicList.Any())
             {
@@ -43,15 +43,16 @@ namespace Requestrr.WebApi.RequestrrBot.Music
                 }
                 else if (musicList.Count == 1)
                 {
-                    Music music = musicList.Single();
+                    MusicArtist music = musicList.Single();
                     await HandleMusicSelectionAsync(music);
                 }
             }
         }
 
-        public async Task<IReadOnlyList<Music>> SearchMusicForArtistListAsync(string artistName)
+
+        public async Task<IReadOnlyList<MusicArtist>> SearchMusicForArtistListAsync(string artistName)
         {
-            IReadOnlyList<Music> music = Array.Empty<Music>();
+            IReadOnlyList<MusicArtist> music = Array.Empty<MusicArtist>();
 
             artistName = artistName.Replace(".", " ");
             music = await _musicSearcher.SearchMusicForArtistAsync(new MusicRequest(_user, _categoryId), artistName);
@@ -63,13 +64,13 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         }
 
 
-        public async Task HandleMusicArtistSelectionAsync(string musicId)
+        public async Task HandleMusicArtistSelectionAsync(string musicArtistId)
         {
-            await HandleMusicSelectionAsync(await _musicSearcher.SearchMusicForArtistIdAsync(new MusicRequest(_user, _categoryId), musicId));
+            await HandleMusicSelectionAsync(await _musicSearcher.SearchMusicForArtistIdAsync(new MusicRequest(_user, _categoryId), musicArtistId));
         }
 
 
-        private async Task HandleMusicSelectionAsync(Music music)
+        private async Task HandleMusicSelectionAsync(MusicArtist music)
         {
             if (CanBeRequested(music))
             {
@@ -89,6 +90,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         }
 
 
+
         /// <summary>
         /// Handles the request for an artist
         /// </summary>
@@ -96,7 +98,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         /// <returns></returns>
         public async Task RequestMusicArtistAsync(string artistId)
         {
-            Music music = await _musicSearcher.SearchMusicForArtistIdAsync(new MusicRequest(_user, _categoryId), artistId);
+            MusicArtist music = await _musicSearcher.SearchMusicForArtistIdAsync(new MusicRequest(_user, _categoryId), artistId);
             MusicRequestResult result = await _requester.RequestMusicAsync(new MusicRequest(_user, _categoryId), music);
 
             if (result.WasDenied)
@@ -112,7 +114,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
 
 
 
-        private static bool CanBeRequested(Music music)
+        private static bool CanBeRequested(MusicArtist music)
         {
             return !music.Available && !music.Requested;
         }

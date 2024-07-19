@@ -25,7 +25,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         }
 
 
-        public async Task ShowMusicSelection(MusicRequest request, IReadOnlyList<Music.Music> music)
+        public async Task ShowMusicSelection(MusicRequest request, IReadOnlyList<MusicArtist> music)
         {
             List<DiscordSelectComponentOption> options = music.Take(15).Select(x => new DiscordSelectComponentOption(GetFormattedMusicArtistName(x), $"{request.CategoryId}/{x.ArtistId}")).ToList();
             DiscordSelectComponent select = new DiscordSelectComponent($"MuRSA/{_interationContext.User.Id}/{request.CategoryId}", LimitStringSize("Select option"), options);
@@ -37,7 +37,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
 
 
-        public async Task DisplayMusicDetailsAsync(MusicRequest request, Music.Music music)
+        public async Task DisplayMusicDetailsAsync(MusicRequest request, MusicArtist music)
         {
             string message = "Example Message";
             ///FIX STRING
@@ -50,7 +50,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         }
 
 
-        public async Task WarnMusicAlreadyAvailableAsync(Music.Music music)
+        public async Task WarnMusicAlreadyAvailableAsync(MusicArtist music)
         {
             var requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"???/{_interationContext.User.Id}/{music.ArtistId}", "Music Avalible", true);
             ///FIX STRING
@@ -70,12 +70,12 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
 
 
-        public static async Task<DiscordEmbed> GenerateMusicDetailsAsync(Music.Music music, IMusicSearcher musicSearcher = null)
+        public static async Task<DiscordEmbed> GenerateMusicDetailsAsync(MusicArtist music, IMusicSearcher musicSearcher = null)
         {
             DiscordEmbedBuilder embedBuilder = new DiscordEmbedBuilder()
                 .WithTitle(music.ArtistName)
                 .WithTimestamp(DateTime.Now)
-                .WithUrl($"https://musicbrainz.org/artist/{music.ArtistId}")
+                .WithUrl($"https://musicbrainz.org/release/{music.ArtistId}")
                 .WithFooter("Powered by Requestrr");
 
             if (!string.IsNullOrWhiteSpace(music.Overview))
@@ -107,7 +107,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         }
 
 
-        public async Task DisplayRequestSuccessAsync(Music.Music music)
+        public async Task DisplayRequestSuccessAsync(MusicArtist music)
         {
             DiscordButtonComponent successButton = new DiscordButtonComponent(ButtonStyle.Success, $"0/1/0", "Success Button");
             ///FIX STRING
@@ -119,7 +119,8 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         }
 
 
-        public async Task DisplayRequestDeniedAsync(Music.Music music)
+
+        public async Task DisplayRequestDeniedAsync(MusicArtist music)
         {
             DiscordButtonComponent deniedButton = new DiscordButtonComponent(ButtonStyle.Danger, $"0/1/0", "Deny Button Text");
             ///FIX STRING
@@ -132,7 +133,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
 
 
-        private string GetFormattedMusicArtistName(Music.Music music)
+        private string GetFormattedMusicArtistName(MusicArtist music)
         {
             return LimitStringSize(music.ArtistName);
         }
@@ -144,7 +145,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         }
 
 
-        private async Task<DiscordWebhookBuilder> AddPreviousDropdownsAsync(Music.Music music, DiscordWebhookBuilder builder)
+        private async Task<DiscordWebhookBuilder> AddPreviousDropdownsAsync(MusicArtist music, DiscordWebhookBuilder builder)
         {
             DiscordSelectComponent previousMusicSelector = (DiscordSelectComponent)(await _interationContext.GetOriginalResponseAsync()).Components.FirstOrDefault(x => x.Components.OfType<DiscordSelectComponent>().Any())?.Components?.Single();
             if (previousMusicSelector != null)

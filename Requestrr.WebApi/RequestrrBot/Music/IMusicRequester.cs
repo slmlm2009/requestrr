@@ -4,7 +4,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
 {
     public interface IMusicRequester
     {
-        Task<MusicRequestResult> RequestMusicAsync(MusicRequest request, Music music);
+        Task<MusicRequestResult> RequestMusicAsync(MusicRequest request, MusicArtist music);
     }
 
 

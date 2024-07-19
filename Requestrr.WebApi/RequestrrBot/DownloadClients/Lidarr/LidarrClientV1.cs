@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Requestrr.WebApi.Extensions;
@@ -237,11 +235,6 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
             return $"{protocol}://{settings.Hostname}:{settings.Port}{settings.BaseUrl}/api/v{settings.Version}";
         }
 
-        public Task<IReadOnlyList<Music.Music>> SearchMusicAsyc(MusicRequest request, string musicName)
-        {
-            throw new NotImplementedException();
-        }
-
 
 
         /// <summary>
@@ -250,22 +243,22 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         /// <param name="artistId"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<Music.Music> SearchMusicForArtistIdAsync(MusicRequest request, string artistId)
+        public async Task<MusicArtist> SearchMusicForArtistIdAsync(MusicRequest request, string artistId)
         {
             try
             {
-                JSONMusicArtist foundMusicJson = await FindExistingArtistByMusicDbIdAsync(artistId);
+                JSONMusicArtist foundArtistJson = await FindExistingArtistByMusicDbIdAsync(artistId);
 
-                if (foundMusicJson == null)
+                if (foundArtistJson == null)
                 {
                     HttpResponseMessage response = await HttpGetAsync($"{BaseURL}/artist/lookup?term=lidarr:{artistId}");
                     await response.ThrowIfNotSuccessfulAsync("LidarrMusicLookup failed", x => x.error);
 
                     string jsonResponse = await response.Content.ReadAsStringAsync();
-                    foundMusicJson = JsonConvert.DeserializeObject<List<JSONMusicArtist>>(jsonResponse).First();
+                    foundArtistJson = JsonConvert.DeserializeObject<List<JSONMusicArtist>>(jsonResponse).First();
                 }
 
-                return foundMusicJson != null ? ConvertToMusic(foundMusicJson) : null;
+                return foundArtistJson != null ? ConvertToMusic(foundArtistJson) : null;
             }
             catch (Exception ex)
             {
@@ -284,13 +277,13 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         /// <param name="query"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<IReadOnlyList<Music.Music>> SearchMusicForArtistAsync(MusicRequest request, string artistName)
+        public async Task<IReadOnlyList<MusicArtist>> SearchMusicForArtistAsync(MusicRequest request, string artistName)
         {
             try
             {
                 string searchTerm = Uri.EscapeDataString(artistName.ToLower().Trim());
                 HttpResponseMessage response = await HttpGetAsync($"{BaseURL}/artist/lookup?term={searchTerm}");
-                await response.ThrowIfNotSuccessfulAsync("LidarrMusicLookup failed", x => x.error);
+                await response.ThrowIfNotSuccessfulAsync("LidarrMusicArtistLookup failed", x => x.error);
 
                 string jsonResponse = await response.Content.ReadAsStringAsync();
                 List<JSONMusicArtist> jsonMusic = JsonConvert.DeserializeObject<List<JSONMusicArtist>>(jsonResponse);
@@ -300,10 +293,10 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while searching for music with Lidarr: " + ex.Message);
+                _logger.LogError(ex, "An error occurred while searching for music artist with Lidarr: " + ex.Message);
             }
 
-            throw new Exception("An error occurred while searching for music with Lidarr");
+            throw new Exception("An error occurred while searching for music artist with Lidarr");
         }
 
 
@@ -313,24 +306,24 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
             try
             {
                 HttpResponseMessage response = await HttpGetAsync($"{BaseURL}/artist?mbId={artistId}");
-                await response.ThrowIfNotSuccessfulAsync("Could not search music by Id", x => x.error);
+                await response.ThrowIfNotSuccessfulAsync("Could not search artist by Id", x => x.error);
 
                 string jsonResponse = await response.Content.ReadAsStringAsync();
-                JSONMusicArtist[] jsonMusicList = JsonConvert.DeserializeObject<List<JSONMusicArtist>>(jsonResponse).ToArray();
+                JSONMusicArtist[] jsonMusicArtists = JsonConvert.DeserializeObject<List<JSONMusicArtist>>(jsonResponse).ToArray();
 
-                if (jsonMusicList.Any())
-                    return jsonMusicList.First();
+                if (jsonMusicArtists.Any())
+                    return jsonMusicArtists.First();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"An error occurred finding existing music by Id \"{artistId}\" with Lidarr: {ex.Message}");
+                _logger.LogError(ex, $"An error occurred finding existing music artist by Id \"{artistId}\" with Lidarr: {ex.Message}");
             }
 
             return null;
         }
 
 
-        public async Task<MusicRequestResult> RequestMusicAsync(MusicRequest request, Music.Music music)
+        public async Task<MusicRequestResult> RequestMusicAsync(MusicRequest request, MusicArtist music)
         {
             try
             {
@@ -350,7 +343,8 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         }
 
 
-        private async Task CreateMusicInLidarr(MusicRequest request, Music.Music music)
+
+        private async Task CreateMusicInLidarr(MusicRequest request, MusicArtist music)
         {
             LidarrCategory category = null;
 
@@ -364,7 +358,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                 throw new Exception($"An error occurred while requesting music \"{music.ArtistName}\" from Lidarr, could not find category with id {request.CategoryId}");
             }
 
-            Music.Music jsonMusic = await SearchMusicForArtistIdAsync(request, music.ArtistId);
+            MusicArtist jsonMusic = await SearchMusicForArtistIdAsync(request, music.ArtistId);
             HttpResponseMessage response = await HttpPostAsync($"{BaseURL}/artist", JsonConvert.SerializeObject(new
             {
                 foreignArtistId = jsonMusic.ArtistId,
@@ -385,7 +379,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         }
 
 
-        private async Task UpdateExistingMusic(MusicRequest request, Music.Music music)
+        private async Task UpdateExistingMusic(MusicRequest request, MusicArtist music)
         {
             LidarrCategory category = null;
             int lidarrMusicId = int.Parse(music.DownloadClientId);
@@ -442,28 +436,6 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         }
 
 
-        //private Music.Music ConvertToMusic(JSONMusicSearch jsonMusic)
-        //{
-        //    string downloadClientId = jsonMusic.Id.ToString();
-
-        //    return new Music.Music
-        //    {
-        //        DownloadClientId = downloadClientId,
-        //        ArtistId = jsonMusic.Artist.ArtistMetadataId.ToString(),
-        //        ArtistName = jsonMusic.Artist.ArtistName,
-        //        Overview = jsonMusic.Artist.Overview,
-
-        //        Available = !string.IsNullOrWhiteSpace(jsonMusic.Artist.Folder),
-        //        Quality = string.Empty,
-        //        Requested = (!string.IsNullOrWhiteSpace(downloadClientId)),
-
-        //        PlexUrl = string.Empty,
-        //        EmbyUrl = string.Empty,
-        //        PosterPath = GetPosterImageUrl(jsonMusic.Artist.Images)
-        //        //ReleaseDate = jsonMusic..Empty
-        //    };
-        //}
-
 
         private async Task<HttpResponseMessage> HttpPostAsync(string url, string content)
         {
@@ -489,11 +461,12 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         }
 
 
-        private Music.Music ConvertToMusic(JSONMusicArtist jsonArtist)
+
+        private MusicArtist ConvertToMusic(JSONMusicArtist jsonArtist)
         {
             string downloadClientId = jsonArtist.Id.ToString();
 
-            return new Music.Music
+            return new MusicArtist
             {
                 DownloadClientId = downloadClientId,
                 ArtistId = jsonArtist.ForeignArtistId.ToString(),
@@ -582,24 +555,63 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
             public int PercentOfTracks { get; set; }
         }
 
-
-        public class JSONAlbum
+        public class JSONMedia
         {
+            [JsonProperty("mediumNumber")]
+            public int MediumNumber { get; set; }
 
+            [JsonProperty("mediumName")]
+            public string mediumName { get; set; }
+
+            [JsonProperty("mediumFormat")]
+            public string MediumFormat { get; set; }
         }
 
+        public class JSONReleases
+        {
+            [JsonProperty("id")]
+            public int Id { get; set; }
 
-        //private class JSONMusicSearch
-        //{
-        //    [JsonProperty("id")]
-        //    public int Id { get; set; }
+            [JsonProperty("albumId")]
+            public int AlbumId { get; set; }
 
-        //    [JsonProperty("foreignId")]
-        //    public string ForeignId { get; set; }
+            [JsonProperty("foreignReleaseId")]
+            public string ForeignReleaseId { get; set; }
 
-        //    [JsonProperty("artist")]
-        //    public JSONMusic? Artist { get; set; }
-        //}
+            [JsonProperty("title")]
+            public string Title { get; set; }
+
+            [JsonProperty("status")]
+            public string Status { get; set; }
+
+            [JsonProperty("duration")]
+            public int Duration { get; set; }
+
+            [JsonProperty("trackCount")]
+            public int TrackCount { get; set;  }
+
+            [JsonProperty("media")]
+            public List<JSONMedia> Media { get; set; }
+
+            [JsonProperty("mediumCount")]
+            public int MediumCount { get; set; }
+
+            [JsonProperty("disambiguation")]
+            public string Disambiguation { get; set; }
+
+            [JsonProperty("country")]
+            public List<string> Country { get; set; }
+
+            [JsonProperty("label")]
+            public List<string> Label { get; set; }
+
+            [JsonProperty("format")]
+            public string Format { get; set; }
+
+            [JsonProperty("monitored")]
+            public bool Monitored { get; set;  }
+
+        }
 
 
         private class JSONMusicArtist
@@ -675,6 +687,77 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
 
             [JsonProperty("statistics")]
             public JSONStatistics Statistics { get; set; }
+        }
+
+
+        private class JSONMusicAlbum
+        {
+            [JsonProperty("title")]
+            public string Title { get; set; }
+
+            [JsonProperty("disambiguation")]
+            public string Disambiguation { get; set; }
+
+            [JsonProperty("overview")]
+            public string Overview { get; set; }
+
+            [JsonProperty("artistId")]
+            public int ArtistId { get; set; }
+
+            [JsonProperty("foreignAlbumId")]
+            public Guid ForeignAlbumId { get; set; }
+
+            [JsonProperty("monitored")]
+            public bool Monitored { get; set; }
+
+            [JsonProperty("anyReleaseOk")]
+            public bool AnyReleaseOk { get; set; }
+
+            [JsonProperty("profileId")]
+            public int ProfileId { get; set; }
+
+            [JsonProperty("duration")]
+            public int Duration { get; set; }
+
+            [JsonProperty("albumType")]
+            public string AlbumType { get; set; }
+
+            [JsonProperty("secondaryTypes")]
+            public List<string> SecondaryTypes { get; set; }
+
+            [JsonProperty("mediumCount")]
+            public int MediumCount { get; set; }
+
+            [JsonProperty("ratings")]
+            public JSONRating Ratings { get; set; }
+
+
+            [JsonProperty("releaseDate")]
+            public DateTime ReleaseDate { get; set; }
+
+            [JsonProperty("releases")]
+            public List<JSONReleases> Releases { get; set; }
+
+            [JsonProperty("genres")]
+            public List<string> Genres { get; set; }
+
+            [JsonProperty("media")]
+            public List<JSONMedia> Media { get; set; }
+
+            [JsonProperty("artist")]
+            public JSONMusicArtist Artist { get; set; }
+
+            [JsonProperty("images")]
+            public List<JSONImage> Images { get; set; }
+
+            [JsonProperty("links")]
+            public List<JSONLink> Links { get; set; }
+
+            [JsonProperty("remoteCover")]
+            public string RemoteCover { get; set; }
+
+            [JsonProperty("grabbed")]
+            public bool Grabbed { get; set; }
         }
     }
 }
