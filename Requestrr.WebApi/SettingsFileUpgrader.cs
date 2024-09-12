@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -278,7 +279,6 @@ namespace Requestrr.WebApi
                             ProfileId = 1,
                             MetadataProfileId = 1,
                             RootFolder = string.Empty,
-                            //MinimumAvailability = "announced",
                             Tags = Array.Empty<int>(),
                         }
                     },
@@ -295,6 +295,7 @@ namespace Requestrr.WebApi
 
                 ((JObject)settingsJson["DownloadClients"]).Add("Lidarr", JToken.FromObject(lidarrBlankSettings));
                 ((JObject)settingsJson).Add("Music", JToken.FromObject(musicClient));
+                ((JObject)settingsJson.ChatClients.Discord).Add("MusicRoles", JToken.FromObject(new List<string>()));
                 File.WriteAllText(settingsFilePath, JsonConvert.SerializeObject(settingsJson));
             }
         }

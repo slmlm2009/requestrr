@@ -91,10 +91,7 @@ namespace Requestrr.WebApi.RequestrrBot
         {
             lock (_lock)
             {
-                _cachedNotifications.Music = JToken.FromObject(new
-                {
-                    Artist = Array.Empty<int>()
-                });
+                _cachedNotifications.Music = JToken.FromObject(Array.Empty<int>());
                 _hasChanged = true;
             }
         }

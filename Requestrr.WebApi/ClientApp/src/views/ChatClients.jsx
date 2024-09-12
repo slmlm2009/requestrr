@@ -67,6 +67,7 @@ function ChatClients(props) {
   const [botTokenInvalid, setBotTokenInvalid] = useState(false);
   const [tvShowRoles, setTvShowRoles] = useState([]);
   const [movieRoles, setMovieRoles] = useState([]);
+  const [musicRoles, setMusicRoles] = useState([]);
   const [automaticallyNotifyRequesters, setAutomaticallyNotifyRequesters] = useState(true);
   const [notificationMode, setNotificationMode] = useState("PrivateMessages");
   const [notificationChannels, setNotificationChannels] = useState([]);
@@ -89,6 +90,7 @@ function ChatClients(props) {
         setEnableRequestsThroughDirectMessages(data.payload.enableRequestsThroughDirectMessages);
         setTvShowRoles(data.payload.tvShowRoles);
         setMovieRoles(data.payload.movieRoles);
+        setMusicRoles(data.payload.musicRoles);
         setAutomaticallyNotifyRequesters(data.payload.automaticallyNotifyRequesters);
         setNotificationMode(data.payload.notificationMode);
         setNotificationChannels(data.payload.notificationChannels);
@@ -189,6 +191,7 @@ function ChatClients(props) {
           monitoredChannels: monitoredChannels,
           tvShowRoles: tvShowRoles,
           movieRoles: movieRoles,
+          musicRoles: musicRoles,
           enableRequestsThroughDirectMessages: enableRequestsThroughDirectMessages,
           automaticallyNotifyRequesters: automaticallyNotifyRequesters,
           notificationMode: notificationMode,
@@ -421,6 +424,21 @@ function ChatClients(props) {
                             selectedItems={movieRoles.map(x => { return { name: x, id: x } })}
                             items={movieRoles.map(x => { return { name: x, id: x } })}
                             onChange={newMovieRoles => setMovieRoles(newMovieRoles.filter(x => /\S/.test(x.id)).map(x => x.id.trim()))} />
+                        </FormGroup>
+                      </Col>
+                      <Col lg="6">
+                        <FormGroup>
+                          <MultiDropdown
+                            name="Roles allowed to request music"
+                            create={true}
+                            searchable={true}
+                            placeholder="Enter role ids here. Leave blank for all roles."
+                            labelField="name"
+                            valueField="id"
+                            dropdownHandle={false}
+                            selectedItems={musicRoles.map(x => { return { name: x, id: x } })}
+                            items={musicRoles.map(x => { return { name: x, id: x } })}
+                            onChange={newMusicRoles => setMusicRoles(newMusicRoles.filter(x => /\S/.test(x.id)).map(x => x.id.trim()))} />
                         </FormGroup>
                       </Col>
                     </Row>

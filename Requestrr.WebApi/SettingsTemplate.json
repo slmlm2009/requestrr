@@ -11,6 +11,7 @@
       "StatusMessage": "/help",
       "TvShowRoles": [],
       "MovieRoles": [],
+      "MusicRoles": [],
       "MonitoredChannels": [],
       "EnableRequestsThroughDirectMessages": false,
       "AutomaticallyNotifyRequesters": true,

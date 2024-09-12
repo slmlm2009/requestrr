@@ -37,15 +37,7 @@ namespace Requestrr.WebApi.RequestrrBot.Notifications.Music
 
         public MusicNotificationsRepository()
         {
-            var musicNotifications = NotificationsFile.Read();
-            //if (musicNotifications.Music == null)
-            //    musicNotifications.Music = new NotificationsFile.NotificationClass.MusicNotification();
-
-            //if (musicNotifications.Music.Artist == null)
-            //    musicNotifications.Music.Artist = Array.Empty<NotificationsFile.NotificationClass.MusicArtistNotification>();
-
-
-            foreach (var notification in musicNotifications.Music)
+            foreach (var notification in NotificationsFile.Read().Music)
             {
                 foreach (var musicId in notification.MusicArtistId)
                 {

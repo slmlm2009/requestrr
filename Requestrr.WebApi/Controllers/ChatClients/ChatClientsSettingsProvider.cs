@@ -17,6 +17,7 @@ namespace Requestrr.WebApi.Controllers.ChatClients
                 MonitoredChannels = settings.ChatClients.Discord.MonitoredChannels.ToObject<string[]>(),
                 TvShowRoles = settings.ChatClients.Discord.TvShowRoles.ToObject<string[]>(),
                 MovieRoles = settings.ChatClients.Discord.MovieRoles.ToObject<string[]>(),
+                MusicRoles = settings.ChatClients.Discord.MusicRoles.ToObject<string[]>(),
                 EnableRequestsThroughDirectMessages = (bool)settings.ChatClients.Discord.EnableRequestsThroughDirectMessages,
                 AutomaticallyNotifyRequesters = (bool)settings.ChatClients.Discord.AutomaticallyNotifyRequesters,
                 NotificationMode = (string)settings.ChatClients.Discord.NotificationMode,
