@@ -5,8 +5,8 @@ namespace Requestrr.WebApi.RequestrrBot.Music
 {
     public interface IMusicNotificationWorkflow
     {
-        //Task NotifyForNewRequestAsync(string userId, Music music);
-        //Task NotifyForExistingRequestAsync(string userId, Music music);
-        //Task AddNotificationAsync(string userId, string musicId);
+        Task NotifyForNewRequestAsync(string userId, MusicArtist musicArtist);
+        Task NotifyForExistingRequestAsync(string userId, MusicArtist musicArtist);
+        Task AddNotificationArtistAsync(string userId, string musicArtistId);
     }
 }

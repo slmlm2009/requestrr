@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
 using Requestrr.WebApi.RequestrrBot.Music;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
@@ -118,10 +118,11 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         //    return CreateInstance<IMovieSearcher>().GetMovieDetails(request, theMovieDbId);
         //}
 
-        //public Task<Dictionary<int, Movie>> SearchAvailableMoviesAsync(HashSet<int> theMovieDbIds, System.Threading.CancellationToken token)
-        //{
-        //    return CreateInstance<IMovieSearcher>().SearchAvailableMoviesAsync(theMovieDbIds, token);
-        //}
+        public Task<Dictionary<string, MusicArtist>> SearchAvailableMusicArtistAsync(HashSet<string> artistIds, CancellationToken token)
+        {
+            return CreateInstance<IMusicSearcher>().SearchAvailableMusicArtistAsync(artistIds, token);
+        }
+
 
         public Task<MusicRequestResult> RequestMusicAsync(MusicRequest request, MusicArtist music)
         {

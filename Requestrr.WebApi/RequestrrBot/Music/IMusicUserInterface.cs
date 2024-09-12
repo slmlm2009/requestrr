@@ -5,13 +5,17 @@ namespace Requestrr.WebApi.RequestrrBot.Music
 {
     public interface IMusicUserInterface
     {
-        Task ShowMusicSelection(MusicRequest request, IReadOnlyList<MusicArtist> music);
-        Task WarnNoMusicFoundAsync(string musicName);
+        Task ShowMusicArtistSelection(MusicRequest request, IReadOnlyList<MusicArtist> music);
+        Task WarnNoMusicArtistFoundAsync(string musicName);
 
-        Task DisplayMusicDetailsAsync(MusicRequest request, MusicArtist music);
-        Task DisplayRequestDeniedAsync(MusicArtist music);
-        Task DisplayRequestSuccessAsync(MusicArtist music);
+        Task DisplayMusicArtistDetailsAsync(MusicRequest request, MusicArtist music);
+        Task DisplayArtistRequestDeniedAsync(MusicArtist music);
+        Task DisplayArtistRequestSuccessAsync(MusicArtist music);
 
-        Task WarnMusicAlreadyAvailableAsync(MusicArtist music);
+        Task WarnMusicArtistAlreadyAvailableAsync(MusicArtist music);
+
+        Task WarnMusicArtistUnavailableAndAlreadyHasNotificationAsync(MusicArtist music);
+        Task AskForNotificationArtistRequestAsync(MusicArtist music);
+        Task DisplayNotificationArtistSuccessAsync(MusicArtist music);
     }
 }

@@ -91,7 +91,10 @@ namespace Requestrr.WebApi.RequestrrBot
         {
             lock (_lock)
             {
-                _cachedNotifications.Music = JToken.FromObject(Array.Empty<int>());
+                _cachedNotifications.Music = JToken.FromObject(new
+                {
+                    Artist = Array.Empty<int>()
+                });
                 _hasChanged = true;
             }
         }
@@ -132,9 +135,18 @@ namespace Requestrr.WebApi.RequestrrBot
         }
 
 
-        public static void WriteMusic(Dictionary<string, int[]> musicNotifications)
+        public static void WriteMusicArtist(Dictionary<string, string[]> musicNotifications)
         {
-            //TODO: Setup saving of notifications
+            lock (_lock)
+            {
+                _cachedNotifications.Music = JToken.FromObject(musicNotifications.Select(x => new
+                {
+                    UserId = x.Key,
+                    MusicArtistId = x.Value
+                }).ToArray());
+
+                _hasChanged = true;
+            }
         }
     }
 }

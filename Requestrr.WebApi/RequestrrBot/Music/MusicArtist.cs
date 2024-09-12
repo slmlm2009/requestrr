@@ -18,6 +18,5 @@
         public string EmbyUrl { get; set; }
 
         public string PosterPath { get; set; }
-        //public string ReleaseDate { get; set; }
     }
 }

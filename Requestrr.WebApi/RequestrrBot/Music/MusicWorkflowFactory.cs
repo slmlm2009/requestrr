@@ -1,26 +1,31 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging;
 using Requestrr.WebApi.RequestrrBot.ChatClients.Discord;
 using Requestrr.WebApi.RequestrrBot.DownloadClients;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr;
-using Requestrr.WebApi.RequestrrBot.Movies;
 using Requestrr.WebApi.RequestrrBot.Notifications;
+using Requestrr.WebApi.RequestrrBot.Notifications.Music;
 using System;
+using System.Linq;
 
 namespace Requestrr.WebApi.RequestrrBot.Music
 {
     public class MusicWorkflowFactory
     {
         private readonly DiscordSettingsProvider _settingsProvider;
-        //private readonly MusicNotificationsRepository _notificationsRepository;
+        private readonly MusicNotificationsRepository _notificationsRepository;
         private LidarrClient _lidarrClient;
 
 
         public MusicWorkflowFactory(
             DiscordSettingsProvider settingsProvider,
+            MusicNotificationsRepository musicNotificationsRepository,
             LidarrClient lidarrClient
         )
         {
             _settingsProvider = settingsProvider;
+            _notificationsRepository = musicNotificationsRepository;
             _lidarrClient = lidarrClient;
         }
 
@@ -36,9 +41,26 @@ namespace Requestrr.WebApi.RequestrrBot.Music
                 categoryId,
                 GetMusicClient<IMusicSearcher>(settings),
                 GetMusicClient<IMusicRequester>(settings),
-                new DiscordMusicUserInterface(interation, GetMusicClient<IMusicSearcher>(settings))
-                //CreateMusicNotificationWorkflow(interation, settings)
+                new DiscordMusicUserInterface(interation, GetMusicClient<IMusicSearcher>(settings)),
+                CreateMusicNotificationWorkflow(interation, settings)
                 );
+        }
+
+
+
+        public MusicNotificationEngine CreateMusicNotificationEngine(DiscordClient client, ILogger logger)
+        {
+            DiscordSettings settings = _settingsProvider.Provide();
+            IMusicNotifier musicNotifier = null;
+
+            if (settings.NotificationMode == NotificationMode.PrivateMessage)
+                musicNotifier = new PrivateMessageMusicNotifier(client, logger);
+            else if (settings.NotificationMode == NotificationMode.Channels)
+                musicNotifier = new ChannelMusicNotifier(client, settings.NotificationChannels.Select(x => ulong.Parse(x)).ToArray(), logger);
+            else
+                throw new Exception($"Could not create music artist notifier of type \"{settings.NotificationMode}\"");
+
+            return new MusicNotificationEngine(GetMusicClient<IMusicSearcher>(settings), musicNotifier, logger, _notificationsRepository);
         }
 
 
@@ -49,7 +71,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
             IMusicNotificationWorkflow musicNotificationWorkflow = new DisabledMusicNotificationWorkflow(userInterface);
 
             if (settings.NotificationMode != NotificationMode.Disabled)
-                musicNotificationWorkflow = new MusicNotificationWorkflow(userInterface, GetMusicClient<IMusicSearcher>(settings), settings.AutomaticallyNotifyRequesters);
+                musicNotificationWorkflow = new MusicNotificationWorkflow(_notificationsRepository, userInterface, GetMusicClient<IMusicSearcher>(settings), settings.AutomaticallyNotifyRequesters);
 
             return musicNotificationWorkflow;
         }

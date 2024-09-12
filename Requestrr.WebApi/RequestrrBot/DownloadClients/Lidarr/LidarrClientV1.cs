@@ -323,6 +323,33 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
         }
 
 
+
+        public async Task<Dictionary<string, MusicArtist>> SearchAvailableMusicArtistAsync(HashSet<string> artistIds, CancellationToken token)
+        {
+            try
+            {
+                List<MusicArtist> convertedMusicArtists = new List<MusicArtist>();
+
+                foreach (string artistId in artistIds)
+                {
+                    JSONMusicArtist existingMusic = await FindExistingArtistByMusicDbIdAsync(artistId);
+                    if (existingMusic != null)
+                        convertedMusicArtists.Add(ConvertToMusic(existingMusic));
+                }
+
+                return convertedMusicArtists.Where(x => x.Available).ToDictionary(x => x.ArtistId, x => x);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while searching available music artist with Lidarr: " + ex.Message);
+            }
+
+            throw new Exception("An error occurred while searching available music artist with Lidarr");
+        }
+
+
+
+
         public async Task<MusicRequestResult> RequestMusicAsync(MusicRequest request, MusicArtist music)
         {
             try
@@ -473,7 +500,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                 ArtistName = jsonArtist.ArtistName,
                 Overview = jsonArtist.Overview,
 
-                Available = !string.IsNullOrWhiteSpace(jsonArtist.Path),
+                Available = (jsonArtist.Statistics?.SizeOnDisk ?? -1) > 0,
                 Monitored = jsonArtist.Monitored,
                 Quality = string.Empty,
                 Requested = !jsonArtist.Monitored && (!string.IsNullOrWhiteSpace(downloadClientId) || _lidarrSettings.MonitorNewRequests) ? jsonArtist.Monitored : true,
@@ -481,7 +508,6 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
                 PlexUrl = string.Empty,
                 EmbyUrl = string.Empty,
                 PosterPath = GetPosterImageUrl(jsonArtist.Images)
-                //ReleaseDate = jsonMusic..Empty
             };
         }
 
@@ -549,10 +575,10 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr
             public int TotalTrackCount { get; set; }
 
             [JsonProperty("sizeOnDisk")]
-            public int SizeOnDisk { get; set; }
+            public double SizeOnDisk { get; set; }
 
             [JsonProperty("percentOfTracks")]
-            public int PercentOfTracks { get; set; }
+            public double PercentOfTracks { get; set; }
         }
 
         public class JSONMedia

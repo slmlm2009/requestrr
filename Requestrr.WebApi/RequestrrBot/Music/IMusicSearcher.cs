@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Requestrr.WebApi.RequestrrBot.Music
@@ -9,11 +10,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         Task<IReadOnlyList<MusicArtist>> SearchMusicForArtistAsync(MusicRequest request, string artistName);
         Task<MusicArtist> SearchMusicForArtistIdAsync(MusicRequest request, string artistId);
 
-        //Task<MusicDetails> GetMusicArtistDetails(MusicRequest request, string artistId);
-    }
 
-    //public class MusicDetails
-    //{
-    //    public string 
-    //}
+        Task<Dictionary<string, MusicArtist>> SearchAvailableMusicArtistAsync(HashSet<string> artistIds, CancellationToken token);
+    }
 }

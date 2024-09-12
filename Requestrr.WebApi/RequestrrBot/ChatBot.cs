@@ -24,6 +24,7 @@ using Requestrr.WebApi.RequestrrBot.Movies;
 using Requestrr.WebApi.RequestrrBot.Music;
 using Requestrr.WebApi.RequestrrBot.Notifications;
 using Requestrr.WebApi.RequestrrBot.Notifications.Movies;
+using Requestrr.WebApi.RequestrrBot.Notifications.Music;
 using Requestrr.WebApi.RequestrrBot.Notifications.TvShows;
 using Requestrr.WebApi.RequestrrBot.TvShows;
 
@@ -34,6 +35,7 @@ namespace Requestrr.WebApi.RequestrrBot
         private DiscordClient _client;
         private MovieNotificationEngine _movieNotificationEngine;
         private TvShowNotificationEngine _tvShowNotificationEngine;
+        private MusicNotificationEngine _musicNotificationEngine;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<ChatBot> _logger;
         private readonly DiscordSettingsProvider _discordSettingsProvider;
@@ -44,6 +46,7 @@ namespace Requestrr.WebApi.RequestrrBot
         private MusicWorkflowFactory _musicWorkflowFactory;
         private MovieNotificationsRepository _movieNotificationRepository = new MovieNotificationsRepository();
         private TvShowNotificationsRepository _tvShowNotificationRepository = new TvShowNotificationsRepository();
+        private MusicNotificationsRepository _musicNotificationRepository = new MusicNotificationsRepository();
         private OverseerrClient _overseerrClient;
         private OmbiClient _ombiDownloadClient;
         private RadarrClient _radarrDownloadClient;
@@ -66,7 +69,7 @@ namespace Requestrr.WebApi.RequestrrBot
             _lidarrDownloadClient = new LidarrClient(serviceProvider.Get<IHttpClientFactory>(), serviceProvider.Get<ILogger<LidarrClient>>(), serviceProvider.Get<LidarrSettingsProvider>());
             _movieWorkflowFactory = new MovieWorkflowFactory(_discordSettingsProvider, _movieNotificationRepository, _overseerrClient, _ombiDownloadClient, _radarrDownloadClient);
             _tvShowWorkflowFactory = new TvShowWorkflowFactory(serviceProvider.Get<TvShowsSettingsProvider>(), _discordSettingsProvider, _tvShowNotificationRepository, _overseerrClient, _ombiDownloadClient, _sonarrDownloadClient);
-            _musicWorkflowFactory = new MusicWorkflowFactory(_discordSettingsProvider, _lidarrDownloadClient);
+            _musicWorkflowFactory = new MusicWorkflowFactory(_discordSettingsProvider, _musicNotificationRepository, _lidarrDownloadClient);
         }
 
         public async void Start()
@@ -311,6 +314,26 @@ namespace Requestrr.WebApi.RequestrrBot
             catch (System.Exception ex)
             {
                 _logger.LogError(ex, "Error while starting tv show notification engine: " + ex.Message);
+            }
+
+
+            try
+            {
+                if (_musicNotificationEngine != null)
+                {
+                    await _musicNotificationEngine.StopAsync();
+                }
+
+                if (_currentSettings.MusicDownloadClient != DownloadClient.Disabled && _currentSettings.NotificationMode != NotificationMode.Disabled)
+                {
+                    _musicNotificationEngine = _musicWorkflowFactory.CreateMusicNotificationEngine(_client, _logger);
+                }
+
+                _musicNotificationEngine?.Start();
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Error while starting music notification engine: " + ex.Message);
             }
         }
 

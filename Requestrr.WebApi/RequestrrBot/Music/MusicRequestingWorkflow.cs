@@ -12,7 +12,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         private readonly IMusicSearcher _musicSearcher;
         private readonly IMusicRequester _requester;
         private readonly IMusicUserInterface _userInterface;
-        //private readonly IMusicNotificationWorkflow _notificationWorkflow;
+        private readonly IMusicNotificationWorkflow _notificationWorkflow;
 
 
         public MusicRequestingWorkflow(
@@ -20,7 +20,8 @@ namespace Requestrr.WebApi.RequestrrBot.Music
             int categoryId,
             IMusicSearcher searcher,
             IMusicRequester requester,
-            IMusicUserInterface userInterface
+            IMusicUserInterface userInterface,
+            IMusicNotificationWorkflow notificationWorkflow
         )
         {
             _categoryId = categoryId;
@@ -28,6 +29,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
             _musicSearcher = searcher;
             _requester = requester;
             _userInterface = userInterface;
+            _notificationWorkflow = notificationWorkflow;
         }
 
 
@@ -39,7 +41,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
             {
                 if (musicList.Count > 1)
                 {
-                    await _userInterface.ShowMusicSelection(new MusicRequest(_user, _categoryId), musicList);
+                    await _userInterface.ShowMusicArtistSelection(new MusicRequest(_user, _categoryId), musicList);
                 }
                 else if (musicList.Count == 1)
                 {
@@ -58,7 +60,7 @@ namespace Requestrr.WebApi.RequestrrBot.Music
             music = await _musicSearcher.SearchMusicForArtistAsync(new MusicRequest(_user, _categoryId), artistName);
 
             if (!music.Any())
-                await _userInterface.WarnNoMusicFoundAsync(artistName);
+                await _userInterface.WarnNoMusicArtistFoundAsync(artistName);
 
             return music;
         }
@@ -70,21 +72,21 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         }
 
 
-        private async Task HandleMusicSelectionAsync(MusicArtist music)
+        private async Task HandleMusicSelectionAsync(MusicArtist musicArtist)
         {
-            if (CanBeRequested(music))
+            if (CanBeRequested(musicArtist))
             {
-                await _userInterface.DisplayMusicDetailsAsync(new MusicRequest(_user, _categoryId), music);
+                await _userInterface.DisplayMusicArtistDetailsAsync(new MusicRequest(_user, _categoryId), musicArtist);
             }
             else
             {
-                if (music.Available)
+                if (musicArtist.Available)
                 {
-                    await _userInterface.WarnMusicAlreadyAvailableAsync(music);
+                    await _userInterface.WarnMusicArtistAlreadyAvailableAsync(musicArtist);
                 }
                 else
                 {
-                    //await _notificationWorkflow.NotifyForExistingRequestAsync();
+                    await _notificationWorkflow.NotifyForExistingRequestAsync(_user.UserId, musicArtist);
                 }
             }
         }
@@ -98,17 +100,17 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         /// <returns></returns>
         public async Task RequestMusicArtistAsync(string artistId)
         {
-            MusicArtist music = await _musicSearcher.SearchMusicForArtistIdAsync(new MusicRequest(_user, _categoryId), artistId);
-            MusicRequestResult result = await _requester.RequestMusicAsync(new MusicRequest(_user, _categoryId), music);
+            MusicArtist musicArtist = await _musicSearcher.SearchMusicForArtistIdAsync(new MusicRequest(_user, _categoryId), artistId);
+            MusicRequestResult result = await _requester.RequestMusicAsync(new MusicRequest(_user, _categoryId), musicArtist);
 
             if (result.WasDenied)
             {
-                await _userInterface.DisplayRequestDeniedAsync(music);
+                await _userInterface.DisplayArtistRequestDeniedAsync(musicArtist);
             }
             else
             {
-                await _userInterface.DisplayRequestSuccessAsync(music);
-                //await _not
+                await _userInterface.DisplayArtistRequestSuccessAsync(musicArtist);
+                await _notificationWorkflow.NotifyForNewRequestAsync(_user.UserId, musicArtist);
             }
         }
 
