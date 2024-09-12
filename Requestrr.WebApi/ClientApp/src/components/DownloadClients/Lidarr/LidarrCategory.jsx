@@ -79,7 +79,7 @@ function LidarrCategory(props) {
   // }
 
   const validateName = (value) => {
-    let newIsNameValid = isNameValid;
+    let newIsNameValid = true;
     let newNameErrorMessage = undefined;
 
     if (!/\S/.test(value)) {

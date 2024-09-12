@@ -123,7 +123,7 @@ export function addLidarrCategory(category) {
         }));
 
         return new Promise((resolve, reject) => {
-            return { ok: true };
+            return { ok: false };
         });
     }
 };
@@ -163,7 +163,7 @@ export function setLidarrCategory(categoryId, field, data) {
                 let category = { ...categories[index] };
 
                 if (field === "name") {
-                    categories.name = data;
+                    category.name = data;
                 } else if (field === "profileId") {
                     category.profileId = data;
                 } else if (field === "metadataProfileId") {
@@ -182,6 +182,7 @@ export function setLidarrCategory(categoryId, field, data) {
             ...state.music.lidarr,
             categories: categories
         };
+        console.log(lidarr)
 
         dispatch(setLidarrClient({
             lidarr: lidarr
@@ -200,12 +201,7 @@ export function setLidarrCategories(categoies) {
 
         let lidarr = {
             ...state.music.lidarr,
-            hostname: connectionSettings.hostname,
-            baseUrl: connectionSettings.baseUrl,
-            port: connectionSettings.port,
-            apiKey: connectionSettings.apiKey,
-            useSSL: connectionSettings.useSSL,
-            version: connectionSettings.version
+            categoies: [...categoies]
         };
 
         dispatch(setLidarrClient({
