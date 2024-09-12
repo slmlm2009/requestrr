@@ -32,7 +32,8 @@ export default function MusicClientsReducer(state = {}, action) {
                 hasLoadedTags: false,
                 areTagsValid: false,
                 tags: []
-            }
+            },
+            otherCategories: action.payload.otherCategories
         };
     } else if (action.type === SET_DISABLED_CLIENT) {
         return {

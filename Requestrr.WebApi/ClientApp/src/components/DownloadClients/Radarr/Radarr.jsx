@@ -40,7 +40,7 @@ function Radarr(props) {
   const reduxState = useSelector((state) => {
     return {
       settings: state.movies.radarr,
-      tvCatgory: state.movies.tvCategories
+      otherCategories: state.movies.otherCategories
     }
   });
   const dispatch = useDispatch();
@@ -86,7 +86,7 @@ function Radarr(props) {
       return false;
     } else if (/^[\w-]{1,32}$/.test(value)) {
       let names = reduxState.settings.categories.map(x => x.name);
-      let matchedTV = reduxState.tvCatgory.filter(x => x.toLowerCase() === value.toLowerCase());
+      let matchedTV = reduxState.otherCategories.filter(x => x.toLowerCase() === value.toLowerCase());
 
       if (new Set(names).size !== names.length || matchedTV.length > 0) {
         return false;

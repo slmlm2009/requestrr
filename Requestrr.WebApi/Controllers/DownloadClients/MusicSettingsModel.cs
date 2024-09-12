@@ -10,5 +10,8 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
 
         [Required]
         public LidarrSettingsModel Lidarr { get; set; }
+
+        [Required]
+        public string[] OtherCategories { get; set; }
     }
 }
