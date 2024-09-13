@@ -413,6 +413,11 @@ namespace Requestrr.WebApi.RequestrrBot
                     {
                         await HandleMusicRequestAsync(e);
                     }
+                    else if (e.Id.ToLower().StartsWith("munr"))
+                    {
+                        await CreateMusicNotificationWorkflow(e)
+                            .AddNotificationArtistAsync(e.Id.Split("/").Skip(1).First(), e.Id.Split("/").Last());
+                    }
                 }
             }
             catch (System.Exception ex)
@@ -686,6 +691,13 @@ namespace Requestrr.WebApi.RequestrrBot
         {
             return _tvShowWorkflowFactory
                 .CreateRequestingWorkflow(e.Interaction, categoryId);
+        }
+
+
+        private IMusicNotificationWorkflow CreateMusicNotificationWorkflow(ComponentInteractionCreateEventArgs e)
+        {
+            return _musicWorkflowFactory
+                .CreateNotificationWorkflow(e.Interaction);
         }
 
 

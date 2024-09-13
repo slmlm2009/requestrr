@@ -48,6 +48,13 @@ namespace Requestrr.WebApi.RequestrrBot.Music
 
 
 
+        public IMusicNotificationWorkflow CreateNotificationWorkflow(DiscordInteraction interaction)
+        {
+            DiscordSettings settings = _settingsProvider.Provide();
+            return CreateMusicNotificationWorkflow(interaction, settings);
+        }
+
+
         public MusicNotificationEngine CreateMusicNotificationEngine(DiscordClient client, ILogger logger)
         {
             DiscordSettings settings = _settingsProvider.Provide();
