@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Microsoft.Extensions.Logging;
 using Requestrr.WebApi.RequestrrBot.ChatClients.Discord;
+using Requestrr.WebApi.RequestrrBot.Locale;
 using Requestrr.WebApi.RequestrrBot.Movies;
 using Requestrr.WebApi.RequestrrBot.Music;
 using System.Collections.Generic;
@@ -51,8 +52,7 @@ namespace Requestrr.WebApi.RequestrrBot.Notifications.Music
                         if (user != null)
                         {
                             DiscordDmChannel channel = await user.CreateDmChannelAsync();
-                            await channel.SendMessageAsync($"Artist ready {musicArtist.ArtistName}", DiscordMusicUserInterface.GenerateMusicArtistDetails(musicArtist));
-                            ///FIX STRING
+                            await channel.SendMessageAsync(Language.Current.DiscordNotificationMusicArtistDM.ReplaceTokens(musicArtist), DiscordMusicUserInterface.GenerateMusicArtistDetails(musicArtist));
                         }
                         else
                         {

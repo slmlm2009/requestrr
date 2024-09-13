@@ -8,6 +8,7 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
         public static string TvShowTVDBID = "[TvShowTVDBID]";
         public static string SeasonNumber = "[SeasonNumber]";
         public static string MovieTitle = "[MovieTitle]";
+        public static string MusicArtistName = "[MusicArtistName]";
         public static string AuthorUsername = "[AuthorUsername]";
         public static string BotUsername = "[BotUsername]";
         public static string MovieTMDB = "[MovieTMDB]";
@@ -434,5 +435,59 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
         public string DiscordCommandTvIssueTvdbOptionName { get; set; }
         [JsonProperty("Discord.Command.Tv.Issue.Tvdb.Option.Description")]
         public string DiscordCommandTvIssueTvdbOptionDescription { get; set; }
+
+
+
+
+        [JsonProperty("Discord.Command.Music.Request.Artist.Description")]
+        public string DiscordCommandMusicRequestArtistDescription { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Request.Artist.Option.Name")]
+        public string DiscordCommandMusicRequestArtistOptionName { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Request.Artist.Option.Description")]
+        public string DiscordCommandMusicRequestArtistOptionDescription { get; set; }
+
+        [JsonProperty("Discord.Notification.Music.Artist.Channel")]
+        public string DiscordNotificationMusicArtistChannel { get; set; }
+
+        [JsonProperty("Discord.Notification.Music.Artist.DM")]
+        public string DiscordNotificationMusicArtistDM { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.Request.Help")]
+        public string DiscordCommandMusicArtistRequestHelp { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.Request.Help.Dropdown")]
+        public string DiscordCommandMusicArtistRequestHelpDropdown { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.Request.Confirm")]
+        public string DiscordCommandMusicArtistRequestConfirm { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.AlreadyAvailable")]
+        public string DiscordCommandMusicArtistAlreadyAvailable { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.NotFound")]
+        public string DiscordCommandMusicArtistNotFound { get; set; }
+
+        [JsonProperty("Discord.Embed.Music.Quality")]
+        public string DiscordEmbedMusicQuality { get; set; }
+
+        [JsonProperty("Discord.Embed.Music.ListenNow")]
+        public string DiscordEmbedMusicListenNow { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.Request.Success")]
+        public string DiscordCommandMusicArtistRequestSuccess { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.Request.Denied")]
+        public string DiscordCommandMusicArtistRequestDenied { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.Request.AlreadyExistNotified")]
+        public string DiscordCommandMusicArtistRequestAlreadyExistNotified { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.Notification.Request")]
+        public string DiscordCommandMusicArtistNotificationRequest { get; set; }
+
+        [JsonProperty("Discord.Command.Music.Artist.Notification.Success")]
+        public string DiscordCommandMusicArtistNotificationSuccess { get; set; }
     }
 }

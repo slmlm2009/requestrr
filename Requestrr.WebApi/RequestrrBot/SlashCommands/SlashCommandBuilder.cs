@@ -129,10 +129,9 @@ namespace Requestrr.WebApi.RequestrrBot
             code = code.Replace("[REQUEST_TV_TVDB_OPTION_DESCRIPTION]", Language.Current.DiscordCommandTvRequestTvdbOptionDescription);
 
 
-            ///FIX STRING
-            code = code.Replace("[REQUEST_MUSIC_ARTIST_DESCRIPTION]", "Request music by artist"); //Language.Current.DiscordCommandMovieRequestTitleDescription);
-            code = code.Replace("[REQUEST_MUSIC_ARTIST_OPTION_NAME]", "artist"); //Language.Current.DiscordCommandMovieRequestTitleOptionName);
-            code = code.Replace("[REQUEST_MUSIC_ARTIST_OPTION_DESCRIPTION]", "name of artist"); //Language.Current.DiscordCommandMovieRequestTitleOptionDescription);
+            code = code.Replace("[REQUEST_MUSIC_ARTIST_DESCRIPTION]", Language.Current.DiscordCommandMusicRequestArtistDescription);
+            code = code.Replace("[REQUEST_MUSIC_ARTIST_OPTION_NAME]", Language.Current.DiscordCommandMusicRequestArtistOptionName);
+            code = code.Replace("[REQUEST_MUSIC_ARTIST_OPTION_DESCRIPTION]", Language.Current.DiscordCommandMusicRequestArtistOptionDescription);
 
 
             code = code.Replace("[REQUEST_PING_NAME]", Language.Current.DiscordCommandPingRequestName);

@@ -2,6 +2,7 @@
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using Requestrr.WebApi.RequestrrBot.ChatClients.Discord;
+using Requestrr.WebApi.RequestrrBot.Locale;
 using Requestrr.WebApi.RequestrrBot.Music;
 using System;
 using System.Collections.Generic;
@@ -97,8 +98,7 @@ namespace Requestrr.WebApi.RequestrrBot.Notifications.Music
             if (usersToNotify.Any())
             {
                 StringBuilder messageBuilder = new StringBuilder();
-                messageBuilder.AppendLine($"Artist is ready for {musicArtist.ArtistName}");
-                ///FIX STRING
+                messageBuilder.AppendLine(Language.Current.DiscordNotificationMusicArtistChannel.ReplaceTokens(musicArtist));
 
                 foreach (DiscordMember user in usersToNotify)
                 {

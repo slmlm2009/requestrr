@@ -27,22 +27,17 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         public async Task ShowMusicArtistSelection(MusicRequest request, IReadOnlyList<MusicArtist> music)
         {
             List<DiscordSelectComponentOption> options = music.Take(15).Select(x => new DiscordSelectComponentOption(GetFormattedMusicArtistName(x), $"{request.CategoryId}/{x.ArtistId}")).ToList();
-            DiscordSelectComponent select = new DiscordSelectComponent($"MuRSA/{_interactionContext.User.Id}/{request.CategoryId}", LimitStringSize("Select option"), options);
-            ///FIX STRING
+            DiscordSelectComponent select = new DiscordSelectComponent($"MuRSA/{_interactionContext.User.Id}/{request.CategoryId}", LimitStringSize(Language.Current.DiscordCommandMusicArtistRequestHelpDropdown), options);
 
-            await _interactionContext.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddComponents(select).WithContent("Music xxxxx"));
-            ///FIX STRING
+            await _interactionContext.EditOriginalResponseAsync(new DiscordWebhookBuilder().AddComponents(select).WithContent(Language.Current.DiscordCommandMusicArtistRequestHelp));
         }
 
 
 
         public async Task DisplayMusicArtistDetailsAsync(MusicRequest request, MusicArtist musicArtist)
         {
-            string message = "Example Message";
-            ///FIX STRING
-
-            DiscordButtonComponent requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MuRCA/{_interactionContext.User.Id}/{request.CategoryId}/{musicArtist.ArtistId}", "Request Button");
-            ///FIX STRING
+            string message = Language.Current.DiscordCommandMusicArtistRequestConfirm;
+            DiscordButtonComponent requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MuRCA/{_interactionContext.User.Id}/{request.CategoryId}/{musicArtist.ArtistId}", Language.Current.DiscordCommandRequestButton);
 
             var builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(requestButton).WithContent(message);
             await _interactionContext.EditOriginalResponseAsync(builder);
@@ -51,20 +46,15 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
         public async Task WarnMusicArtistAlreadyAvailableAsync(MusicArtist musicArtist)
         {
-            var requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"???/{_interactionContext.User.Id}/{musicArtist.ArtistId}", "Music Avalible", true);
-            ///FIX STRING
-
-            var builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(requestButton).WithContent("Music Already Available");
-            ///FIX STRING
-
+            var requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MMU/{_interactionContext.User.Id}/{musicArtist.ArtistId}", Language.Current.DiscordCommandAvailableButton, true);
+            var builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(requestButton).WithContent(Language.Current.DiscordCommandMusicArtistAlreadyAvailable);
             await _interactionContext.EditOriginalResponseAsync(builder);
         }
 
 
         public async Task WarnNoMusicArtistFoundAsync(string musicArtistName)
         {
-            await _interactionContext.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent(Language.Current.DiscordCommandMovieNotFound)); //.ReplaceTokens(????)
-            ///FIX STRING
+            await _interactionContext.EditOriginalResponseAsync(new DiscordWebhookBuilder().WithContent(Language.Current.DiscordCommandMusicArtistNotFound.ReplaceTokens(LanguageTokens.MusicArtistName, musicArtistName)));
         }
 
 
@@ -84,15 +74,13 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                 embedBuilder.WithImageUrl(musicArtist.PosterPath);
 
             if (!string.IsNullOrWhiteSpace(musicArtist.Quality))
-                embedBuilder.AddField($"__{"xxxx"}__", $"{musicArtist.Quality}", true);
+                embedBuilder.AddField($"__{Language.Current.DiscordEmbedMusicQuality}__", $"{musicArtist.Quality}", true);
 
             if (!string.IsNullOrWhiteSpace(musicArtist.PlexUrl))
-                embedBuilder.AddField($"__Plex__", $"[{"xxx"}]({musicArtist.PlexUrl})", true);
-            ///FIX STRING
+                embedBuilder.AddField($"__Plex__", $"[{Language.Current.DiscordEmbedMusicListenNow}]({musicArtist.PlexUrl})", true);
 
             if (!string.IsNullOrWhiteSpace(musicArtist.EmbyUrl))
-                embedBuilder.AddField($"__Emby__", $"[{"XXX"}]({musicArtist.EmbyUrl})", true);
-            ///FIX STRING
+                embedBuilder.AddField($"__Emby__", $"[{Language.Current.DiscordEmbedMusicListenNow}]({musicArtist.EmbyUrl})", true);
 
             return embedBuilder.Build();
         }
@@ -100,12 +88,8 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
         public async Task DisplayArtistRequestSuccessAsync(MusicArtist musicArtist)
         {
-            DiscordButtonComponent successButton = new DiscordButtonComponent(ButtonStyle.Success, $"0/1/0", "Success Button");
-            ///FIX STRING
-
-            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(successButton).WithContent("Successfully added test");
-            ///FIX STRING
-            
+            DiscordButtonComponent successButton = new DiscordButtonComponent(ButtonStyle.Success, $"0/1/0", Language.Current.DiscordCommandRequestButtonSuccess);
+            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(successButton).WithContent(Language.Current.DiscordCommandMusicArtistRequestSuccess.ReplaceTokens(musicArtist));            
             await _interactionContext.EditOriginalResponseAsync(builder);
         }
 
@@ -113,12 +97,8 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
         public async Task DisplayArtistRequestDeniedAsync(MusicArtist musicArtist)
         {
-            DiscordButtonComponent deniedButton = new DiscordButtonComponent(ButtonStyle.Danger, $"0/1/0", "Deny Button Text");
-            ///FIX STRING
-
-            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(deniedButton).WithContent("Request Denied");
-            ///FIX STRING
-            
+            DiscordButtonComponent deniedButton = new DiscordButtonComponent(ButtonStyle.Danger, $"0/1/0", Language.Current.DiscordCommandRequestButtonDenied);
+            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(deniedButton).WithContent(Language.Current.DiscordCommandMusicArtistRequestDenied);
             await _interactionContext.EditOriginalResponseAsync(builder);
         }
 
@@ -126,10 +106,8 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
         public async Task WarnMusicArtistUnavailableAndAlreadyHasNotificationAsync(MusicArtist musicArtist)
         {
-            DiscordButtonComponent requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MMM/{_interactionContext.User.Id}/{musicArtist.ArtistId}", Language.Current.DiscordCommandRequestButton, true);
-
-            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(requestButton).WithContent("FIX STRING");
-            ///FIX STRING
+            DiscordButtonComponent requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MMU/{_interactionContext.User.Id}/{musicArtist.ArtistId}", Language.Current.DiscordCommandRequestButton, true);
+            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(requestButton).WithContent(Language.Current.DiscordCommandMusicArtistRequestAlreadyExistNotified);
             await _interactionContext.EditOriginalResponseAsync(builder);
         }
 
@@ -137,10 +115,8 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
         public async Task AskForNotificationArtistRequestAsync(MusicArtist musicArtist)
         {
-            var notificationButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MNR/{_interactionContext.User.Id}/{musicArtist.ArtistId}", Language.Current.DiscordCommandRequestButton, true);
-
-            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(notificationButton).WithContent("FIX STRING");
-            ///FIX STRING
+            var notificationButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MuNR/{_interactionContext.User.Id}/{musicArtist.ArtistId}", Language.Current.DiscordCommandRequestButton, false, new DiscordComponentEmoji(DiscordEmoji.FromUnicode("🔔")));
+            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(notificationButton).WithContent(Language.Current.DiscordCommandMusicArtistNotificationRequest);
             await _interactionContext.EditOriginalResponseAsync(builder);
         }
 
@@ -148,9 +124,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
         public async Task DisplayNotificationArtistSuccessAsync(MusicArtist musicArtist)
         {
             DiscordButtonComponent successButton = new DiscordButtonComponent(ButtonStyle.Success, $"0/1/0", Language.Current.DiscordCommandNotifyMeSuccess);
-
-            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(successButton).WithContent("FIX STRING");
-            ///FIX STRING
+            DiscordWebhookBuilder builder = (await AddPreviousDropdownsAsync(musicArtist, new DiscordWebhookBuilder().AddEmbed(GenerateMusicArtistDetails(musicArtist)))).AddComponents(successButton).WithContent(Language.Current.DiscordCommandMusicArtistNotificationSuccess.ReplaceTokens(musicArtist));
             await _interactionContext.EditOriginalResponseAsync(builder);
         }
 
