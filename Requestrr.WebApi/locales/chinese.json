@@ -133,5 +133,22 @@
   "Discord.Command.Tv.Issue.Tvdb.Name": "tv-tvdb",
   "Discord.Command.Tv.Issue.Tvdb.Description": "按 tvdb id 報告電視節目問題",
   "Discord.Command.Tv.Issue.Tvdb.Option.Name": "id",
-  "Discord.Command.Tv.Issue.Tvdb.Option.Description": "電視節目的 tvdb id"
+  "Discord.Command.Tv.Issue.Tvdb.Option.Description": "電視節目的 tvdb id",
+  "Discord.Command.Music.Request.Artist.Description": "按藝術家索取音樂",
+  "Discord.Command.Music.Request.Artist.Option.Name": "藝術家",
+  "Discord.Command.Music.Request.Artist.Option.Description": "藝術家姓名",
+  "Discord.Command.Music.Artist.Request.Success": "您對 **[MusicArtistName]** 的請求已成功發送！",
+  "Discord.Command.Music.Artist.Request.Denied": "由於權限不足或配額限制，您的要求被提供者拒絕。",
+  "Discord.Command.Music.Artist.Request.AlreadyExistNotified": "該藝術家已被要求，當該藝術家可用時您將收到通知。",
+  "Discord.Command.Music.Artist.Request.Help": "請從下面的清單中選擇一位藝術家",
+  "Discord.Command.Music.Artist.Request.Help.Dropdown": "在這裡選擇一位藝術家",
+  "Discord.Command.Music.Artist.Request.Confirm": "如果您想請求該藝術家的音樂，請點擊此訊息正下方的請求按鈕。",
+  "Discord.Command.Music.Artist.Notification.Request": "該藝術家已被要求，您可以直接點擊此訊息下方的「通知我」按鈕，以便在音樂可用時收到通知。",
+  "Discord.Command.Music.Artist.Notification.Success": "現在，只要 **[MusicArtistName]** 可供收聽，您就會收到通知。",
+  "Discord.Command.Music.Artist.AlreadyAvailable": "這位藝術家已經可以使用，盡情享受吧！",
+  "Discord.Command.Music.Artist.NotFound": "我找不到任何名為 \"[MusicArtistName]\" 的藝術家，請嘗試其他名稱。",
+  "Discord.Embed.Music.Quality": "质量",
+  "Discord.Embed.Music.ListenNow": "現在聽",
+  "Discord.Notification.Music.Artist.Channel": "來自 **[MusicArtistName]** 的音樂已開始下載！",
+  "Discord.Notification.Music.Artist.DM": "來自 **[MusicArtistName]** 的音樂已開始下載！"
 }

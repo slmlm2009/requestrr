@@ -133,5 +133,22 @@
   "Discord.Command.Tv.Issue.Tvdb.Name": "tv-tvdb",
   "Discord.Command.Tv.Issue.Tvdb.Description": "Signaler un problème d'émission de télévision par identifiant tvdb",
   "Discord.Command.Tv.Issue.Tvdb.Option.Name": "id",
-  "Discord.Command.Tv.Issue.Tvdb.Option.Description": "identifiant tvdb de l'émission de télévision"
+  "Discord.Command.Tv.Issue.Tvdb.Option.Description": "identifiant tvdb de l'émission de télévision",
+  "Discord.Command.Music.Request.Artist.Description": "Demander de la musique par artiste",
+  "Discord.Command.Music.Request.Artist.Option.Name": "artiste",
+  "Discord.Command.Music.Request.Artist.Option.Description": "nom de l'artiste",
+  "Discord.Command.Music.Artist.Request.Success": "Votre demande de **[MusicArtistName]** a été envoyée avec succès!",
+  "Discord.Command.Music.Artist.Request.Denied": "Votre demande a été refusée par le fournisseur en raison d'autorisations insuffisantes ou de limites de quota.",
+  "Discord.Command.Music.Artist.Request.AlreadyExistNotified": "Cet artiste a déjà été demandé et vous serez averti dès qu'il sera disponible.",
+  "Discord.Command.Music.Artist.Request.Help": "Veuillez sélectionner un artiste dans la liste ci-dessous",
+  "Discord.Command.Music.Artist.Request.Help.Dropdown": "Sélectionnez un artiste ici",
+  "Discord.Command.Music.Artist.Request.Confirm": "Si vous souhaitez demander de la musique à cet artiste, veuillez cliquer sur le bouton de demande directement sous ce message.",
+  "Discord.Command.Music.Artist.Notification.Request": "Cet artiste a déjà été demandé, vous pouvez cliquer sur le bouton me prévenir directement sous ce message pour être averti lorsque la musique sera disponible.",
+  "Discord.Command.Music.Artist.Notification.Success": "Vous recevrez désormais une notification dès que **[MusicArtistName]** sera disponible pour l'écoute.",
+  "Discord.Command.Music.Artist.AlreadyAvailable": "Cet artiste est déjà disponible, profitez-en!",
+  "Discord.Command.Music.Artist.NotFound": "Je n'ai trouvé aucun artiste portant le nom \"[MusicArtistName]\", veuillez essayer quelque chose de différent.",
+  "Discord.Embed.Music.Quality": "Qualité",
+  "Discord.Embed.Music.ListenNow": "Écoute maintenant",
+  "Discord.Notification.Music.Artist.Channel": "Le téléchargement de la musique de **[MusicArtistName]** a commencé!",
+  "Discord.Notification.Music.Artist.DM": "Le téléchargement de la musique de **[MusicArtistName]** a commencé!"
 }
