@@ -19,7 +19,6 @@ namespace Requestrr.WebApi.Controllers.DownloadClients.Lidarr
         public int ProfileId { get; set; }
         public int MetadataProfileId { get; set; }
         public string RootFolder { get; set; }
-        //public string MinimumAvailability { get; set; }
         public int[] Tags { get; set; } = Array.Empty<int>();
     }
 }
