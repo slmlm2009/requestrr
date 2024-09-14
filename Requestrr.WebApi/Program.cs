@@ -119,9 +119,9 @@ namespace Requestrr.WebApi
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error reading config folder location.");
+                Console.WriteLine("Error reading config folder location.  Using default location.");
                 Console.WriteLine(e.Message);
-                return;
+                SettingsFile.SettingsFolder = "./config";
             }
 
             UpdateSettingsFile();
