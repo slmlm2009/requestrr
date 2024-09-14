@@ -106,6 +106,7 @@
   "Discord.Embed.Tv.Seasons": "季",
   "Discord.Embed.Tv.WatchNow": "现在观看",
   "Discord.Command.Movie.Issue.Select": "請選擇此消息下的電影和問題。",
+  "Discord.Command.Issue.CreatedBy": "提出者： [Username]",
   "Discord.Command.Issue.Help.Dropdown": "在此選擇問題",
   "Discord.Command.IssueButton": "提交問題",
   "Discord.Command.Movie.Issue.Success": "您的 **[MovieTitle]** 問題已成功發送！",

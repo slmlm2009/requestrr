@@ -106,6 +106,7 @@
   "Discord.Embed.Tv.Seasons": "Staffeln",
   "Discord.Embed.Tv.WatchNow": "Jetzt anschauen",
   "Discord.Command.Movie.Issue.Select": "Bitte wählen Sie unter dieser Nachricht den Film und das Problem aus.",
+  "Discord.Command.Issue.CreatedBy": "Aufgewachsen von: [Username]",
   "Discord.Command.Issue.Help.Dropdown": "Wählen Sie hier das Problem aus",
   "Discord.Command.IssueButton": "Problem einreichen",
   "Discord.Command.Movie.Issue.Success": "Ihr Problem für **[MovieTitle]** wurde erfolgreich gesendet!",

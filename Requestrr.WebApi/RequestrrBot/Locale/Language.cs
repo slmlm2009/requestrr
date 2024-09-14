@@ -16,6 +16,7 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
 
         public static string IssueLabel = "[Issue]";
         public static string IssueTitle = "[Title]";
+        public static string IssueUsername = "[Username]";
 
         public static string FullCommandList = "[FullCommandList]";
 
@@ -360,6 +361,9 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
 
         [JsonProperty("Discord.Command.Movie.Issue.Select")]
         public string DiscordCommandMovieIssueSelect { get; set; }
+
+        [JsonProperty("Discord.Command.Issue.CreatedBy")]
+        public string DiscordCommandIssueCreatedBy { get; set; }
 
         [JsonProperty("Discord.Command.Issue.Help.Dropdown")]
         public string DiscordCommandIssueHelpDropdown { get; set; }

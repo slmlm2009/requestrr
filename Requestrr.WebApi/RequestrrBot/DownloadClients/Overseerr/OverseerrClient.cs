@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Requestrr.WebApi.Extensions;
+using Requestrr.WebApi.RequestrrBot.Locale;
 using Requestrr.WebApi.RequestrrBot.Movies;
 using Requestrr.WebApi.RequestrrBot.TvShows;
 
@@ -378,7 +379,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                 response = await HttpPostAsync(null, $"{BaseURL}issue", JsonConvert.SerializeObject(new
                 {
                     issueType = int.Parse(issueValue),
-                    message = $"{issueDescription}\n\nRaised by: {overseerrUser}",
+                    message = $"{issueDescription}\n\n{Language.Current.DiscordCommandIssueCreatedBy.ReplaceTokens(LanguageTokens.IssueUsername, overseerrUser)}",
                     mediaId = interalMediaId
                 }));
 
@@ -644,7 +645,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                 response = await HttpPostAsync(null, $"{BaseURL}issue", JsonConvert.SerializeObject(new
                 {
                     issueType = int.Parse(issueValue),
-                    message = $"{issueDescription}\n\nRaised by: {overseerrUser}",
+                    message = $"{issueDescription}\n\n{Language.Current.DiscordCommandIssueCreatedBy.ReplaceTokens(LanguageTokens.IssueUsername, overseerrUser)}",
                     mediaId = interalMediaId
                 }));
 
