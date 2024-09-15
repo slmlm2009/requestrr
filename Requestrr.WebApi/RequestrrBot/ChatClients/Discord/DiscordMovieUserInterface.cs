@@ -120,7 +120,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             DiscordSelectComponent select = new DiscordSelectComponent($"MIRS/{_interactionContext.User.Id}/{request.CategoryId}/{movie.TheMovieDbId}", LimitStringSize(Language.Current.DiscordCommandIssueHelpDropdown), options);
 
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder().AddEmbed(await GenerateMovieDetailsAsync(movie, _movieSearcher));
-            if ((await _interactionContext.GetOriginalResponseAsync()).Components.Where(x => x.Components.Where(y => y.GetType() == typeof(DiscordSelectComponent)).ToList().Count > 0).ToList().Count > 1)
+            if ((await _interactionContext.GetOriginalResponseAsync()).FilterComponents<DiscordSelectComponent>().ToList().Count > 1)
             {
                 builder = await AddPreviousDropdownsAsync(movie, builder);
             }
@@ -297,7 +297,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
         private async Task<DiscordWebhookBuilder> AddPreviousDropdownsAsync(Movie movie, DiscordWebhookBuilder builder)
         {
-            var previousMovieSelector = (DiscordSelectComponent)(await _interactionContext.GetOriginalResponseAsync()).Components.FirstOrDefault(x => x.Components.OfType<DiscordSelectComponent>().Any())?.Components?.Single();
+            var previousMovieSelector = (DiscordSelectComponent)(await _interactionContext.GetOriginalResponseAsync()).FilterComponents<DiscordSelectComponent>().FirstOrDefault();
 
             if (previousMovieSelector != null)
             {
