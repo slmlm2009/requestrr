@@ -178,7 +178,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             var embed = GenerateTvShowDetailsAsync(tvShow);
 
             DiscordWebhookBuilder builder = new DiscordWebhookBuilder().AddEmbed(embed);
-            if ((await _interactionContext.GetOriginalResponseAsync()).Components.Where(x => x.Components.Where(y => y.GetType() == typeof(DiscordSelectComponent)).ToList().Count > 0).ToList().Count > 1)
+            if ((await _interactionContext.GetOriginalResponseAsync()).FilterComponents<DiscordSelectComponent>().ToList().Count > 1)
             {
                 builder = await AddPreviousDropdownsAsync(tvShow, builder);
             }
@@ -393,8 +393,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
         private async Task<DiscordWebhookBuilder> AddPreviousDropdownsAsync(TvShow tvShow, DiscordWebhookBuilder builder)
         {
-            var selectors = (await _interactionContext.GetOriginalResponseAsync()).Components.SelectMany(x => x.Components).OfType<DiscordSelectComponent>();
-
+            var selectors = (await _interactionContext.GetOriginalResponseAsync()).FilterComponents<DiscordSelectComponent>();
             DiscordSelectComponent previousTvSelector = selectors.FirstOrDefault(x => x.CustomId.StartsWith("TRS", true, null));
 
             if (previousTvSelector != null)

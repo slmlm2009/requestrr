@@ -9,6 +9,7 @@ using Requestrr.WebApi.Extensions;
 using Requestrr.WebApi.RequestrrBot.ChatClients.Discord;
 using Requestrr.WebApi.RequestrrBot.Movies;
 using Requestrr.WebApi.RequestrrBot.TvShows;
+using Requestrr.WebApi.RequestrrBot.Music;
 using Requestrr.WebApi.RequestrrBot.Locale;
 using System.Collections.Generic;
 
@@ -122,6 +123,28 @@ namespace Requestrr.WebApi.RequestrrBot
             }
             [TVDB_COMMAND_END]
             [TV_COMMAND_END]
+
+
+            [MUSIC_COMMAND_START]
+            [SlashCommand("[REQUEST_MUSIC_ARTIST_NAME]", "[REQUEST_MUSIC_ARTIST_DESCRIPTION]")]
+            [RequireRoles(new ulong[] { [REQUIRED_MUSIC_ROLE_IDS] })]
+            [RequireChannels(new ulong[] { [REQUIRED_CHANNEL_IDS] })]
+            public async Task MusicArtistByName[MUSIC_CATEGORY_ID](InteractionContext ctx, [Option("[REQUEST_MUSIC_ARTIST_OPTION_NAME]", "[REQUEST_MUSIC_ARTIST_OPTION_DESCRIPTION]")] string artistName)
+            {
+                try
+                {
+                    var settings = _serviceProvider.Get<DiscordSettingsProvider>().Provide();
+                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(settings.AutomaticallyPurgeCommandMessages).WithContent(Language.Current.DiscordCommandSending));
+
+                    var workFlow = _serviceProvider.Get<MusicWorkflowFactory>().CreateRequestingWorkflow(ctx.Interaction, [MUSIC_CATEGORY_ID]);
+                    await workFlow.SearchMusicForArtistAsync(artistName.Trim());
+                }
+                catch (System.Exception ex)
+                {
+                    _logger.LogError(ex, $"Error while searching Music for artist {artistName} : " + ex.Message);
+                }
+            }
+            [MUSIC_COMMAND_END]
         }
         [REQUEST_COMMAND_END]
 

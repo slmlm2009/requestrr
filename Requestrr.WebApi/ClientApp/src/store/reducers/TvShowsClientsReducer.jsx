@@ -59,7 +59,7 @@ export default function TvShowsClientsReducer(state = {}, action) {
         languages: [],
       },
       restrictions: action.payload.restrictions,
-      movieCatgory: action.payload.movieCategories
+      otherCategories: action.payload.otherCategories
     };
   } else if (action.type === SET_DISABLED_CLIENT) {
     return {

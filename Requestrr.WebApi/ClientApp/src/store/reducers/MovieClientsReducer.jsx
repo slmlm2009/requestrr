@@ -54,7 +54,7 @@ export default function MovieClientsReducer(state = {}, action) {
         areTagsValid: false,
         tags: [],
       },
-      tvCategories: action.payload.tvCategories
+      otherCategories: action.payload.otherCategories
     };
   } else if (action.type === SET_DISABLED_CLIENT) {
     return {

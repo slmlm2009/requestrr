@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Sonarr;
@@ -257,6 +259,43 @@ namespace Requestrr.WebApi
                 ((JObject)settingsJson["DownloadClients"]["Ombi"]).Add("UseMovieIssue", false);
                 ((JObject)settingsJson["DownloadClients"]["Ombi"]).Add("UseTVIssue", false);
 
+                File.WriteAllText(settingsFilePath, JsonConvert.SerializeObject(settingsJson));
+            }
+
+            if (settingsJson.Version.ToString().Equals("2.1.2", StringComparison.InvariantCultureIgnoreCase))
+            {
+                settingsJson.Version = "2.1.3";
+
+                LidarrSettings lidarrBlankSettings = new LidarrSettings
+                {
+                    Hostname = string.Empty,
+                    Port = 8686,
+                    ApiKey = string.Empty,
+                    BaseUrl = string.Empty,
+                    Categories = new LidarrCategory[] {
+                        new LidarrCategory {
+                            Id = 0,
+                            Name = "music",
+                            ProfileId = 1,
+                            MetadataProfileId = 1,
+                            RootFolder = string.Empty,
+                            Tags = Array.Empty<int>(),
+                        }
+                    },
+                    SearchNewRequests = true,
+                    MonitorNewRequests = true,
+                    UseSSL = false,
+                    Version = "1"
+                };
+
+                var musicClient = new
+                {
+                    Client = "Disabled"
+                };
+
+                ((JObject)settingsJson["DownloadClients"]).Add("Lidarr", JToken.FromObject(lidarrBlankSettings));
+                ((JObject)settingsJson).Add("Music", JToken.FromObject(musicClient));
+                ((JObject)settingsJson.ChatClients.Discord).Add("MusicRoles", JToken.FromObject(new List<string>()));
                 File.WriteAllText(settingsFilePath, JsonConvert.SerializeObject(settingsJson));
             }
         }

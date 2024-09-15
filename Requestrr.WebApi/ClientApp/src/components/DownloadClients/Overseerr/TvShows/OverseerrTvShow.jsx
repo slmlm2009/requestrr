@@ -39,7 +39,7 @@ function OverseerrTvShow(props) {
   const reduxState = useSelector((state) => {
     return {
       settings: state.tvShows.overseerr,
-      movieCatgory: state.tvShows.movieCatgory
+      otherCategories: state.tvShows.otherCategories
     }
   });
   const dispatch = useDispatch();
@@ -181,7 +181,7 @@ function OverseerrTvShow(props) {
       return false;
     } else if (/^[\w-]{1,32}$/.test(category.name)) {
       let names = reduxState.settings.categories.map(x => x.name);
-      let matchedMovie = reduxState.movieCatgory.filter(x => x.toLowerCase() === category.name.toLowerCase());
+      let matchedMovie = reduxState.otherCategories.filter(x => x.toLowerCase() === category.name.toLowerCase());
 
       if (new Set(names).size !== names.length) {
         return false;

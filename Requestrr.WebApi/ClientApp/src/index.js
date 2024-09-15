@@ -37,6 +37,8 @@ import RadarrClients from './store/reducers/RadarrClientsReducer';
 import SonarrClients from './store/reducers/SonarrClientsReducer';
 import OverseerrClients from './store/reducers/OverseerrClientsReducer';
 import TvShowsClients from './store/reducers/TvShowsClientsReducer';
+import LidarrClients from "./store/reducers/LidarrClientsReducer.jsx";
+import MusicClients from "./store/reducers/MusicClientsReducer.jsx";
 
 
 
@@ -60,12 +62,21 @@ function combinedTvShowsClientsReducer(state = {}, action) {
   }
 }
 
+function combinedMusicClientsReducer(state = {}, action) {
+  if (action.type.includes("lidarr")) {
+    return LidarrClients(state, action);
+  } else {
+    return MusicClients(state, action);
+  }
+}
+
 const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(thunk),
   reducer: {
     user: UserReducer,
     chatClients: ChatClients,
     movies: combinedMovieClientsReducer,
+    music: combinedMusicClientsReducer,
     tvShows: combinedTvShowsClientsReducer,
     settings: SettingsReducer
   }

@@ -1,20 +1,39 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Runtime;
 using Newtonsoft.Json.Linq;
+using Requestrr.WebApi.Controllers.DownloadClients.Lidarr;
 using Requestrr.WebApi.Controllers.DownloadClients.Ombi;
 using Requestrr.WebApi.Controllers.DownloadClients.Overseerr;
 using Requestrr.WebApi.Controllers.DownloadClients.Radarr;
 using Requestrr.WebApi.Controllers.DownloadClients.Sonarr;
 using Requestrr.WebApi.RequestrrBot;
+using Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Sonarr;
 using Requestrr.WebApi.RequestrrBot.Movies;
+using Requestrr.WebApi.RequestrrBot.Music;
 using Requestrr.WebApi.RequestrrBot.TvShows;
 
 namespace Requestrr.WebApi.Controllers.DownloadClients
 {
     public static class DownloadClientsSettingsRepository
     {
+        /// <summary>
+        /// Sets teh music client to disabled
+        /// </summary>
+        /// <param name="musicSettings"></param>
+        public static void SetDisabledClient(MusicSettings musicSettings)
+        {
+            SettingsFile.Write(settings =>
+            {
+                NotificationsFile.ClearAllMusicNotifications();
+                settings.Music.Client = musicSettings.Client;
+            });
+        }
+
+
         public static void SetDisabledClient(MoviesSettings movieSettings)
         {
             SettingsFile.Write(settings =>
@@ -77,6 +96,47 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                 SetMovieSettings(movieSettings, settings);
             });
         }
+
+
+        /// <summary>
+        /// Handles the saving of new Lidarr settings
+        /// </summary>
+        /// <param name="musicSettings"></param>
+        /// <param name="lidarrSettings"></param>
+        public static void SetLidarr(MusicSettings musicSettings, LidarrSettingsModel lidarrSettings)
+        {
+            SettingsFile.Write(settings =>
+            {
+                settings.DownloadClients.Lidarr.Hostname = lidarrSettings.Hostname;
+                settings.DownloadClients.Lidarr.Port = lidarrSettings.Port;
+                settings.DownloadClients.Lidarr.ApiKey = lidarrSettings.ApiKey;
+                settings.DownloadClients.Lidarr.BaseUrl = lidarrSettings.BaseUrl;
+
+                settings.DownloadClients.Lidarr.Categories = JToken.FromObject(lidarrSettings.Categories.Select(x => new LidarrCategory
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    ProfileId = x.ProfileId,
+                    MetadataProfileId = x.MetadataProfileId,
+                    RootFolder = x.RootFolder,
+                    Tags = x.Tags
+                }).ToArray());
+
+                settings.DownloadClients.Lidarr.SearchNewRequests = lidarrSettings.SearchNewRequests;
+                settings.DownloadClients.Lidarr.MonitorNewRequests = lidarrSettings.MonitorNewRequests;
+
+                settings.DownloadClients.Lidarr.UseSSL = lidarrSettings.UseSSL;
+                settings.DownloadClients.Lidarr.Version = lidarrSettings.Version;
+
+                if (settings.Music.Client != musicSettings.Client)
+                {
+                    NotificationsFile.ClearAllMusicNotifications();
+                }
+
+                SetMusicSettings(musicSettings, settings);
+            });
+        }
+
 
         public static void SetDisabledClient(TvShowsSettings tvShowsSettings)
         {
@@ -190,6 +250,22 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
             }
 
             settings.Movies.Client = movieSettings.Client;
+        }
+
+        
+        /// <summary>
+        /// Handles the updating of the music client name in settings
+        /// </summary>
+        /// <param name="musicSettings"></param>
+        /// <param name="settings"></param>
+        private static void SetMusicSettings(MusicSettings musicSettings, dynamic settings)
+        {
+            if (settings.Music.Client != musicSettings.Client)
+            {
+                NotificationsFile.ClearAllMusicNotifications();
+            }
+
+            settings.Music.Client = musicSettings.Client;
         }
     }
 }

@@ -11,6 +11,7 @@
       "StatusMessage": "/help",
       "TvShowRoles": [],
       "MovieRoles": [],
+      "MusicRoles": [],
       "MonitoredChannels": [],
       "EnableRequestsThroughDirectMessages": false,
       "AutomaticallyNotifyRequesters": true,
@@ -21,6 +22,26 @@
     "Language": "english"
   },
   "DownloadClients": {
+    "Lidarr": {
+      "Hostname": "",
+      "Port": 8686,
+      "ApiKey": "",
+      "BaseUrl": "",
+      "Categories": [
+        {
+          "Id": 0,
+          "Name": "music",
+          "ProfileId": "1",
+          "MetadataProfileId": "1",
+          "RootFolder": "",
+          "Tags": []
+        }
+      ],
+      "SearchNewRequests": true,
+      "MonitorNewRequests": true,
+      "UseSSL": false,
+      "Version": "1"
+    },
     "Ombi": {
       "Hostname": "",
       "Port": 3579,
@@ -98,6 +119,9 @@
   "Movies": {
     "Client": "Disabled"
   },
+  "Music": {
+    "Client": "Disabled"
+  },
   "TvShows": {
     "Client": "Disabled",
     "Restrictions": "None"
@@ -105,5 +129,5 @@
   "Port": 4545,
   "BaseUrl": "",
   "DisableAuthentication": false,
-  "Version": "2.1.2"
+  "Version": "2.1.3"
 }

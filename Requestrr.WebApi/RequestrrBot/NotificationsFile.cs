@@ -83,6 +83,20 @@ namespace Requestrr.WebApi.RequestrrBot
             }
         }
 
+
+        /// <summary>
+        /// Handles clearing all music notifications
+        /// </summary>
+        public static void ClearAllMusicNotifications()
+        {
+            lock (_lock)
+            {
+                _cachedNotifications.Music = JToken.FromObject(Array.Empty<int>());
+                _hasChanged = true;
+            }
+        }
+
+
         public static void WriteMovies(Dictionary<string, int[]> moviesNotifications)
         {
             lock (_lock)
@@ -113,6 +127,21 @@ namespace Requestrr.WebApi.RequestrrBot
                         }
                     ).ToArray()
                 }).ToArray());
+                _hasChanged = true;
+            }
+        }
+
+
+        public static void WriteMusicArtist(Dictionary<string, string[]> musicNotifications)
+        {
+            lock (_lock)
+            {
+                _cachedNotifications.Music = JToken.FromObject(musicNotifications.Select(x => new
+                {
+                    UserId = x.Key,
+                    MusicArtistId = x.Value
+                }).ToArray());
+
                 _hasChanged = true;
             }
         }

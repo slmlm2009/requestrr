@@ -9,11 +9,13 @@ using Requestrr.WebApi.Controllers.DownloadClients.Ombi;
 using Requestrr.WebApi.Controllers.DownloadClients.Overseerr;
 using Requestrr.WebApi.Controllers.DownloadClients.Sonarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients;
+using Requestrr.WebApi.RequestrrBot.DownloadClients.Lidarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Radarr;
 using Requestrr.WebApi.RequestrrBot.DownloadClients.Sonarr;
 using Requestrr.WebApi.RequestrrBot.Locale;
 using Requestrr.WebApi.RequestrrBot.Movies;
+using Requestrr.WebApi.RequestrrBot.Music;
 using Requestrr.WebApi.RequestrrBot.TvShows;
 using SonarrSettingsCategory = Requestrr.WebApi.Controllers.DownloadClients.Sonarr.SonarrSettingsCategory;
 
@@ -26,6 +28,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
     {
         private readonly MoviesSettings _moviesSettings;
         private readonly TvShowsSettings _tvShowsSettings;
+        private readonly MusicSettings _musicSettings;
         private readonly DownloadClientsSettings _downloadClientsSettings;
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -33,10 +36,12 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
             IHttpClientFactory httpClientFactory,
             MoviesSettingsProvider moviesSettingsProvider,
             TvShowsSettingsProvider tvShowsSettingsProvider,
+            MusicSettingsProvider musicSettingsProvider,
             DownloadClientsSettingsProvider downloadClientsSettingsProvider)
         {
             _moviesSettings = moviesSettingsProvider.Provide();
             _tvShowsSettings = tvShowsSettingsProvider.Provide();
+            _musicSettings = musicSettingsProvider.Provide();
             _downloadClientsSettings = downloadClientsSettingsProvider.Provide();
             _httpClientFactory = httpClientFactory;
         }
@@ -44,25 +49,35 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
         [HttpGet()]
         public async Task<IActionResult> GetAsync()
         {
-            List<string> movieCategories = new List<string>();
+            List<string> otherCategories = new List<string>();
             switch (_moviesSettings.Client)
             {
                 case "Radarr":
                     foreach (RadarrCategory category in _downloadClientsSettings.Radarr.Categories)
                     {
-                        movieCategories.Add(category.Name.ToLower());
+                        otherCategories.Add(category.Name.ToLower());
                     }
                     break;
                 case "Overseerr":
                     foreach (RequestrrBot.DownloadClients.Overseerr.OverseerrMovieCategory category in _downloadClientsSettings.Overseerr.Movies.Categories)
                     {
-                        movieCategories.Add(category.Name.ToLower());
+                        otherCategories.Add(category.Name.ToLower());
                     }
-                    if(movieCategories.Count == 0)
-                        movieCategories.Add(Language.Current.DiscordCommandMovieRequestTitleName.ToLower());
+                    if(otherCategories.Count == 0)
+                        otherCategories.Add(Language.Current.DiscordCommandMovieRequestTitleName.ToLower());
                     break;
                 case "Ombi":
-                    movieCategories.Add(Language.Current.DiscordCommandMovieRequestTitleName.ToLower());
+                    otherCategories.Add(Language.Current.DiscordCommandMovieRequestTitleName.ToLower());
+                    break;
+            }
+
+            switch (_musicSettings.Client)
+            {
+                case "Lidarr":
+                    foreach (LidarrCategory category in _downloadClientsSettings.Lidarr.Categories)
+                    {
+                        otherCategories.Add(category.Name.ToLower());
+                    }
                     break;
             }
 
@@ -104,7 +119,7 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
                 },
                 Overseerr = _downloadClientsSettings.Overseerr,
                 Restrictions = _tvShowsSettings.Restrictions,
-                MovieCategories = movieCategories.ToArray()
+                OtherCategories = otherCategories.ToArray()
             });
         }
 

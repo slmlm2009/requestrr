@@ -20,6 +20,6 @@ namespace Requestrr.WebApi.Controllers.DownloadClients
         public string Restrictions { get; set; }
 
         [Required]
-        public string[] MovieCategories { get; set; }
+        public string[] OtherCategories { get; set; }
     }
 }
