@@ -30,19 +30,19 @@ namespace Requestrr.WebApi.RequestrrBot.Music
         }
 
 
-        public MusicRequestingWorkflow CreateRequestingWorkflow(DiscordInteraction interation, int categoryId)
+        public MusicRequestingWorkflow CreateRequestingWorkflow(DiscordInteraction interaction, int categoryId)
         {
             DiscordSettings settings = _settingsProvider.Provide();
             return new MusicRequestingWorkflow(
                 new MusicUserRequester(
-                    interation.User.Id.ToString(),
-                    interation.User.Username
+                    interaction.User.Id.ToString(),
+                    interaction.User.Username
                     ),
                 categoryId,
                 GetMusicClient<IMusicSearcher>(settings),
                 GetMusicClient<IMusicRequester>(settings),
-                new DiscordMusicUserInterface(interation, GetMusicClient<IMusicSearcher>(settings)),
-                CreateMusicNotificationWorkflow(interation, settings)
+                new DiscordMusicUserInterface(interaction, GetMusicClient<IMusicSearcher>(settings)),
+                CreateMusicNotificationWorkflow(interaction, settings)
                 );
         }
 
