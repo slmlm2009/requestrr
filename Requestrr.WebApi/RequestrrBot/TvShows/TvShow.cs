@@ -19,6 +19,7 @@ namespace Requestrr.WebApi.RequestrrBot.TvShows
         public bool HasEnded { get; set; }
         public string PlexUrl { get; set; }
         public string EmbyUrl { get; set; }
+        public string MediaUrl { get; set; }
         public string Overview { get; set; }
         public string Banner { get; set; }
         public string FirstAired { get; set; }
