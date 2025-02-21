@@ -910,6 +910,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                     || mediaStatus == MediaStatus.PARTIALLY_AVAILABLE
                     || mediaStatus == MediaStatus.AVAILABLE,
                 PlexUrl = jsonMedia.MediaInfo?.PlexUrl,
+                MediaUrl = jsonMedia.MediaInfo?.MediaUrl,
                 Overview = jsonMedia.Overview,
                 PosterPath = !string.IsNullOrWhiteSpace(jsonMedia.PosterPath) ? $"https://image.tmdb.org/t/p/w500{jsonMedia.PosterPath}" : null,
                 ReleaseDate = jsonMedia.ReleaseDate,
@@ -942,6 +943,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                 Quality = string.Empty,
                 WebsiteUrl = jsonMedia.TvdbId != null && jsonMedia.TvdbId.ToString() != "0" ? $"https://www.thetvdb.com/?id={jsonMedia.TvdbId}&tab=series" : null,
                 PlexUrl = jsonMedia.MediaInfo?.PlexUrl,
+                MediaUrl = jsonMedia.MediaInfo?.MediaUrl,
                 Overview = jsonMedia.Overview,
                 HasEnded = !jsonMedia.InProduction,
                 Network = jsonMedia.Networks.FirstOrDefault()?.Name,
@@ -1332,6 +1334,9 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
 
             [JsonProperty("plexUrl")]
             public string PlexUrl { get; set; }
+
+            [JsonProperty("mediaUrl")]
+            public string MediaUrl { get; set; }
 
             [JsonProperty("seasons")]
             public List<JSONTvSeason> Seasons { get; set; }

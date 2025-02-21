@@ -237,6 +237,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
             if (!string.IsNullOrWhiteSpace(movie.PlexUrl)) embedBuilder.AddField($"__Plex__", $"[{Language.Current.DiscordEmbedMovieWatchNow}]({movie.PlexUrl})", true);
             if (!string.IsNullOrWhiteSpace(movie.EmbyUrl)) embedBuilder.AddField($"__Emby__", $"[{Language.Current.DiscordEmbedMovieWatchNow}]({movie.EmbyUrl})", true);
+            if (!string.IsNullOrWhiteSpace(movie.MediaUrl)) embedBuilder.AddField($"__Media__", $"[{Language.Current.DiscordEmbedMovieWatchNow}]({movie.MediaUrl})", true);
 
             return embedBuilder.Build();
         }

@@ -10,6 +10,7 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
         public bool Requested { get; set; }
         public string PlexUrl { get; set; }
         public string EmbyUrl { get; set; }
+        public string MediaUrl { get; set; }
         public string Overview { get; set; }
         public string PosterPath { get; set; }
         public string ReleaseDate { get; set; }

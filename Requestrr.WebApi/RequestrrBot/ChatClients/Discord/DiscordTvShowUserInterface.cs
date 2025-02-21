@@ -51,6 +51,7 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             if (!string.IsNullOrWhiteSpace(tvShow.Quality)) embedBuilder.AddField($"__{Language.Current.DiscordEmbedTvQuality}__", $"{tvShow.Quality}p", true);
             if (!string.IsNullOrWhiteSpace(tvShow.PlexUrl)) embedBuilder.AddField($"__Plex__", $"[{Language.Current.DiscordEmbedTvWatchNow}]({tvShow.PlexUrl})", true);
             if (!string.IsNullOrWhiteSpace(tvShow.EmbyUrl)) embedBuilder.AddField($"__Emby__", $"[{Language.Current.DiscordEmbedTvWatchNow}]({tvShow.EmbyUrl})", true);
+            if (!string.IsNullOrWhiteSpace(tvShow.MediaUrl)) embedBuilder.AddField($"__Media__", $"[{Language.Current.DiscordEmbedTvWatchNow}]({tvShow.MediaUrl})", true);
 
             return embedBuilder.Build();
         }
