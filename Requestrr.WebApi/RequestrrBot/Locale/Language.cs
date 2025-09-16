@@ -34,7 +34,7 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
 #if DEBUG
         public static string BuildVersion = "Development";
 #else
-        public static string BuildVersion = "v2.1.8";
+        public static string BuildVersion = "v2.1.9";
 #endif
 
         public string Error { get; set; }
