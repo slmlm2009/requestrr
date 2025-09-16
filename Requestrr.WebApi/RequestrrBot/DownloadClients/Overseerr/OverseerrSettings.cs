@@ -26,7 +26,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
         public int Id { get; set; }
         public string Name { get; set; }
         public ServiceOption[] Profiles { get; set; } = Array.Empty<ServiceOption>();
-        public ServiceOption[] LanguageProfiles { get; set; } = Array.Empty<ServiceOption>();
+        public ServiceOption[]? LanguageProfiles { get; set; }
         public ServiceOption[] RootPaths { get; set; } = Array.Empty<ServiceOption>();
         public ServiceOption[] Tags { get; set; } = Array.Empty<ServiceOption>();
     }

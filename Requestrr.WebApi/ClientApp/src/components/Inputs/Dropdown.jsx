@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import {useMemo, useState} from "react";
 import { Select } from "react-dropdown-select";
 
 import {
@@ -15,6 +15,7 @@ function Dropdown(props) {
   if (JSON.stringify(selectedValues) !== JSON.stringify(newSelectedValues))
     setSelectedValues(newSelectedValues);
 
+  const disabled = useMemo(() => props.disabled, [props.disabled]);
 
   const onValueChange = (value) =>
     props.onChange(value);
@@ -29,6 +30,7 @@ function Dropdown(props) {
 
       <Select
         placeholder=""
+        disabled={disabled}
         className="dropdown"
         options={props.items}
         values={selectedValues}

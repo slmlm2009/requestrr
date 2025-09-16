@@ -187,7 +187,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                     sonarrService.Profiles = details.Profiles?.Select(x => new ServiceOption { Id = x.ID, Name = x.Name }).ToArray() ?? Array.Empty<ServiceOption>();
                     sonarrService.Tags = details.Tags?.Select(x => new ServiceOption { Id = x.ID, Name = x.Label }).ToArray() ?? Array.Empty<ServiceOption>();
                     sonarrService.RootPaths = details.RootFolders?.Select(x => new ServiceOption { Id = x.ID, Name = x.Path }).ToArray() ?? Array.Empty<ServiceOption>();
-                    sonarrService.LanguageProfiles = details.LanguageProfiles?.Select(x => new ServiceOption { Id = x.ID, Name = x.Name }).ToArray() ?? Array.Empty<ServiceOption>();
+                    sonarrService.LanguageProfiles = details.LanguageProfiles == null ? null : details.LanguageProfiles?.Select(x => new ServiceOption { Id = x.ID, Name = x.Name }).ToArray() ?? Array.Empty<ServiceOption>();
 
                     sonarrServiceSettings.SonarrServices = sonarrServiceSettings.SonarrServices.Concat(new[] { sonarrService }).ToArray();
                 }
@@ -723,7 +723,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                                 is4k = category.Is4K,
                                 serverId = category.ServiceId,
                                 profileId = category.ProfileId,
-                                languageProfileId = category.LanguageProfileId,
+                                languageProfileId = category.LanguageProfileId == -1 ? 0 : category.LanguageProfileId,
                                 rootFolder = category.RootFolder,
                                 tags = JToken.FromObject(category.Tags),
                                 userId = int.Parse(overseerrUser),
@@ -755,7 +755,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                                 mediaType = "tv",
                                 seasons = wantedSeasonIds.ToArray(),
                                 profileId = category.ProfileId,
-                                languageProfileId = category.LanguageProfileId,
+                                languageProfileId = category.LanguageProfileId == -1 ? 0 : category.LanguageProfileId,
                                 rootFolder = category.RootFolder,
                                 serverId = category.ServiceId,
                                 tags = JToken.FromObject(category.Tags),
@@ -773,7 +773,7 @@ namespace Requestrr.WebApi.RequestrrBot.DownloadClients.Overseerr
                             is4k = category.Is4K,
                             serverId = category.ServiceId,
                             profileId = category.ProfileId,
-                            languageProfileId = category.LanguageProfileId,
+                            languageProfileId = category.LanguageProfileId == -1 ? 0 : category.LanguageProfileId,
                             rootFolder = category.RootFolder,
                             tags = JToken.FromObject(category.Tags)
                         }));

@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useRef } from "react";
+import {useEffect, useState, useRef, useMemo} from "react";
 import { Oval } from 'react-loader-spinner'
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert } from "reactstrap";
@@ -110,6 +110,22 @@ function OverseerrTvShowCategory(props) {
     setIsOpen(false);
     setTimeout(() => dispatch(removeOverseerrCategory(props.category.id), 150));
   };
+  
+  
+  const disableLanguageSelection = useMemo(() => {
+      if (reduxState.overseerr.sonarrServiceSettings.sonarrServices.some(x => x.id === props.category.serviceId))
+          return reduxState.overseerr.sonarrServiceSettings.sonarrServices.filter(x => x.id === props.category.serviceId)[0].languageProfiles === null;
+
+      return false;
+  }, [props.category.serviceId, reduxState.overseerr.sonarrServiceSettings.sonarrServices]);
+  
+  const languageProfiles = useMemo(() => {
+      if (disableLanguageSelection)
+          return [];
+
+      return reduxState.overseerr.sonarrServiceSettings.sonarrServices.some(x => x.id === props.category.serviceId) ? reduxState.overseerr.sonarrServiceSettings.sonarrServices.filter(x => x.id === props.category.serviceId)[0].languageProfiles.map(x => { return { name: x.name, value: x.id } }) : [];
+  }, [disableLanguageSelection, props.category.serviceId]);
+
 
 
   return (
@@ -247,10 +263,11 @@ function OverseerrTvShowCategory(props) {
                   <div className="input-group-button">
                     <Dropdown
                       name="Language"
+                      disabled={disableLanguageSelection}
                       value={props.category.languageProfileId}
-                      items={reduxState.overseerr.sonarrServiceSettings.sonarrServices.some(x => x.id === props.category.serviceId) ? reduxState.overseerr.sonarrServiceSettings.sonarrServices.filter(x => x.id === props.category.serviceId)[0].languageProfiles.map(x => { return { name: x.name, value: x.id } }) : []}
+                      items={languageProfiles}
                       onChange={newLanguageId => setCategory("languageProfileId", newLanguageId)} />
-                    <button className="btn btn-icon btn-3 btn-default" onClick={() => dispatch(loadServiceSettings(true))} disabled={!props.canConnect} type="button">
+                    <button className="btn btn-icon btn-3 btn-default" onClick={() => dispatch(loadServiceSettings(true))} disabled={!props.canConnect || disableLanguageSelection} type="button">
                       <span className="btn-inner--icon">
                         {
                           reduxState.overseerr.isLoadinSonarrServiceSettings ? (
@@ -267,7 +284,7 @@ function OverseerrTvShowCategory(props) {
                     </button>
                   </div>
                   {
-                    (reduxState.overseerr.sonarrServiceSettings.sonarrServices.some(x => x.id === props.category.serviceId) ? reduxState.overseerr.sonarrServiceSettings.sonarrServices.filter(x => x.id === props.category.serviceId)[0].languageProfiles.map(x => { return { name: x.name, value: x.id } }) : []).length === 0 ? (
+                    (languageProfiles).length === 0 && !(disableLanguageSelection) ? (
                       <Alert className="mt-3 mb-0 text-wrap " color="warning">
                         <strong>Could not find any languages.</strong>
                       </Alert>)
