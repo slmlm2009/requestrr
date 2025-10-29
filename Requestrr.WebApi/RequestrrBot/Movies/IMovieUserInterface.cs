@@ -20,5 +20,6 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
         Task WarnMovieAlreadyRequestedAsync(Movie movie);
         Task DisplayNotificationSuccessAsync(Movie movie);
         Task AskForNotificationRequestAsync(Movie movie);
+        Task DisplayQualitySelectionAsync(MovieRequest request, Movie movie, IReadOnlyList<QualityProfile> qualityProfiles);
     }
 }

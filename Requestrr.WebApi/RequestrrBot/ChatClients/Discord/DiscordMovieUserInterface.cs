@@ -97,6 +97,15 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             await _interactionContext.EditOriginalResponseAsync(builder);
         }
 
+        public async Task DisplayQualitySelectionAsync(MovieRequest request, Movie movie, IReadOnlyList<QualityProfile> qualityProfiles)
+        {
+            var options = qualityProfiles.Select(x => new DiscordSelectComponentOption(x.Name, $"{request.CategoryId}/{movie.TheMovieDbId}/{x.Id}")).ToList();
+            var qualitySelector = new DiscordSelectComponent($"MQS/{_interactionContext.User.Id}/{request.CategoryId}", LimitStringSize(Language.Current.DiscordCommandMediaSelectQuality), options);
+
+            var builder = (await AddPreviousDropdownsAsync(movie, new DiscordWebhookBuilder().AddEmbed(await GenerateMovieDetailsAsync(movie, _movieSearcher)))).AddComponents(qualitySelector).WithContent(Language.Current.DiscordCommandMediaSelectQuality);
+            await _interactionContext.EditOriginalResponseAsync(builder);
+        }
+
 
         /// <summary>
         /// Used to generate response for user to fill in the issues of the movie

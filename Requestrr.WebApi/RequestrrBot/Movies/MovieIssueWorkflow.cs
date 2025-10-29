@@ -17,6 +17,7 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
         private readonly IMovieRequester _requester;
         private readonly IMovieUserInterface _userInterface;
         private readonly IMovieNotificationWorkflow _notificationWorkflow;
+        private readonly IQualityProfileProvider _qualityProfileProvider;
 
         public MovieIssueWorkflow(
             MovieUserRequester user,
@@ -24,7 +25,8 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
             IMovieSearcher searcher,
             IMovieRequester requester,
             IMovieUserInterface userInterface,
-            IMovieNotificationWorkflow movieNotificationWorkflow)
+            IMovieNotificationWorkflow movieNotificationWorkflow,
+            IQualityProfileProvider qualityProfileProvider)
         {
             _categoryId = categoryId;
             _user = user;
@@ -32,6 +34,7 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
             _requester = requester;
             _userInterface = userInterface;
             _notificationWorkflow = movieNotificationWorkflow;
+            _qualityProfileProvider = qualityProfileProvider;
         }
 
 

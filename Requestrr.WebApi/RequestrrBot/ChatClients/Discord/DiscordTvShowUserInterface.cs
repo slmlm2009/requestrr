@@ -151,6 +151,16 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
             await _interactionContext.EditOriginalResponseAsync(builder);
         }
 
+        public async Task DisplayQualitySelectionAsync(TvShowRequest request, TvShow tvShow, TvSeason tvSeason, IReadOnlyList<QualityProfile> qualityProfiles)
+        {
+            var embed = GenerateTvShowDetailsAsync(tvShow);
+            var options = qualityProfiles.Select(x => new DiscordSelectComponentOption(x.Name, $"{request.CategoryId}/{tvShow.TheTvDbId}/{tvSeason.SeasonNumber}/{x.Id}")).ToList();
+            var qualitySelector = new DiscordSelectComponent($"TQS/{_interactionContext.User.Id}/{request.CategoryId}", LimitStringSize(Language.Current.DiscordCommandMediaSelectQuality), options);
+
+            var builder = (await AddPreviousDropdownsAsync(tvShow, new DiscordWebhookBuilder().AddEmbed(embed))).AddComponents(qualitySelector).WithContent(Language.Current.DiscordCommandMediaSelectQuality);
+            await _interactionContext.EditOriginalResponseAsync(builder);
+        }
+
 
 
         /// <summary>

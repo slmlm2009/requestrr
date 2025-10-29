@@ -65,6 +65,7 @@
   "Discord.Command.Tv.Request.Help.Search.Dropdown": "Seleziona una serie televisiva qui",
   "Discord.Command.Tv.Request.Help.Seasons": "Seleziona una stagione dall'elenco sottostante",
   "Discord.Command.Tv.Request.Help.Seasons.Dropdown": "Seleziona una stagione qui",
+  "Discord.Command.Media.SelectQuality": "Seleziona profilo di qualità",
   "Discord.Command.Tv.Request.Confirm.Season": "Se vuoi richiedere la **stagione [SeasonNumber]** di questa serie televisiva, clicca sul pulsante di richiesta direttamente sotto questo messaggio.",
   "Discord.Command.Tv.Request.Confirm.FutureSeasons": "Se vuoi richiedere le **stagioni future** di questa serie televisiva, clicca sul pulsante di richiesta direttamente sotto questo messaggio.",
   "Discord.Command.Tv.Request.Confirm.AllSeasons": "Se vuoi richiedere **tutte le stagioni** di questa serie televisiva, clicca sul pulsante di richiesta direttamente sotto questo messaggio.",

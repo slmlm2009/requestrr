@@ -48,6 +48,9 @@ namespace Requestrr.WebApi.RequestrrBot.Locale
         [JsonProperty("Discord.Command.Tv.Request.Help.Seasons.Dropdown")]
         public string DiscordCommandTvRequestHelpSeasonsDropdown { get; set; }
 
+        [JsonProperty("Discord.Command.Media.SelectQuality")]
+        public string DiscordCommandMediaSelectQuality { get; set; }
+
         [JsonProperty("Discord.Command.MissingRoles")]
         public string DiscordCommandMissingRoles { get; set; }
 
