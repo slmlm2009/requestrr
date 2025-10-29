@@ -9,3 +9,5 @@ Requestrr.WebApi/config/settings.json
 Requestrr.WebApi/MakeReleaseBuilds
 
 Requestrr.WebApi/MakeDockerBuilds
+
+requestrr-win-x64/
