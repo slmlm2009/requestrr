@@ -144,7 +144,13 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                     ? Language.Current.DiscordCommandTvRequestConfirmFutureSeasons
                     : Language.Current.DiscordCommandTvRequestConfirmSeason.ReplaceTokens(LanguageTokens.SeasonNumber, season.SeasonNumber.ToString());
 
-            var requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"TRC/{_interactionContext.User.Id}/{request.CategoryId}/{tvShow.TheTvDbId}/{season.SeasonNumber}", Language.Current.DiscordCommandRequestButton);
+            var buttonId = $"TRC/{_interactionContext.User.Id}/{request.CategoryId}/{tvShow.TheTvDbId}/{season.SeasonNumber}";
+            if (request.QualityProfileId.HasValue)
+            {
+                buttonId += $"/{request.QualityProfileId.Value}";
+            }
+            
+            var requestButton = new DiscordButtonComponent(ButtonStyle.Primary, buttonId, Language.Current.DiscordCommandRequestButton);
 
             var embed = GenerateTvShowDetailsAsync(tvShow);
             var builder = (await AddPreviousDropdownsAsync(tvShow, new DiscordWebhookBuilder().AddEmbed(embed))).AddComponents(requestButton).WithContent(message);

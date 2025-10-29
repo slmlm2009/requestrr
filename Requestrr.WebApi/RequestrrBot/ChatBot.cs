@@ -473,10 +473,13 @@ namespace Requestrr.WebApi.RequestrrBot
             }
             else if (e.Id.ToLower().StartsWith("mrc"))
             {
-                var categoryId = int.Parse(e.Id.Split("/").Skip(2).First());
+                var splitValues = e.Id.Split("/").Skip(2).ToArray();
+                var categoryId = int.Parse(splitValues[0]);
+                var movieId = int.Parse(splitValues[1]);
+                int? qualityProfileId = splitValues.Length > 2 ? int.Parse(splitValues[2]) : null;
 
                 await CreateMovieRequestWorkFlow(e, categoryId)
-                    .RequestMovieAsync(int.Parse(e.Id.Split("/").Last()));
+                    .RequestMovieAsync(movieId, qualityProfileId);
             }
         }
 
@@ -578,9 +581,10 @@ namespace Requestrr.WebApi.RequestrrBot
                 var categoryId = int.Parse(splitValues[0]);
                 var tvDbId = int.Parse(splitValues[1]);
                 var seasonNumber = int.Parse(splitValues[2]);
+                int? qualityProfileId = splitValues.Length > 3 ? int.Parse(splitValues[3]) : null;
 
                 await CreateTvShowRequestWorkFlow(e, categoryId)
-                    .RequestSeasonSelectionAsync(tvDbId, seasonNumber);
+                    .RequestSeasonSelectionAsync(tvDbId, seasonNumber, qualityProfileId);
             }
         }
 

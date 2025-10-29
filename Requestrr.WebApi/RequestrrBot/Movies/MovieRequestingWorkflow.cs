@@ -92,7 +92,16 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
         {
             if (CanBeRequested(movie))
             {
-                await _userInterface.DisplayMovieDetailsAsync(new MovieRequest(_user, _categoryId), movie);
+                var qualityProfiles = await _qualityProfileProvider.GetQualityProfilesAsync();
+                
+                if (qualityProfiles.Count > 1)
+                {
+                    await _userInterface.DisplayQualitySelectionAsync(new MovieRequest(_user, _categoryId), movie, qualityProfiles);
+                }
+                else
+                {
+                    await _userInterface.DisplayMovieDetailsAsync(new MovieRequest(_user, _categoryId), movie);
+                }
             }
             else
             {
@@ -107,10 +116,36 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
             }
         }
 
-        public async Task RequestMovieAsync(int theMovieDbId)
+        public async Task HandleQualitySelectionAsync(int theMovieDbId, int qualityProfileId)
         {
             var movie = await _searcher.SearchMovieAsync(new MovieRequest(_user, _categoryId), theMovieDbId);
-            var result = await _requester.RequestMovieAsync(new MovieRequest(_user, _categoryId), movie);
+            var qualityProfiles = await _qualityProfileProvider.GetQualityProfilesAsync();
+            var selectedProfile = qualityProfiles.FirstOrDefault(x => x.Id == qualityProfileId);
+
+            var request = new MovieRequest(_user, _categoryId)
+            {
+                QualityProfileId = qualityProfileId,
+                QualityProfileName = selectedProfile?.Name
+            };
+
+            await _userInterface.DisplayMovieDetailsAsync(request, movie);
+        }
+
+        public async Task RequestMovieAsync(int theMovieDbId, int? qualityProfileId = null)
+        {
+            var movie = await _searcher.SearchMovieAsync(new MovieRequest(_user, _categoryId), theMovieDbId);
+            
+            var request = new MovieRequest(_user, _categoryId);
+            
+            if (qualityProfileId.HasValue)
+            {
+                var qualityProfiles = await _qualityProfileProvider.GetQualityProfilesAsync();
+                var selectedProfile = qualityProfiles.FirstOrDefault(x => x.Id == qualityProfileId.Value);
+                request.QualityProfileId = qualityProfileId;
+                request.QualityProfileName = selectedProfile?.Name;
+            }
+
+            var result = await _requester.RequestMovieAsync(request, movie);
 
             if (result.WasDenied)
             {

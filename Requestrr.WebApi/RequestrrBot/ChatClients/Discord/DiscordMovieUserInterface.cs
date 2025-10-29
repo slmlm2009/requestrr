@@ -91,7 +91,13 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                 }
             }
 
-            var requestButton = new DiscordButtonComponent(ButtonStyle.Primary, $"MRC/{_interactionContext.User.Id}/{request.CategoryId}/{movie.TheMovieDbId}", Language.Current.DiscordCommandRequestButton);
+            var buttonId = $"MRC/{_interactionContext.User.Id}/{request.CategoryId}/{movie.TheMovieDbId}";
+            if (request.QualityProfileId.HasValue)
+            {
+                buttonId += $"/{request.QualityProfileId.Value}";
+            }
+
+            var requestButton = new DiscordButtonComponent(ButtonStyle.Primary, buttonId, Language.Current.DiscordCommandRequestButton);
 
             var builder = (await AddPreviousDropdownsAsync(movie, new DiscordWebhookBuilder().AddEmbed(await GenerateMovieDetailsAsync(movie, _movieSearcher)))).AddComponents(requestButton).WithContent(message);
             await _interactionContext.EditOriginalResponseAsync(builder);
