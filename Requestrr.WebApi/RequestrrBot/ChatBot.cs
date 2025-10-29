@@ -377,7 +377,7 @@ namespace Requestrr.WebApi.RequestrrBot
 
                 if (e.User.Id == authorId)
                 {
-                    if (e.Id.ToLower().StartsWith("mr"))
+                    if (e.Id.ToLower().StartsWith("mr") || e.Id.ToLower().StartsWith("mq"))
                     {
                         await HandleMovieRequestAsync(e);
                     }
@@ -390,7 +390,7 @@ namespace Requestrr.WebApi.RequestrrBot
                         await CreateMovieNotificationWorkflow(e)
                             .AddNotificationAsync(e.Id.Split("/").Skip(1).First(), int.Parse(e.Id.Split("/").Last()));
                     }
-                    else if (e.Id.ToLower().StartsWith("tr") || e.Id.ToLower().StartsWith("ts"))
+                    else if (e.Id.ToLower().StartsWith("tr") || e.Id.ToLower().StartsWith("ts") || e.Id.ToLower().StartsWith("tq"))
                     {
                         await HandleTvRequestAsync(e);
                     }

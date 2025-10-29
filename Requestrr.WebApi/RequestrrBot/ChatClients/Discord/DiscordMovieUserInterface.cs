@@ -91,6 +91,12 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                 }
             }
 
+            if (request.QualityProfileId.HasValue)
+            {
+                var qualityName = request.QualityProfileName ?? request.QualityProfileId.Value.ToString();
+                message += "\n" + Language.Current.DiscordCommandMediaSelectedQuality.ReplaceTokens(LanguageTokens.QualityProfileName, qualityName);
+            }
+
             var buttonId = $"MRC/{_interactionContext.User.Id}/{request.CategoryId}/{movie.TheMovieDbId}";
             if (request.QualityProfileId.HasValue)
             {

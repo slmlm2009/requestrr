@@ -144,6 +144,12 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
                     ? Language.Current.DiscordCommandTvRequestConfirmFutureSeasons
                     : Language.Current.DiscordCommandTvRequestConfirmSeason.ReplaceTokens(LanguageTokens.SeasonNumber, season.SeasonNumber.ToString());
 
+            if (request.QualityProfileId.HasValue)
+            {
+                var qualityName = request.QualityProfileName ?? request.QualityProfileId.Value.ToString();
+                message += "\n" + Language.Current.DiscordCommandMediaSelectedQuality.ReplaceTokens(LanguageTokens.QualityProfileName, qualityName);
+            }
+
             var buttonId = $"TRC/{_interactionContext.User.Id}/{request.CategoryId}/{tvShow.TheTvDbId}/{season.SeasonNumber}";
             if (request.QualityProfileId.HasValue)
             {
@@ -436,9 +442,33 @@ namespace Requestrr.WebApi.RequestrrBot.ChatClients.Discord
 
                         try
                         {
-                            defaultSelectedValue = _interactionContext.Data.Values.Any()
-                           ? currentOptions.Single(x => x.Value == _interactionContext.Data.Values.Single()).Label
-                           : currentOptions.Single(x => x.Value == string.Join("/", _interactionContext.Data.CustomId.Split("/").Skip(2))).Label;
+                            var selectedValue = _interactionContext.Data.Values.Any()
+                                ? _interactionContext.Data.Values.Single()
+                                : string.Join("/", _interactionContext.Data.CustomId.Split("/").Skip(2));
+
+                            // Handle quality selection format: categoryId/tvDbId/seasonNumber/qualityId
+                            // Season selector format: tvDbId/seasonNumber
+                            if (selectedValue.Split('/').Length >= 4)
+                            {
+                                var parts = selectedValue.Split('/');
+                                var reducedValue = $"{parts[1]}/{parts[2]}"; // Extract tvDbId/seasonNumber
+                                if (currentOptions.Any(x => x.Value == reducedValue))
+                                {
+                                    selectedValue = reducedValue;
+                                }
+                            }
+                            else if (selectedValue.Split('/').Length == 3)
+                            {
+                                // Handle old format with quality ID appended
+                                var parts = selectedValue.Split('/');
+                                var reducedValue = $"{parts[0]}/{parts[1]}"; // Take first 2 parts
+                                if (currentOptions.Any(x => x.Value == reducedValue))
+                                {
+                                    selectedValue = reducedValue;
+                                }
+                            }
+
+                            defaultSelectedValue = currentOptions.Single(x => x.Value == selectedValue).Label;
                         }
                         catch { }
 

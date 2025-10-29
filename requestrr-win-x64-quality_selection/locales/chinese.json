@@ -66,6 +66,7 @@
   "Discord.Command.Tv.Request.Help.Seasons": "请在下面列表选择你想请求的季数",
   "Discord.Command.Tv.Request.Help.Seasons.Dropdown": "选择季数",
   "Discord.Command.Media.SelectQuality": "选择质量配置文件",
+  "Discord.Command.Media.SelectedQuality": "已选择的质量配置文件：[QualityProfileName]",
   "Discord.Command.Tv.Request.Confirm.Season": "如果你想请求这部电视节目的**第 [SeasonNumber] 季**请单击此消息正下方的请求按钮。",
   "Discord.Command.Tv.Request.Confirm.FutureSeasons": "如果你想请求这部电视节目的**未播出季**请单击此消息正下方的请求按钮。",
   "Discord.Command.Tv.Request.Confirm.AllSeasons": "如果你想请求这部电视节目的**所有季**请单击此消息正下方的请求按钮。",
