@@ -19,8 +19,8 @@ namespace Requestrr.WebApi.RequestrrBot.TvShows
         Task DisplayTvShowIssueModalAsync(TvShowRequest request, TvShow tvShow, string issue);
         Task CompleteTvShowIssueModalRequestAsync(TvShow tvShow, bool success);
         Task DisplayMultiSeasonSelectionAsync(TvShowRequest request, TvShow tvShow, TvSeason[] tvSeasons);
-        Task DisplayRequestDeniedForSeasonAsync(TvShow tvShow, TvSeason selectedSeason);
-        Task DisplayRequestSuccessForSeasonAsync(TvShow tvShow, TvSeason selectedSeason);
+        Task DisplayRequestDeniedForSeasonAsync(TvShowRequest request, TvShow tvShow, TvSeason selectedSeason);
+        Task DisplayRequestSuccessForSeasonAsync(TvShowRequest request, TvShow tvShow, TvSeason selectedSeason);
         Task WarnAlreadyNotifiedForSeasonsAsync(TvShow tvShow, TvSeason selectedSeason);
         Task AskForSeasonNotificationRequestAsync(TvShow tvShow, TvSeason selectedSeason);
         Task DisplayNotificationSuccessForSeasonAsync(TvShow tvShow, TvSeason selectedSeason);

@@ -14,8 +14,8 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
         Task DisplayMovieIssueDetailsAsync(MovieRequest request, Movie movie, string issue);
         Task DisplayMovieIssueModalAsync(MovieRequest request, Movie movie, string issue);
         Task CompleteMovieIssueModalRequestAsync(Movie movie, bool success);
-        Task DisplayRequestDeniedAsync(Movie movie);
-        Task DisplayRequestSuccessAsync(Movie movie);
+        Task DisplayRequestDeniedAsync(MovieRequest request, Movie movie);
+        Task DisplayRequestSuccessAsync(MovieRequest request, Movie movie);
         Task WarnMovieUnavailableAndAlreadyHasNotificationAsync(Movie movie);
         Task WarnMovieAlreadyRequestedAsync(Movie movie);
         Task DisplayNotificationSuccessAsync(Movie movie);

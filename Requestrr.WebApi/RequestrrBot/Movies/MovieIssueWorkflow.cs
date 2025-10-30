@@ -193,16 +193,17 @@ namespace Requestrr.WebApi.RequestrrBot.Movies
 
         public async Task RequestMovieAsync(int theMovieDbId)
         {
-            var movie = await _searcher.SearchMovieAsync(new MovieRequest(_user, _categoryId), theMovieDbId);
-            var result = await _requester.RequestMovieAsync(new MovieRequest(_user, _categoryId), movie);
+            var request = new MovieRequest(_user, _categoryId);
+            var movie = await _searcher.SearchMovieAsync(request, theMovieDbId);
+            var result = await _requester.RequestMovieAsync(request, movie);
 
             if (result.WasDenied)
             {
-                await _userInterface.DisplayRequestDeniedAsync(movie);
+                await _userInterface.DisplayRequestDeniedAsync(request, movie);
             }
             else
             {
-                await _userInterface.DisplayRequestSuccessAsync(movie);
+                await _userInterface.DisplayRequestSuccessAsync(request, movie);
                 await _notificationWorkflow.NotifyForNewRequestAsync(_user.UserId, movie);
             }
         }
